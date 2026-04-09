@@ -1,0 +1,91 @@
+// Prisma schema
+//
+// Defines the first production-minded content model for the platform.
+// The design keeps one canonical entity table, locale-specific translations, and explicit links for internal knowledge graph growth.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum EntityKind {
+  ARTICLE
+  PERSON
+  BOOK
+  EVENT
+  CATEGORY
+}
+
+enum EntityStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EntityLinkType {
+  RELATED
+  BELONGS_TO
+  MENTIONS
+  AUTHORED
+  INFLUENCED
+}
+
+model Entity {
+  id            String              @id @default(cuid())
+  canonicalSlug String              @unique
+  kind          EntityKind
+  status        EntityStatus        @default(DRAFT)
+  featuredYear  Int?
+  startsAtYear  Int?
+  endsAtYear    Int?
+  publishedAt   DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  translations  EntityTranslation[]
+  outgoingLinks EntityLink[]        @relation("OutgoingEntityLinks")
+  incomingLinks EntityLink[]        @relation("IncomingEntityLinks")
+
+  @@index([kind, status])
+  @@index([publishedAt])
+}
+
+model EntityTranslation {
+  id             String   @id @default(cuid())
+  entityId       String
+  locale         String   @db.VarChar(10)
+  slug           String
+  title          String
+  excerpt        String?
+  body           String?
+  seoTitle       String?
+  seoDescription String?
+  isPrimary      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  entity         Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@unique([entityId, locale])
+  @@unique([locale, slug])
+  @@index([locale, title])
+}
+
+model EntityLink {
+  id             String         @id @default(cuid())
+  sourceEntityId String
+  targetEntityId String
+  type           EntityLinkType
+  note           String?
+  sortOrder      Int            @default(0)
+  createdAt      DateTime       @default(now())
+  sourceEntity   Entity         @relation("OutgoingEntityLinks", fields: [sourceEntityId], references: [id], onDelete: Cascade)
+  targetEntity   Entity         @relation("IncomingEntityLinks", fields: [targetEntityId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceEntityId, targetEntityId, type])
+  @@index([sourceEntityId, type, sortOrder])
+  @@index([targetEntityId, type])
+}
