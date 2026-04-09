@@ -4,7 +4,9 @@
  * Provides a minimal in-memory dataset for the canonical content model and its translations.
  * This gives the project a concrete reference shape that is easy to replace later with Prisma-backed records.
  */
-import type { Book, Event, Person } from "@/lib/types/content";
+import type { Book } from "@/lib/domain/book";
+import type { Event } from "@/lib/domain/event";
+import type { Person } from "@/lib/domain/person";
 import type { Translation } from "@/lib/types/i18n";
 
 /**
