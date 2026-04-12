@@ -155,6 +155,13 @@ export function getWorkBySlug(locale: Locale, slug: string) {
 }
 
 /**
+ * Resolves a topic by localized slug with default-locale slug fallback.
+ */
+export function getTopicBySlug(locale: Locale, slug: string) {
+  return topics.find((topic) => entityMatchesSlug(topic, locale, slug));
+}
+
+/**
  * Returns all direct relationship edges for a given entity id.
  */
 function getRelationshipsForEntity(entityId: string): EntityRelationship[] {

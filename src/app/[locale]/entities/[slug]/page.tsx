@@ -1,130 +1,221 @@
 /**
- * Entity detail page
+ * Topic detail page
  *
- * Displays a single localized entity entry and its internal links.
- * Mirrors the future shape of a reference page without committing to a heavy CMS before it is needed.
+ * Uses the current generic entity route to render localized topic entries.
+ * This keeps routing stable while validating topic-specific content behavior.
  */
 import Link from "next/link";
+import type { Route } from "next";
 import { notFound } from "next/navigation";
 
 import { isLocale } from "@/i18n/config";
 import {
-  getLocalizedEntityBySlug,
-  getRelatedLocalizedEntities,
+  getDerivedConnections,
+  getEntityById,
+  getLocalizedEntity,
+  getTopicBySlug,
 } from "@/lib/content/repository";
-import { buildEntityMetadata } from "@/lib/seo";
-import { getEntityDetailCopy, getKindLabel } from "@/lib/ui-copy";
+import { buildLocaleMetadata } from "@/lib/seo";
+import type { ContentEntityType, TopicType } from "@/lib/content/types";
+import type { Locale } from "@/lib/types/i18n";
 
-type EntityDetailPageProps = {
-  params: Promise<{ locale: string; slug: string }>;
+type TopicPageProps = {
+  params: { locale: string; slug: string };
 };
 
-/**
- * Generates entity-specific metadata so detail pages are ready for search indexing and sharing.
- */
-export async function generateMetadata({ params }: EntityDetailPageProps) {
-  const { locale, slug } = await params;
+type RelatedItem = {
+  id: string;
+  title: string;
+  href: Route;
+};
 
-  if (!isLocale(locale)) {
-    return {};
-  }
+function buildEntityHref(
+  locale: Locale,
+  _entityType: ContentEntityType,
+  slug: string,
+) {
+  return `/${locale}/entities/${slug}`;
+}
 
-  const entity = getLocalizedEntityBySlug(locale, slug);
+function getTopicPageLabels(locale: Locale) {
+  const dictionary = {
+    en: {
+      topicTypeLabel: "Topic type",
+      relatedContent: "Related Content",
+      noRelatedEntries: "No related entries yet.",
+    },
+    it: {
+      topicTypeLabel: "Tipo di tema",
+      relatedContent: "Contenuti correlati",
+      noRelatedEntries: "Nessuna voce correlata al momento.",
+    },
+    ar: {
+      topicTypeLabel: "Naw al-mawdu",
+      relatedContent: "Al-Muhtawa al-Murtabit",
+      noRelatedEntries: "La tujad madkhalat murtabita hatta al-an.",
+    },
+  } as const;
 
-  if (!entity) {
-    return {};
-  }
+  return dictionary[locale];
+}
 
-  return buildEntityMetadata(locale, entity);
+function getTopicTypeLabel(locale: Locale, topicType: TopicType) {
+  const labels = {
+    en: {
+      discipline: "Discipline",
+      concept: "Concept",
+      method: "Method",
+      institution: "Institution",
+    },
+    it: {
+      discipline: "Disciplina",
+      concept: "Concetto",
+      method: "Metodo",
+      institution: "Istituzione",
+    },
+    ar: {
+      discipline: "Takhasus",
+      concept: "Mafhum",
+      method: "Manhaj",
+      institution: "Muassasa",
+    },
+  } as const;
+
+  return labels[locale][topicType];
 }
 
 /**
- * Renders a localized entity entry along with linked knowledge graph connections.
+ * Generates metadata for localized topic detail pages under the generic entity route.
  */
-export default async function EntityDetailPage({
-  params,
-}: EntityDetailPageProps) {
-  const { locale, slug } = await params;
+export async function generateMetadata({ params }: TopicPageProps) {
+  const { locale, slug } = params;
+
+  if (!isLocale(locale)) {
+    return {};
+  }
+
+  const typedLocale: Locale = locale;
+  const topic = getTopicBySlug(typedLocale, slug);
+
+  if (!topic) {
+    return {};
+  }
+
+  const localizedTopic = getLocalizedEntity(topic, typedLocale);
+
+  if (!localizedTopic) {
+    return {};
+  }
+
+  return buildLocaleMetadata(typedLocale, {
+    title: localizedTopic.localization.title,
+    description: localizedTopic.localization.excerpt,
+    path: `/entities/${localizedTopic.localization.slug}`,
+  });
+}
+
+/**
+ * Renders a localized topic entry with related people, works, and topics.
+ */
+export default async function TopicDetailPage({ params }: TopicPageProps) {
+  const { locale, slug } = params;
 
   if (!isLocale(locale)) {
     notFound();
   }
 
-  const entity = getLocalizedEntityBySlug(locale, slug);
+  const typedLocale: Locale = locale;
+  const topic = getTopicBySlug(typedLocale, slug);
 
-  if (!entity) {
+  if (!topic) {
     notFound();
   }
 
-  const relatedEntities = getRelatedLocalizedEntities(locale, entity.id);
-  const copy = getEntityDetailCopy(locale);
+  const localizedTopic = getLocalizedEntity(topic, typedLocale);
+
+  if (!localizedTopic || topic.entityType !== "topic") {
+    notFound();
+  }
+
+  const labels = getTopicPageLabels(typedLocale);
+  const derivedConnections = getDerivedConnections(topic.id);
+
+  const relatedReferences = [
+    ...derivedConnections.primaryConnections.relatedPeople,
+    ...derivedConnections.primaryConnections.relatedWorks,
+    ...derivedConnections.primaryConnections.relatedTopics,
+  ];
+
+  const relatedItems = relatedReferences
+    .map((reference) => getEntityById(reference.entityId))
+    .filter((entity): entity is NonNullable<ReturnType<typeof getEntityById>> =>
+      Boolean(entity),
+    )
+    .map((entity) => {
+      const localized = getLocalizedEntity(entity, typedLocale);
+
+      if (!localized) {
+        return null;
+      }
+
+      return {
+        id: entity.id,
+        title: localized.localization.title,
+        href: buildEntityHref(
+          typedLocale,
+          entity.entityType,
+          localized.localization.slug,
+        ) as Route,
+      };
+    })
+    .filter((item): item is RelatedItem => Boolean(item));
+
+  const orderedSections = localizedTopic.localization.sections
+    .slice()
+    .sort((a, b) => a.order - b.order);
 
   return (
-    <article className="space-y-10">
-      <header className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-8 shadow-[var(--shadow)] backdrop-blur">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--warm)]">
-          {getKindLabel(locale, entity.kind)}
-        </p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
-          {entity.title}
+    <article className="space-y-8">
+      <header className="space-y-3">
+        <h1 className="text-4xl font-semibold tracking-tight">
+          {localizedTopic.localization.title}
         </h1>
-        <p className="mt-4 max-w-3xl text-lg leading-8 text-[var(--muted)]">
-          {entity.excerpt}
+        <p className="text-lg text-[var(--muted)]">
+          {localizedTopic.localization.excerpt}
         </p>
       </header>
 
-      <section className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
-        <div className="prose-content rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface-strong)] p-7 text-base">
-          {entity.bodyParagraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
+      <section className="space-y-2">
+        <h2 className="text-2xl font-semibold">{labels.topicTypeLabel}</h2>
+        <ul className="list-disc space-y-1 pl-6 text-[var(--muted)]">
+          <li>{getTopicTypeLabel(typedLocale, topic.topicType)}</li>
+        </ul>
+      </section>
 
-        <aside className="space-y-6">
-          <section className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface-strong)] p-6">
-            <h2 className="text-xl font-semibold">{copy.aboutTitle}</h2>
-            <dl className="mt-4 space-y-3 text-sm text-[var(--muted)]">
-              <div>
-                <dt className="font-semibold text-[var(--foreground)]">
-                  {copy.typeLabel}
-                </dt>
-                <dd>{getKindLabel(locale, entity.kind)}</dd>
-              </div>
-              <div>
-                <dt className="font-semibold text-[var(--foreground)]">
-                  {copy.canonicalLabel}
-                </dt>
-                <dd>{entity.canonicalSlug}</dd>
-              </div>
-              {entity.featuredYear ? (
-                <div>
-                  <dt className="font-semibold text-[var(--foreground)]">
-                    {copy.yearLabel}
-                  </dt>
-                  <dd>{entity.featuredYear}</dd>
-                </div>
-              ) : null}
-            </dl>
+      <section className="space-y-6">
+        {orderedSections.map((section) => (
+          <section key={section.sectionKey} className="space-y-2">
+            <h2 className="text-2xl font-semibold">{section.heading}</h2>
+            <p className="leading-8 text-[var(--muted)]">{section.content}</p>
           </section>
+        ))}
+      </section>
 
-          <section className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface-strong)] p-6">
-            <h2 className="text-xl font-semibold">{copy.relatedTitle}</h2>
-            <div className="mt-4 space-y-3">
-              {relatedEntities.map((related) => (
-                <Link
-                  key={related.id}
-                  href={`/${locale}/entities/${related.slug}`}
-                  className="block rounded-2xl border border-[var(--border)] px-4 py-3 transition hover:border-[var(--accent)]"
-                >
-                  <p className="font-semibold">{related.title}</p>
-                  <p className="mt-1 text-sm text-[var(--muted)]">
-                    {related.excerpt}
-                  </p>
+      <section className="space-y-3">
+        <h2 className="text-2xl font-semibold">{labels.relatedContent}</h2>
+        {relatedItems.length === 0 ? (
+          <p className="text-[var(--muted)]">{labels.noRelatedEntries}</p>
+        ) : (
+          <ul className="list-disc space-y-1 pl-6">
+            {relatedItems.map((item) => (
+              <li key={item.id}>
+                <Link href={item.href} className="hover:underline">
+                  {item.title}
                 </Link>
-              ))}
-            </div>
-          </section>
-        </aside>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </article>
   );
