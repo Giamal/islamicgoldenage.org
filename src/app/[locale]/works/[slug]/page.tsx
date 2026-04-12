@@ -250,19 +250,21 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
     .sort((a, b) => a.order - b.order);
 
   return (
-    <article className="space-y-8">
-      <header className="space-y-3">
-        <h1 className="text-4xl font-semibold tracking-tight">
-          {localizedWork.localization.title}
-        </h1>
-        <p className="text-lg text-[var(--muted)]">
-          {localizedWork.localization.excerpt}
-        </p>
+    <article className="mx-auto w-full max-w-3xl space-y-6">
+      <header className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
+        <div className="space-y-3">
+          <h1 className="text-4xl font-semibold tracking-tight">
+            {localizedWork.localization.title}
+          </h1>
+          <p className="text-lg text-[var(--muted)]">
+            {localizedWork.localization.excerpt}
+          </p>
+        </div>
       </header>
 
-      <section className="space-y-2">
+      <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
         <h2 className="text-2xl font-semibold">{labels.typeLabel}</h2>
-        <ul className="list-disc space-y-1 pl-6 text-[var(--muted)]">
+        <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
           <li>{getWorkTypeLabel(typedLocale, work.workType)}</li>
           {work.compositionYear ? (
             <li>
@@ -277,12 +279,12 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
         </ul>
       </section>
 
-      <section className="space-y-2">
+      <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
         <h2 className="text-2xl font-semibold">{labels.contributorsLabel}</h2>
         {contributorItems.length === 0 ? (
           <p className="text-[var(--muted)]">-</p>
         ) : (
-          <ul className="list-disc space-y-1 pl-6">
+          <ul className="list-disc list-inside space-y-1">
             {contributorItems.map((contributor) => (
               <li key={contributor.id}>
                 {contributor.roleLabel}:{" "}
@@ -297,19 +299,22 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
 
       <section className="space-y-6">
         {orderedSections.map((section) => (
-          <section key={section.sectionKey} className="space-y-2">
+          <section
+            key={section.sectionKey}
+            className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2"
+          >
             <h2 className="text-2xl font-semibold">{section.heading}</h2>
             <p className="leading-8 text-[var(--muted)]">{section.content}</p>
           </section>
         ))}
       </section>
 
-      <section className="space-y-3">
+      <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-3">
         <h2 className="text-2xl font-semibold">{labels.relatedContent}</h2>
         {relatedItems.length === 0 ? (
           <p className="text-[var(--muted)]">{labels.noRelatedEntries}</p>
         ) : (
-          <ul className="list-disc space-y-1 pl-6">
+          <ul className="list-disc list-inside space-y-1">
             {relatedItems.map((item) => (
               <li key={item.id}>
                 <Link href={item.href} className="hover:underline">

@@ -11,16 +11,16 @@ import { notFound } from "next/navigation";
 import { isLocale } from "@/i18n/config";
 import {
   getDerivedConnections,
+  getEntityBySlug,
   getEntityById,
   getLocalizedEntity,
-  getTopicBySlug,
 } from "@/lib/content/repository";
 import { buildLocaleMetadata } from "@/lib/seo";
 import type { ContentEntityType, TopicType } from "@/lib/content/types";
 import type { Locale } from "@/lib/types/i18n";
 
 type TopicPageProps = {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 };
 
 type RelatedItem = {
@@ -88,14 +88,14 @@ function getTopicTypeLabel(locale: Locale, topicType: TopicType) {
  * Generates metadata for localized topic detail pages under the generic entity route.
  */
 export async function generateMetadata({ params }: TopicPageProps) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
     return {};
   }
 
   const typedLocale: Locale = locale;
-  const topic = getTopicBySlug(typedLocale, slug);
+  const topic = getEntityBySlug(typedLocale, slug);
 
   if (!topic) {
     return {};
@@ -118,14 +118,14 @@ export async function generateMetadata({ params }: TopicPageProps) {
  * Renders a localized topic entry with related people, works, and topics.
  */
 export default async function TopicDetailPage({ params }: TopicPageProps) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
     notFound();
   }
 
   const typedLocale: Locale = locale;
-  const topic = getTopicBySlug(typedLocale, slug);
+  const topic = getEntityBySlug(typedLocale, slug);
 
   if (!topic) {
     notFound();
@@ -133,7 +133,7 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
 
   const localizedTopic = getLocalizedEntity(topic, typedLocale);
 
-  if (!localizedTopic || topic.entityType !== "topic") {
+  if (!localizedTopic) {
     notFound();
   }
 
@@ -175,47 +175,60 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
     .sort((a, b) => a.order - b.order);
 
   return (
-    <article className="space-y-8">
-      <header className="space-y-3">
-        <h1 className="text-4xl font-semibold tracking-tight">
-          {localizedTopic.localization.title}
-        </h1>
-        <p className="text-lg text-[var(--muted)]">
-          {localizedTopic.localization.excerpt}
-        </p>
+    <article className="mx-auto w-full max-w-6xl space-y-8">
+      <header className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
+        <div className="space-y-3">
+          <h1 className="text-4xl font-semibold tracking-tight">
+            {localizedTopic.localization.title}
+          </h1>
+          <p className="text-lg text-[var(--muted)]">
+            {localizedTopic.localization.excerpt}
+          </p>
+        </div>
       </header>
 
-      <section className="space-y-2">
-        <h2 className="text-2xl font-semibold">{labels.topicTypeLabel}</h2>
-        <ul className="list-disc space-y-1 pl-6 text-[var(--muted)]">
-          <li>{getTopicTypeLabel(typedLocale, topic.topicType)}</li>
-        </ul>
-      </section>
+      <section className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+        <div className="space-y-6">
+          {orderedSections.map((section) => (
+            <section
+              key={section.sectionKey}
+              className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2"
+            >
+              <h2 className="text-2xl font-semibold">{section.heading}</h2>
+              <p className="leading-8 text-[var(--muted)]">{section.content}</p>
+            </section>
+          ))}
+        </div>
 
-      <section className="space-y-6">
-        {orderedSections.map((section) => (
-          <section key={section.sectionKey} className="space-y-2">
-            <h2 className="text-2xl font-semibold">{section.heading}</h2>
-            <p className="leading-8 text-[var(--muted)]">{section.content}</p>
-          </section>
-        ))}
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-2xl font-semibold">{labels.relatedContent}</h2>
-        {relatedItems.length === 0 ? (
-          <p className="text-[var(--muted)]">{labels.noRelatedEntries}</p>
-        ) : (
-          <ul className="list-disc space-y-1 pl-6">
-            {relatedItems.map((item) => (
-              <li key={item.id}>
-                <Link href={item.href} className="hover:underline">
-                  {item.title}
-                </Link>
+        <aside className="space-y-6">
+          <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
+            <h2 className="text-2xl font-semibold">{labels.topicTypeLabel}</h2>
+            <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
+              <li>
+                {topic.entityType === "topic"
+                  ? getTopicTypeLabel(typedLocale, topic.topicType as TopicType)
+                  : topic.entityType}
               </li>
-            ))}
-          </ul>
-        )}
+            </ul>
+          </section>
+
+          <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-3">
+            <h2 className="text-2xl font-semibold">{labels.relatedContent}</h2>
+            {relatedItems.length === 0 ? (
+              <p className="text-[var(--muted)]">{labels.noRelatedEntries}</p>
+            ) : (
+              <ul className="list-disc list-inside space-y-1">
+                {relatedItems.map((item) => (
+                  <li key={item.id}>
+                    <Link href={item.href} className="hover:underline">
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </aside>
       </section>
     </article>
   );
