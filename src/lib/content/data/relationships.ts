@@ -5,6 +5,30 @@ import type { EntityRelationship } from "@/lib/content/types";
 
 export const relationships: EntityRelationship[] = [
   {
+    id: "rel-muhammad-prophetic-biography",
+    from: { entityType: "person", entityId: "person-muhammad" },
+    to: { entityType: "topic", entityId: "topic-prophetic-biography" },
+    relationType: "associated_with",
+    importanceScore: 97,
+    sourceIds: [],
+  },
+  {
+    id: "rel-sirah-about-prophetic-biography",
+    from: { entityType: "work", entityId: "work-sirah-ibn-hisham" },
+    to: { entityType: "topic", entityId: "topic-prophetic-biography" },
+    relationType: "about",
+    importanceScore: 92,
+    sourceIds: [],
+  },
+  {
+    id: "rel-muhammad-sirah-associated",
+    from: { entityType: "person", entityId: "person-muhammad" },
+    to: { entityType: "work", entityId: "work-sirah-ibn-hisham" },
+    relationType: "associated_with",
+    importanceScore: 90,
+    sourceIds: [],
+  },
+  {
     id: "rel-ibn-sina-authored-canon",
     from: { entityType: "person", entityId: "person-ibn-sina" },
     to: { entityType: "work", entityId: "work-canon-of-medicine" },

@@ -24,28 +24,43 @@ export const people: PersonEntity[] = [
         locale: "en",
         slug: "muhammad",
         title: "Prophet Muhammad",
-        summary: "Foundational figure in Islamic history.",
+        summary:
+          "Religious and historical figure at the center of early Islamic history.",
         excerpt:
-          "A central historical and religious figure whose life shaped Islamic civilization.",
+          "His leadership in Mecca and Medina shaped the earliest Muslim community and left a lasting civilizational legacy.",
         seo: {
           seoTitle: "Prophet Muhammad | Person",
           seoDescription:
-            "Overview of Prophet Muhammad and his historical significance.",
+            "Concise educational overview of Prophet Muhammad's life, context, and legacy.",
         },
         sections: [
           {
             sectionKey: "introduction",
             heading: "Introduction",
             content:
-              "Prophet Muhammad is the foundational figure of Islam and an essential historical reference point for later intellectual traditions.",
+              "Prophet Muhammad is the central figure of Islam and a key historical reference point for the formation of early Muslim society.",
             order: 1,
+          },
+          {
+            sectionKey: "biography",
+            heading: "Biography",
+            content:
+              "Born in Mecca, he later migrated to Medina, where a structured community took shape under his leadership.",
+            order: 2,
+          },
+          {
+            sectionKey: "contributions",
+            heading: "Contributions",
+            content:
+              "His teachings established core religious, social, and legal principles that influenced later educational and scholarly traditions.",
+            order: 3,
           },
           {
             sectionKey: "legacy",
             heading: "Legacy",
             content:
-              "His legacy shaped educational, legal, and cultural institutions across the Islamic world.",
-            order: 2,
+              "The memory of his life became foundational for historical writing, devotional literature, and ethical thought across the Islamic world.",
+            order: 4,
           },
         ],
       },
@@ -53,21 +68,43 @@ export const people: PersonEntity[] = [
         locale: "it",
         slug: "muhammad",
         title: "Profeta Muhammad",
-        summary: "Figura fondativa della storia islamica.",
+        summary:
+          "Figura religiosa e storica centrale per la formazione della prima comunita islamica.",
         excerpt:
-          "Figura centrale religiosa e storica che ha influenzato la civilta islamica.",
+          "La sua guida tra Mecca e Medina ha avuto un impatto duraturo sulla storia politica, religiosa e culturale islamica.",
         seo: {
           seoTitle: "Profeta Muhammad | Persona",
           seoDescription:
-            "Panoramica sul Profeta Muhammad e la sua rilevanza storica.",
+            "Profilo educativo sintetico del Profeta Muhammad tra contesto storico e eredita.",
         },
         sections: [
           {
             sectionKey: "introduction",
             heading: "Introduzione",
             content:
-              "Il Profeta Muhammad e il punto di riferimento fondamentale dell'Islam.",
+              "Il Profeta Muhammad e il riferimento centrale dell'Islam e una figura decisiva della storia tardoantica.",
             order: 1,
+          },
+          {
+            sectionKey: "biography",
+            heading: "Biografia",
+            content:
+              "Nato alla Mecca, la sua migrazione a Medina segna l'avvio di una nuova fase comunitaria e politica.",
+            order: 2,
+          },
+          {
+            sectionKey: "contributions",
+            heading: "Contributi",
+            content:
+              "Le sue indicazioni religiose ed etiche influenzano in seguito istituzioni giuridiche, educative e sociali.",
+            order: 3,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "Eredita",
+            content:
+              "La memoria della sua vita diventa centrale nella storiografia, nella letteratura religiosa e nella cultura islamica.",
+            order: 4,
           },
         ],
       },
@@ -75,18 +112,36 @@ export const people: PersonEntity[] = [
         locale: "ar",
         slug: "muhammad",
         title: "Muhammad",
-        summary: "Shakhsiyya markaziyya fi al-tarikh al-islami.",
-        excerpt: "Shakhsiyya diniyya wa tarikhiyya aththarat fi hadarat al-islam.",
+        summary:
+          "Shakhsiyya diniyya wa tarikhiyya markaziyya fi nashat al-mujtama al-islami al-awwal.",
+        excerpt:
+          "Qiyadatuhu bayna Makka wa al-Madina aththarat bishaql da'im fi al-hadara al-islamiyya.",
         seo: {
           seoTitle: "Muhammad | Shakhsiyya",
-          seoDescription: "Mulakhkhas tarikh al-nabi Muhammad wa ahammiyatihi.",
+          seoDescription:
+            "Mulakhkhas ta'limi an hayat al-nabi Muhammad wa atharihi al-tarikhi.",
         },
         sections: [
           {
             sectionKey: "introduction",
             heading: "Muqaddima",
-            content: "Muhammad marja asasi fi tarikh al-islam.",
+            content:
+              "Muhammad hu marja asasi fi al-tarikh al-islami wa fi takwin al-mujtama al-awwal.",
             order: 1,
+          },
+          {
+            sectionKey: "biography",
+            heading: "Sira",
+            content:
+              "Intaqala min Makka ila al-Madina, wa kana dhalik marhala muhima fi bina al-mujtama.",
+            order: 2,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "Irth",
+            content:
+              "Turathuh aththara fi al-fikr al-dini wa al-ijtima'i wa fi kutub al-tarikh wa al-adab.",
+            order: 3,
           },
         ],
       },
@@ -113,28 +168,50 @@ export const people: PersonEntity[] = [
         locale: "en",
         slug: "ibn-sina",
         title: "Ibn Sina (Avicenna)",
-        summary: "Physician and philosopher of the Islamic Golden Age.",
+        summary:
+          "Polymath of the Islamic Golden Age known for medicine and philosophy.",
         excerpt:
-          "A major polymath whose medical and philosophical works influenced global intellectual history.",
+          "His synthesis of clinical practice and philosophical inquiry made him one of the most influential thinkers of the medieval world.",
         seo: {
           seoTitle: "Ibn Sina (Avicenna) | Person",
           seoDescription:
-            "Biography and contributions of Ibn Sina in medicine and philosophy.",
+            "Educational profile of Ibn Sina, his life, major works, and long-term influence.",
         },
         sections: [
+          {
+            sectionKey: "introduction",
+            heading: "Introduction",
+            content:
+              "Ibn Sina is remembered as a physician, philosopher, and scholar whose writings circulated across multiple intellectual traditions.",
+            order: 1,
+          },
           {
             sectionKey: "biography",
             heading: "Biography",
             content:
-              "Ibn Sina was born near Bukhara and became one of the most influential scholars of his era.",
-            order: 1,
+              "Born near Bukhara, he worked in several courts and scholarly circles, combining practical medicine with extensive study.",
+            order: 2,
           },
           {
             sectionKey: "contributions",
             heading: "Contributions",
             content:
-              "He authored major works in medicine and philosophy, including The Canon of Medicine.",
-            order: 2,
+              "His medical encyclopedia, The Canon of Medicine, and his philosophical treatises became reference texts for centuries.",
+            order: 3,
+          },
+          {
+            sectionKey: "influence",
+            heading: "Influence",
+            content:
+              "His methods shaped teaching in medicine and logic across Arabic, Persian, and later Latin scholarly environments.",
+            order: 4,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "Legacy",
+            content:
+              "Ibn Sina remains a central figure in the history of science and intellectual exchange between regions and languages.",
+            order: 5,
           },
         ],
       },
@@ -142,21 +219,43 @@ export const people: PersonEntity[] = [
         locale: "it",
         slug: "ibn-sina",
         title: "Ibn Sina (Avicenna)",
-        summary: "Medico e filosofo dell'eta dell'oro islamica.",
+        summary:
+          "Polimata dell'eta dell'oro islamica noto soprattutto per medicina e filosofia.",
         excerpt:
-          "Polimata di grande influenza nella medicina e nella filosofia.",
+          "L'unione tra pratica medica e riflessione filosofica lo rende una figura chiave della storia intellettuale medievale.",
         seo: {
           seoTitle: "Ibn Sina (Avicenna) | Persona",
           seoDescription:
-            "Biografia e contributi di Ibn Sina in medicina e filosofia.",
+            "Profilo sintetico di Ibn Sina, opere principali e influenza storica.",
         },
         sections: [
+          {
+            sectionKey: "introduction",
+            heading: "Introduzione",
+            content:
+              "Ibn Sina e ricordato come medico, filosofo e autore di testi fondamentali per la formazione scientifica medievale.",
+            order: 1,
+          },
           {
             sectionKey: "biography",
             heading: "Biografia",
             content:
-              "Ibn Sina nacque vicino a Bukhara e divenne uno dei grandi studiosi del suo tempo.",
-            order: 1,
+              "Nato nell'area di Bukhara, opero in diversi contesti politici e culturali mantenendo una forte attivita di studio.",
+            order: 2,
+          },
+          {
+            sectionKey: "contributions",
+            heading: "Contributi",
+            content:
+              "Il Canone della Medicina e altre opere sistematizzano il sapere medico e filosofico con grande chiarezza.",
+            order: 3,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "Eredita",
+            content:
+              "La sua opera rimane un riferimento nella storia della medicina e della filosofia nel Mediterraneo medievale.",
+            order: 4,
           },
         ],
       },
@@ -164,18 +263,43 @@ export const people: PersonEntity[] = [
         locale: "ar",
         slug: "ibn-sina",
         title: "Ibn Sina",
-        summary: "Tabib wa faylasuf min al-asr al-dhahabi al-islami.",
-        excerpt: "Min abaraz al-mufakkirin fi al-tibb wa al-falsafa.",
+        summary:
+          "Tabib wa faylasuf min abaraz ulama al-asr al-dhahabi al-islami.",
+        excerpt:
+          "Jama bayna al-tibb wa al-falsafa fi muallafat aththarat fi al-fikr li qarnin mutataliya.",
         seo: {
           seoTitle: "Ibn Sina | Shakhsiyya",
-          seoDescription: "Sira wa ishamat Ibn Sina fi al-tibb wa al-falsafa.",
+          seoDescription:
+            "Mulakhkhas ta'limi an hayat Ibn Sina wa muallafatihi fi al-tibb wa al-falsafa.",
         },
         sections: [
           {
+            sectionKey: "introduction",
+            heading: "Muqaddima",
+            content:
+              "Ibn Sina min ashhar ulama al-hadara al-islamiyya fi al-tibb wa al-falsafa.",
+            order: 1,
+          },
+          {
             sectionKey: "biography",
             heading: "Sira",
-            content: "Kana Ibn Sina min a'zam ulama al-asr al-dhahabi.",
-            order: 1,
+            content:
+              "Nasha qurb Bukhara wa tanqqala bayna madin, wa kana yatlub al-ilm wa yumaris al-tibb.",
+            order: 2,
+          },
+          {
+            sectionKey: "contributions",
+            heading: "Ishamat",
+            content:
+              "Kitabuhu Al-Qanun fi al-Tibb asbaha marja asasi fi al-dirasa al-tibbiyya.",
+            order: 3,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "Irth",
+            content:
+              "Atharuh baqin fi tarikh al-ulum wa fi al-hiwar al-fikri bayna al-hadarat.",
+            order: 4,
           },
         ],
       },
@@ -202,21 +326,43 @@ export const people: PersonEntity[] = [
         locale: "en",
         slug: "al-khwarizmi",
         title: "Al-Khwarizmi",
-        summary: "Mathematician associated with the development of algebra.",
+        summary:
+          "Mathematician and astronomer associated with the early development of algebra.",
         excerpt:
-          "A foundational scholar whose mathematical works shaped later scientific traditions.",
+          "His technical writing on calculation and equations helped shape mathematical language and methods in later traditions.",
         seo: {
           seoTitle: "Al-Khwarizmi | Person",
           seoDescription:
-            "Overview of Al-Khwarizmi and his role in the history of mathematics.",
+            "Educational profile of Al-Khwarizmi and his role in the history of algebra and astronomy.",
         },
         sections: [
+          {
+            sectionKey: "introduction",
+            heading: "Introduction",
+            content:
+              "Al-Khwarizmi is one of the best-known scientific figures associated with Abbasid Baghdad.",
+            order: 1,
+          },
+          {
+            sectionKey: "biography",
+            heading: "Biography",
+            content:
+              "He worked in a scholarly environment linked to translation, astronomy, and state-supported research.",
+            order: 2,
+          },
           {
             sectionKey: "contributions",
             heading: "Contributions",
             content:
-              "Al-Khwarizmi's treatises on calculation and algebra influenced teaching and research for centuries.",
-            order: 1,
+              "His treatise on algebra organized mathematical procedures into a teachable format with broad influence.",
+            order: 3,
+          },
+          {
+            sectionKey: "influence",
+            heading: "Influence",
+            content:
+              "His terminology and methods contributed to the long transmission of mathematical knowledge into later languages.",
+            order: 4,
           },
         ],
       },
@@ -224,21 +370,43 @@ export const people: PersonEntity[] = [
         locale: "it",
         slug: "al-khwarizmi",
         title: "Al-Khwarizmi",
-        summary: "Matematico legato allo sviluppo dell'algebra.",
+        summary:
+          "Matematico e astronomo legato alla formazione dell'algebra classica.",
         excerpt:
-          "Studioso fondamentale i cui lavori matematici influenzarono la tradizione scientifica.",
+          "I suoi testi su calcolo e risoluzione delle equazioni hanno avuto un impatto duraturo nella tradizione scientifica.",
         seo: {
           seoTitle: "Al-Khwarizmi | Persona",
           seoDescription:
-            "Panoramica su Al-Khwarizmi e il suo ruolo nella storia della matematica.",
+            "Profilo sintetico di Al-Khwarizmi e del suo contributo alla matematica medievale.",
         },
         sections: [
+          {
+            sectionKey: "introduction",
+            heading: "Introduzione",
+            content:
+              "Al-Khwarizmi e una figura centrale della matematica nel periodo abbaside.",
+            order: 1,
+          },
+          {
+            sectionKey: "biography",
+            heading: "Biografia",
+            content:
+              "Opero a Baghdad in un contesto di traduzioni, studio astronomico e ricerca matematica.",
+            order: 2,
+          },
           {
             sectionKey: "contributions",
             heading: "Contributi",
             content:
-              "I suoi testi su calcolo e algebra hanno avuto un impatto duraturo.",
-            order: 1,
+              "Il suo trattato di algebra rese piu sistematici metodi di calcolo e risoluzione dei problemi.",
+            order: 3,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "Eredita",
+            content:
+              "La sua opera resta un riferimento per comprendere la storia della matematica premoderna.",
+            order: 4,
           },
         ],
       },
@@ -246,18 +414,36 @@ export const people: PersonEntity[] = [
         locale: "ar",
         slug: "al-khwarizmi",
         title: "Al-Khwarizmi",
-        summary: "Alim riyadi irtabata ismuhu bi nashat al-jabr.",
-        excerpt: "Min ruwwad al-riyadiyyat fi al-hadara al-islamiyya.",
+        summary:
+          "Alim fi al-riyadiyyat wa al-falak wa min ruwwad al-jabr fi al-asr al-abbasi.",
+        excerpt:
+          "Muallafatuhu fi al-hisab wa al-jabr ashamat fi binyat al-fikr al-riyadi li ajyal mutaakhkhira.",
         seo: {
           seoTitle: "Al-Khwarizmi | Shakhsiyya",
-          seoDescription: "Mulakhkhas ishamat al-khwarizmi fi al-riyadiyyat.",
+          seoDescription:
+            "Mulakhkhas ta'limi an ishamat al-khwarizmi fi al-riyadiyyat wa al-falak.",
         },
         sections: [
           {
+            sectionKey: "introduction",
+            heading: "Muqaddima",
+            content:
+              "Al-Khwarizmi min a'lam al-riyadiyyat fi Baghdad al-abbasiyya.",
+            order: 1,
+          },
+          {
             sectionKey: "contributions",
             heading: "Ishamat",
-            content: "Asas li tatawwur al-jabr wa turuq al-hisab.",
-            order: 1,
+            content:
+              "Kitabatuhu fi al-jabr wa al-hisab ja'alat al-manhaj al-riyadi akthar tanziman.",
+            order: 2,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "Irth",
+            content:
+              "Atharuhu zahir fi tarikh al-riyadiyyat wa fi intiqal al-maarifa bayna al-hadarat.",
+            order: 3,
           },
         ],
       },
