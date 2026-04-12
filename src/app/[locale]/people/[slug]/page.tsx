@@ -49,16 +49,19 @@ function buildEntityHref(
 function getPersonPageLabels(locale: Locale) {
   const dictionary = {
     en: {
+      entityTag: "Person",
       relatedContent: "Related Content",
       noRelatedEntries: "No related entries yet.",
     },
     it: {
+      entityTag: "Persona",
       relatedContent: "Contenuti correlati",
       noRelatedEntries: "Nessuna voce correlata al momento.",
     },
     ar: {
-      relatedContent: "Al-Muhtawa al-Murtabit",
-      noRelatedEntries: "La tujad madkhalat murtabita hatta al-an.",
+      entityTag: "شخصية",
+      relatedContent: "محتوى مرتبط",
+      noRelatedEntries: "لا توجد عناصر مرتبطة حتى الآن.",
     },
   } as const;
 
@@ -163,6 +166,9 @@ export default async function PersonDetailPage({ params }: PersonPageProps) {
     <article className="mx-auto w-full max-w-3xl space-y-6">
       <header className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
         <div className="space-y-3">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--warm)]">
+            {labels.entityTag}
+          </p>
           <h1 className="text-4xl font-semibold tracking-tight">
             {localizedPerson.localization.title}
           </h1>

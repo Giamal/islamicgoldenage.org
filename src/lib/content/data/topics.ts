@@ -62,20 +62,20 @@ export const topics: TopicEntity[] = [
       ar: {
         locale: "ar",
         slug: "medicine",
-        title: "Al-Tibb",
-        summary: "Mawdu tibb fi al-asr al-dhahabi al-islami.",
+        title: "الطب",
+        summary: "المعارف والممارسات الطبية في العصر الذهبي الإسلامي.",
         excerpt:
-          "Mahwar yarbut al-atibba wa al-kutub al-tibbiyya wa bi'at al-ta'lim.",
+          "محور موضوعي يربط الأطباء والنصوص الطبية وسياقات التعليم السريري.",
         seo: {
-          seoTitle: "Al-Tibb | Mawdu",
-          seoDescription: "Istikshaf al-a'lam wa al-a'mal al-murtabita bi al-tibb.",
+          seoTitle: "الطب | موضوع",
+          seoDescription: "استكشف الشخصيات والأعمال والمحطات المرتبطة بتاريخ الطب.",
         },
         sections: [
           {
             sectionKey: "definition",
-            heading: "Ta'rif",
+            heading: "تعريف",
             content:
-              "Yashmal al-tibb al-nazariya wa al-mumarasa wa intiqal al-ma'rifa.",
+              "يشمل الطب النظرية والتشخيص والعلاج وطرق نقل المعرفة في المؤسسات التعليمية.",
             order: 1,
           },
         ],
@@ -139,20 +139,20 @@ export const topics: TopicEntity[] = [
       ar: {
         locale: "ar",
         slug: "mathematics",
-        title: "Al-Riyadiyyat",
-        summary: "Tatawwur al-riyadiyyat fi al-asr al-dhahabi.",
-        excerpt: "Safha mawduiyya lil-a'lam wa al-a'mal al-riyadiyya.",
+        title: "الرياضيات",
+        summary: "تطور المعارف الرياضية في العصر الذهبي الإسلامي.",
+        excerpt: "صفحة موضوعية تربط الأعمال الجبرية بالعلماء والمناهج الحسابية.",
         seo: {
-          seoTitle: "Al-Riyadiyyat | Mawdu",
+          seoTitle: "الرياضيات | موضوع",
           seoDescription:
-            "Ta'arruf ala a'lam al-riyadiyyat wa muallafatihim.",
+            "تعرّف على أعلام الرياضيات ومؤلفاتهم في التاريخ الإسلامي.",
         },
         sections: [
           {
             sectionKey: "definition",
-            heading: "Ta'rif",
+            heading: "تعريف",
             content:
-              "Tashmal al-riyadiyyat al-hisab wa al-jabr wa al-handasa wa tatbiqat falakiyya.",
+              "تشمل الرياضيات الحساب والجبر والهندسة وتطبيقات الرصد والحساب الفلكي.",
             order: 1,
           },
         ],
@@ -217,21 +217,21 @@ export const topics: TopicEntity[] = [
       ar: {
         locale: "ar",
         slug: "philosophy",
-        title: "Al-Falsafa",
-        summary: "Taqalid wa niqashat falsafiyya fi al-tarikh al-islami.",
+        title: "الفلسفة",
+        summary: "تقاليد ونقاشات فلسفية في التاريخ الإسلامي.",
         excerpt:
-          "Mawdu yarbut al-mufakkirin wa al-nusus wa al-masarat al-fikriyya.",
+          "موضوع يجمع بين المفكرين والنصوص والمسارات المفاهيمية عبر القرون.",
         seo: {
-          seoTitle: "Al-Falsafa | Mawdu",
+          seoTitle: "الفلسفة | موضوع",
           seoDescription:
-            "Istikshaf al-a'lam wa al-a'mal al-murtabita bi al-falsafa fi al-asr al-dhahabi.",
+            "استكشف الشخصيات والأعمال المرتبطة بالفلسفة في العصر الذهبي الإسلامي.",
         },
         sections: [
           {
             sectionKey: "definition",
-            heading: "Ta'rif",
+            heading: "تعريف",
             content:
-              "Tashmal al-falsafa al-mantiq wa al-ilahiyyat wa al-akhlaq wa bahth al-tabia.",
+              "تشمل الفلسفة المنطق وما بعد الطبيعة والأخلاق وبحث الطبيعة ضمن حوار معرفي واسع.",
             order: 1,
           },
         ],
@@ -298,22 +298,22 @@ export const topics: TopicEntity[] = [
       ar: {
         locale: "ar",
         slug: "prophetic-biography",
-        title: "Al-Sira al-Nabawiyya",
+        title: "السيرة النبوية",
         summary:
-          "Mawdu yakhuss riwayat hayah al-nabi Muhammad fi al-masadir al-mubakkira.",
+          "موضوع يختص بالروايات التاريخية والأدبية حول حياة النبي محمد.",
         excerpt:
-          "Yajma al-kutub wa al-mawduat al-murtabita bi sira al-nabi wa al-dhakira al-tarikhiyya.",
+          "يجمع الأعمال الأساسية المرتبطة بالسيرة وتشكّل الذاكرة التاريخية الإسلامية المبكرة.",
         seo: {
-          seoTitle: "Al-Sira al-Nabawiyya | Mawdu",
+          seoTitle: "السيرة النبوية | موضوع",
           seoDescription:
-            "Istikshaf al-a'mal wa al-mawduat al-raisiya fi dirasat sira al-nabi Muhammad.",
+            "استكشف الأعمال والموضوعات الرئيسة في دراسة سيرة النبي محمد.",
         },
         sections: [
           {
             sectionKey: "definition",
-            heading: "Ta'rif",
+            heading: "تعريف",
             content:
-              "Yajma hadha al-mawdu al-nusus allati tata'allaq bi hayat al-nabi wa irthihi al-tarikhi.",
+              "يجمع هذا الموضوع النصوص التي تتناول حياة النبي وسياقها التاريخي وأثرها الثقافي.",
             order: 1,
           },
         ],

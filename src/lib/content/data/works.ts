@@ -95,30 +95,37 @@ export const works: WorkEntity[] = [
       ar: {
         locale: "ar",
         slug: "canon-of-medicine",
-        title: "Al-Qanun fi al-Tibb",
+        title: "القانون في الطب",
         summary:
-          "Mawsua tibbiyya kabira li Ibn Sina tanzim al-maarifa al-nazariyya wa al-amaliyya.",
+          "موسوعة طبية كبرى لابن سينا تجمع بين المعرفة النظرية والخبرة السريرية.",
         excerpt:
-          "Min ahamm al-kutub al-tibbiyya allati ustukhdimat fi al-ta'lim li mudda tawila.",
+          "من أهم الكتب الطبية التي استُخدمت مرجعًا تعليميًا لقرون في مدارس متعددة.",
         seo: {
-          seoTitle: "Al-Qanun fi al-Tibb | Amal",
+          seoTitle: "القانون في الطب | عمل",
           seoDescription:
-            "Mulakhkhas an kitab al-qanun wa atharihi fi tarikh al-ta'lim al-tibbi.",
+            "نظرة موجزة إلى كتاب القانون في الطب وأثره في تاريخ التعليم الطبي.",
         },
         sections: [
           {
             sectionKey: "introduction",
-            heading: "Muqaddima",
+            heading: "مقدمة",
             content:
-              "Al-qanun kitab jami fi al-tibb yajma bayna al-nazariyya wa al-mumarasa.",
+              "يُعد القانون في الطب عملاً جامعًا ينظم المعارف الطبية في صورة منهجية واضحة.",
             order: 1,
           },
           {
-            sectionKey: "impact",
-            heading: "Athar",
+            sectionKey: "structure",
+            heading: "البنية",
             content:
-              "Asbaha marja li al-atibba wa al-talaba fi madaris mukhtalifa.",
+              "قسّم ابن سينا الكتاب إلى أبواب موضوعية تسهّل المراجعة والتدريس والتطبيق العملي.",
             order: 2,
+          },
+          {
+            sectionKey: "impact",
+            heading: "الأثر",
+            content:
+              "أصبح مرجعًا للأطباء والطلاب، وانتقل أثره إلى تقاليد طبية في لغات ومناطق مختلفة.",
+            order: 3,
           },
         ],
       },
@@ -215,35 +222,35 @@ export const works: WorkEntity[] = [
       ar: {
         locale: "ar",
         slug: "al-jabr-wal-muqabala",
-        title: "Al-Jabr wa al-Muqabala",
+        title: "الجبر والمقابلة",
         summary:
-          "Risala asasiyya sa'adat fi ta'sis al-manhaj al-jabri fi al-riyadiyyat.",
+          "رسالة تأسيسية أسهمت في ترسيخ المنهج الجبري في الرياضيات.",
         excerpt:
-          "Nass marja'i fi tarikh al-riyadiyyat wa fi ta'lim hall al-masa'il.",
+          "نص مرجعي في تاريخ الرياضيات وفي تعليم طرائق حل المسائل والمعادلات.",
         seo: {
-          seoTitle: "Al-Jabr wa al-Muqabala | Amal",
+          seoTitle: "الجبر والمقابلة | عمل",
           seoDescription:
-            "Mulakhkhas an risalat al-khwarizmi wa athariha fi tatawwur al-jabr.",
+            "ملخص حول رسالة الخوارزمي وأثرها في تطور علم الجبر.",
         },
         sections: [
           {
             sectionKey: "introduction",
-            heading: "Muqaddima",
-            content: "Hadhihi al-risala min asasiyyat tarikh al-jabr.",
+            heading: "مقدمة",
+            content: "تُعد هذه الرسالة من النصوص المؤسسة في تاريخ الجبر وتعليمه.",
             order: 1,
           },
           {
             sectionKey: "themes",
-            heading: "Mawduat",
+            heading: "الموضوعات",
             content:
-              "Tatadamman tariqa munazzama li tasnif al-muadalat wa halliha.",
+              "تعرض تصنيفًا منظمًا لأنواع المعادلات مع خطوات عملية لحلها.",
             order: 2,
           },
           {
             sectionKey: "impact",
-            heading: "Athar",
+            heading: "الأثر",
             content:
-              "Aththarat fi al-kitabat al-riyadiyya fi marahil muta'akhkhira.",
+              "أثرت في الكتابات الرياضية اللاحقة وأسهمت في انتشار لغة جبرية أكثر دقة.",
             order: 3,
           },
         ],
@@ -327,29 +334,29 @@ export const works: WorkEntity[] = [
       ar: {
         locale: "ar",
         slug: "sirah-ibn-hisham",
-        title: "Sirat Ibn Hisham",
+        title: "سيرة ابن هشام",
         summary:
-          "Min ahamm masadir al-sira al-nabawiyya fi al-turath al-islami al-mubakkir.",
+          "من أهم مصادر السيرة النبوية في التراث الإسلامي المبكر.",
         excerpt:
-          "Nass marja'i yasta'inu bihi al-bahithun fi dirasat hayat al-nabi Muhammad.",
+          "مرجع سردي وتاريخي أساسي يعتمد عليه الباحثون في دراسة حياة النبي محمد.",
         seo: {
-          seoTitle: "Sirat Ibn Hisham | Amal",
+          seoTitle: "سيرة ابن هشام | عمل",
           seoDescription:
-            "Mulakhkhas an Sirat Ibn Hisham wa makanatiha fi al-kitabat al-tarikhiyya.",
+            "عرض موجز لسيرة ابن هشام ومكانتها في الكتابة التاريخية الإسلامية.",
         },
         sections: [
           {
             sectionKey: "introduction",
-            heading: "Muqaddima",
+            heading: "مقدمة",
             content:
-              "Al-kitab yajma riwayat mubakkira an hayah al-nabi Muhammad.",
+              "يجمع الكتاب روايات مبكرة عن حياة النبي محمد ضمن صياغة سردية مؤثرة.",
             order: 1,
           },
           {
             sectionKey: "transmission",
-            heading: "Intiqal",
+            heading: "الانتقال والرواية",
             content:
-              "Antashara al-kitab wa asbaha marja muhiman fi al-sira wa al-tarikh.",
+              "انتشر النص على نطاق واسع وصار مرجعًا محوريًا في السيرة والكتابات التاريخية اللاحقة.",
             order: 2,
           },
         ],

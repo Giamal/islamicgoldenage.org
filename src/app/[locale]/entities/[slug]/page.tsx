@@ -40,19 +40,19 @@ function buildEntityHref(
 function getTopicPageLabels(locale: Locale) {
   const dictionary = {
     en: {
-      topicTypeLabel: "Topic type",
+      entityTypeLabel: "Content type",
       relatedContent: "Related Content",
       noRelatedEntries: "No related entries yet.",
     },
     it: {
-      topicTypeLabel: "Tipo di tema",
+      entityTypeLabel: "Tipo di contenuto",
       relatedContent: "Contenuti correlati",
       noRelatedEntries: "Nessuna voce correlata al momento.",
     },
     ar: {
-      topicTypeLabel: "Naw al-mawdu",
-      relatedContent: "Al-Muhtawa al-Murtabit",
-      noRelatedEntries: "La tujad madkhalat murtabita hatta al-an.",
+      entityTypeLabel: "نوع المحتوى",
+      relatedContent: "محتوى مرتبط",
+      noRelatedEntries: "لا توجد عناصر مرتبطة حتى الآن.",
     },
   } as const;
 
@@ -74,14 +74,45 @@ function getTopicTypeLabel(locale: Locale, topicType: TopicType) {
       institution: "Istituzione",
     },
     ar: {
-      discipline: "Takhasus",
-      concept: "Mafhum",
-      method: "Manhaj",
-      institution: "Muassasa",
+      discipline: "تخصص",
+      concept: "مفهوم",
+      method: "منهج",
+      institution: "مؤسسة",
     },
   } as const;
 
   return labels[locale][topicType];
+}
+
+function getEntityTypeLabel(locale: Locale, entityType: ContentEntityType) {
+  const labels = {
+    en: {
+      person: "Person",
+      work: "Work",
+      topic: "Topic",
+      event: "Event",
+      place: "Place",
+      source: "Source",
+    },
+    it: {
+      person: "Persona",
+      work: "Opera",
+      topic: "Tema",
+      event: "Evento",
+      place: "Luogo",
+      source: "Fonte",
+    },
+    ar: {
+      person: "شخصية",
+      work: "عمل",
+      topic: "موضوع",
+      event: "حدث",
+      place: "مكان",
+      source: "مصدر",
+    },
+  } as const;
+
+  return labels[locale][entityType];
 }
 
 /**
@@ -178,6 +209,9 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
     <article className="mx-auto w-full max-w-6xl space-y-8">
       <header className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
         <div className="space-y-3">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--warm)]">
+            {getEntityTypeLabel(typedLocale, topic.entityType)}
+          </p>
           <h1 className="text-4xl font-semibold tracking-tight">
             {localizedTopic.localization.title}
           </h1>
@@ -202,13 +236,12 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
 
         <aside className="space-y-6">
           <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
-            <h2 className="text-2xl font-semibold">{labels.topicTypeLabel}</h2>
+            <h2 className="text-2xl font-semibold">{labels.entityTypeLabel}</h2>
             <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
-              <li>
-                {topic.entityType === "topic"
-                  ? getTopicTypeLabel(typedLocale, topic.topicType as TopicType)
-                  : topic.entityType}
-              </li>
+              <li>{getEntityTypeLabel(typedLocale, topic.entityType)}</li>
+              {topic.entityType === "topic" ? (
+                <li>{getTopicTypeLabel(typedLocale, topic.topicType as TopicType)}</li>
+              ) : null}
             </ul>
           </section>
 

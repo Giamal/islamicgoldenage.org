@@ -41,6 +41,7 @@ function buildEntityHref(
 function getWorkPageLabels(locale: Locale) {
   const dictionary = {
     en: {
+      entityTag: "Work",
       typeLabel: "Work type",
       yearLabel: "Composition year",
       languageLabel: "Original language",
@@ -49,6 +50,7 @@ function getWorkPageLabels(locale: Locale) {
       noRelatedEntries: "No related entries yet.",
     },
     it: {
+      entityTag: "Opera",
       typeLabel: "Tipo di opera",
       yearLabel: "Anno di composizione",
       languageLabel: "Lingua originale",
@@ -57,12 +59,13 @@ function getWorkPageLabels(locale: Locale) {
       noRelatedEntries: "Nessuna voce correlata al momento.",
     },
     ar: {
-      typeLabel: "Naw al-amal",
-      yearLabel: "Sanat al-talif",
-      languageLabel: "Al-lugha al-asliyya",
-      contributorsLabel: "Al-musahimun",
-      relatedContent: "Al-Muhtawa al-Murtabit",
-      noRelatedEntries: "La tujad madkhalat murtabita hatta al-an.",
+      entityTag: "عمل",
+      typeLabel: "نوع العمل",
+      yearLabel: "سنة التأليف",
+      languageLabel: "اللغة الأصلية",
+      contributorsLabel: "المساهمون",
+      relatedContent: "محتوى مرتبط",
+      noRelatedEntries: "لا توجد عناصر مرتبطة حتى الآن.",
     },
   } as const;
 
@@ -86,11 +89,11 @@ function getContributorRoleLabel(locale: Locale, role: WorkContributorRole) {
       compiler: "Compilatore",
     },
     ar: {
-      author: "Muallif",
-      translator: "Mutarjim",
-      commentator: "Sharih",
-      editor: "Muharrir",
-      compiler: "Jami",
+      author: "مؤلف",
+      translator: "مترجم",
+      commentator: "شارح",
+      editor: "محرر",
+      compiler: "جامع",
     },
   } as const;
 
@@ -114,11 +117,11 @@ function getWorkTypeLabel(locale: Locale, workType: string) {
       translation: "Traduzione",
     },
     ar: {
-      book: "Kitab",
-      treatise: "Risala",
-      manuscript: "Makhtut",
-      commentary: "Sharh",
-      translation: "Tarjama",
+      book: "كتاب",
+      treatise: "رسالة",
+      manuscript: "مخطوط",
+      commentary: "شرح",
+      translation: "ترجمة",
     },
   } as const;
 
@@ -253,6 +256,9 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
     <article className="mx-auto w-full max-w-3xl space-y-6">
       <header className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
         <div className="space-y-3">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--warm)]">
+            {labels.entityTag}
+          </p>
           <h1 className="text-4xl font-semibold tracking-tight">
             {localizedWork.localization.title}
           </h1>

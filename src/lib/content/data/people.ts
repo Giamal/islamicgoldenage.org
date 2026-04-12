@@ -111,37 +111,44 @@ export const people: PersonEntity[] = [
       ar: {
         locale: "ar",
         slug: "muhammad",
-        title: "Muhammad",
+        title: "النبي محمد",
         summary:
-          "Shakhsiyya diniyya wa tarikhiyya markaziyya fi nashat al-mujtama al-islami al-awwal.",
+          "شخصية دينية وتاريخية محورية في نشأة المجتمع الإسلامي الأول.",
         excerpt:
-          "Qiyadatuhu bayna Makka wa al-Madina aththarat bishaql da'im fi al-hadara al-islamiyya.",
+          "أثرت قيادته بين مكة والمدينة بشكل عميق في تشكل المجتمع الإسلامي المبكر ومساره الحضاري.",
         seo: {
-          seoTitle: "Muhammad | Shakhsiyya",
+          seoTitle: "النبي محمد | شخصية",
           seoDescription:
-            "Mulakhkhas ta'limi an hayat al-nabi Muhammad wa atharihi al-tarikhi.",
+            "نظرة تعليمية موجزة إلى سيرة النبي محمد وسياقه التاريخي وإرثه.",
         },
         sections: [
           {
             sectionKey: "introduction",
-            heading: "Muqaddima",
+            heading: "مقدمة",
             content:
-              "Muhammad hu marja asasi fi al-tarikh al-islami wa fi takwin al-mujtama al-awwal.",
+              "يمثل النبي محمد المرجعية المركزية في التاريخ الإسلامي المبكر وفي تكوين الجماعة الأولى.",
             order: 1,
           },
           {
             sectionKey: "biography",
-            heading: "Sira",
+            heading: "السيرة",
             content:
-              "Intaqala min Makka ila al-Madina, wa kana dhalik marhala muhima fi bina al-mujtama.",
+              "وُلد في مكة ثم هاجر إلى المدينة، وكانت الهجرة نقطة تحول في بناء المجتمع وتنظيمه.",
             order: 2,
           },
           {
-            sectionKey: "legacy",
-            heading: "Irth",
+            sectionKey: "contributions",
+            heading: "الإسهامات",
             content:
-              "Turathuh aththara fi al-fikr al-dini wa al-ijtima'i wa fi kutub al-tarikh wa al-adab.",
+              "أرست تعاليمه أسسًا دينية وأخلاقية واجتماعية أثرت في مؤسسات العلم والفقه والحياة العامة.",
             order: 3,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "الإرث",
+            content:
+              "حافظت المدونات التاريخية والأدبية على سيرته بوصفها أساسًا للذاكرة الدينية والثقافية الإسلامية.",
+            order: 4,
           },
         ],
       },
@@ -262,44 +269,51 @@ export const people: PersonEntity[] = [
       ar: {
         locale: "ar",
         slug: "ibn-sina",
-        title: "Ibn Sina",
+        title: "ابن سينا",
         summary:
-          "Tabib wa faylasuf min abaraz ulama al-asr al-dhahabi al-islami.",
+          "طبيب وفيلسوف من أبرز علماء العصر الذهبي الإسلامي.",
         excerpt:
-          "Jama bayna al-tibb wa al-falsafa fi muallafat aththarat fi al-fikr li qarnin mutataliya.",
+          "جمع بين الممارسة الطبية والبحث الفلسفي في مؤلفات أثرت في الفكر العلمي قرونًا طويلة.",
         seo: {
-          seoTitle: "Ibn Sina | Shakhsiyya",
+          seoTitle: "ابن سينا | شخصية",
           seoDescription:
-            "Mulakhkhas ta'limi an hayat Ibn Sina wa muallafatihi fi al-tibb wa al-falsafa.",
+            "ملخص تعليمي عن سيرة ابن سينا وأعماله في الطب والفلسفة.",
         },
         sections: [
           {
             sectionKey: "introduction",
-            heading: "Muqaddima",
+            heading: "مقدمة",
             content:
-              "Ibn Sina min ashhar ulama al-hadara al-islamiyya fi al-tibb wa al-falsafa.",
+              "يعد ابن سينا من أشهر أعلام الحضارة الإسلامية في الطب والفلسفة.",
             order: 1,
           },
           {
             sectionKey: "biography",
-            heading: "Sira",
+            heading: "السيرة",
             content:
-              "Nasha qurb Bukhara wa tanqqala bayna madin, wa kana yatlub al-ilm wa yumaris al-tibb.",
+              "نشأ قرب بخارى وتنقل بين مدن ومراكز علمية متعددة، جامعًا بين التعليم والممارسة الطبية.",
             order: 2,
           },
           {
             sectionKey: "contributions",
-            heading: "Ishamat",
+            heading: "الإسهامات",
             content:
-              "Kitabuhu Al-Qanun fi al-Tibb asbaha marja asasi fi al-dirasa al-tibbiyya.",
+              "أصبح كتابه «القانون في الطب» مرجعًا أساسيًا في التعليم الطبي داخل العالم الإسلامي وخارجه.",
             order: 3,
           },
           {
-            sectionKey: "legacy",
-            heading: "Irth",
+            sectionKey: "influence",
+            heading: "التأثير",
             content:
-              "Atharuh baqin fi tarikh al-ulum wa fi al-hiwar al-fikri bayna al-hadarat.",
+              "أسهمت مناهجه في المنطق والطب في تشكيل بيئات التدريس والبحث في تقاليد معرفية متعددة.",
             order: 4,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "الإرث",
+            content:
+              "لا يزال حضوره بارزًا في تاريخ العلوم وفي دراسة انتقال المعرفة بين اللغات والحضارات.",
+            order: 5,
           },
         ],
       },
@@ -413,37 +427,51 @@ export const people: PersonEntity[] = [
       ar: {
         locale: "ar",
         slug: "al-khwarizmi",
-        title: "Al-Khwarizmi",
+        title: "الخوارزمي",
         summary:
-          "Alim fi al-riyadiyyat wa al-falak wa min ruwwad al-jabr fi al-asr al-abbasi.",
+          "عالم في الرياضيات والفلك ومن رواد تأسيس علم الجبر في العصر العباسي.",
         excerpt:
-          "Muallafatuhu fi al-hisab wa al-jabr ashamat fi binyat al-fikr al-riyadi li ajyal mutaakhkhira.",
+          "أسهمت مؤلفاته في الحساب والجبر في صياغة منهج رياضي واضح أثر في أجيال لاحقة.",
         seo: {
-          seoTitle: "Al-Khwarizmi | Shakhsiyya",
+          seoTitle: "الخوارزمي | شخصية",
           seoDescription:
-            "Mulakhkhas ta'limi an ishamat al-khwarizmi fi al-riyadiyyat wa al-falak.",
+            "ملخص تعليمي عن إسهامات الخوارزمي في الرياضيات والفلك.",
         },
         sections: [
           {
             sectionKey: "introduction",
-            heading: "Muqaddima",
+            heading: "مقدمة",
             content:
-              "Al-Khwarizmi min a'lam al-riyadiyyat fi Baghdad al-abbasiyya.",
+              "الخوارزمي من أبرز أعلام الرياضيات في بغداد العباسية.",
             order: 1,
           },
           {
-            sectionKey: "contributions",
-            heading: "Ishamat",
+            sectionKey: "biography",
+            heading: "السيرة",
             content:
-              "Kitabatuhu fi al-jabr wa al-hisab ja'alat al-manhaj al-riyadi akthar tanziman.",
+              "عمل في بيئة علمية نشطة ارتبطت بالترجمة والبحث في الفلك والحساب ضمن مؤسسات الدولة.",
             order: 2,
           },
           {
-            sectionKey: "legacy",
-            heading: "Irth",
+            sectionKey: "contributions",
+            heading: "الإسهامات",
             content:
-              "Atharuhu zahir fi tarikh al-riyadiyyat wa fi intiqal al-maarifa bayna al-hadarat.",
+              "قدّم في مؤلفاته طرقًا منهجية لتصنيف المعادلات وحلها، مما عزز تعليم الجبر وتطوره.",
             order: 3,
+          },
+          {
+            sectionKey: "influence",
+            heading: "التأثير",
+            content:
+              "انتقلت مصطلحاته وأساليبه إلى تقاليد علمية مختلفة وأسهمت في تاريخ الرياضيات لاحقًا.",
+            order: 4,
+          },
+          {
+            sectionKey: "legacy",
+            heading: "الإرث",
+            content:
+              "يبقى أثره واضحًا في دراسة نشأة الجبر وفي مسارات انتقال المعرفة بين الحضارات.",
+            order: 5,
           },
         ],
       },
