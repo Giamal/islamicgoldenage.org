@@ -4,9 +4,11 @@
  * Defines the supported locales and locale-specific helpers for routing and future translation work.
  * Keeping the contract centralized prevents string drift across pages, SEO helpers, and data access.
  */
-export const locales = ["en", "it", "ar"] as const;
+import type { Locale as SharedLocale } from "@/lib/types/i18n";
 
-export type Locale = (typeof locales)[number];
+export type Locale = SharedLocale;
+
+export const locales: readonly Locale[] = ["en", "it", "ar"];
 
 export const defaultLocale: Locale = "en";
 
