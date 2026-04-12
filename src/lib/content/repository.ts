@@ -4,8 +4,8 @@
  * Provides typed read helpers over in-memory content entities and relationships.
  * This is intentionally simple and can be replaced by a database-backed layer later.
  */
-import type { Locale } from "@/lib/types/i18n";
-import { defaultLocale } from "@/config/site";
+import { defaultLocale } from "@/i18n/config";
+import type { Locale } from "@/i18n/config";
 import { people } from "@/lib/content/data/people";
 import { relationships } from "@/lib/content/data/relationships";
 import { topics } from "@/lib/content/data/topics";
@@ -33,17 +33,12 @@ import type {
 } from "@/lib/content/types";
 
 /**
- * Legacy kind union currently used by existing UI labels and cards.
- */
-export type EntityKind = "ARTICLE" | "PERSON" | "BOOK" | "EVENT" | "CATEGORY";
-
-/**
  * Legacy localized summary currently used by listing/detail routes.
  */
 export type LocalizedEntitySummary = {
   id: string;
   canonicalSlug: string;
-  kind: EntityKind;
+  entityType: ContentEntityType;
   featuredYear?: number;
   updatedAt: string;
   slug: string;
@@ -152,13 +147,6 @@ export function getPersonBySlug(locale: Locale, slug: string) {
  */
 export function getWorkBySlug(locale: Locale, slug: string) {
   return works.find((work) => entityMatchesSlug(work, locale, slug));
-}
-
-/**
- * Resolves a topic by localized slug with default-locale slug fallback.
- */
-export function getTopicBySlug(locale: Locale, slug: string) {
-  return topics.find((topic) => entityMatchesSlug(topic, locale, slug));
 }
 
 /**
@@ -332,24 +320,6 @@ export function getDerivedConnections(entityId: string): DerivedConnections {
   };
 }
 
-function mapEntityTypeToKind(entityType: ContentEntityType): EntityKind {
-  switch (entityType) {
-    case "person":
-      return "PERSON";
-    case "work":
-      return "BOOK";
-    case "event":
-      return "EVENT";
-    case "topic":
-    case "place":
-      return "CATEGORY";
-    case "source":
-      return "ARTICLE";
-    default:
-      return "ARTICLE";
-  }
-}
-
 function mapEntityToLegacySummary(
   entity: ContentEntity,
   locale: Locale,
@@ -376,7 +346,7 @@ function mapEntityToLegacySummary(
   return {
     id: entity.id,
     canonicalSlug: entity.canonicalSlug,
-    kind: mapEntityTypeToKind(entity.entityType),
+    entityType: entity.entityType,
     featuredYear,
     updatedAt: entity.updatedAt,
     slug: localized.localization.slug,
@@ -397,28 +367,3 @@ export function getLocalizedEntities(locale: Locale): LocalizedEntitySummary[] {
     .sort((a, b) => (b.featuredYear ?? 0) - (a.featuredYear ?? 0));
 }
 
-/**
- * Legacy helper used by current entity detail route.
- */
-export function getLocalizedEntityBySlug(
-  locale: Locale,
-  slug: string,
-): LocalizedEntitySummary | null {
-  const entity = allEntities.find((candidate) =>
-    entityMatchesSlug(candidate, locale, slug),
-  );
-
-  return entity ? mapEntityToLegacySummary(entity, locale) : null;
-}
-
-/**
- * Legacy helper used by current entity detail related-content sidebar.
- */
-export function getRelatedLocalizedEntities(
-  locale: Locale,
-  entityId: string,
-): LocalizedEntitySummary[] {
-  return getRelatedEntities(entityId)
-    .map((entity) => mapEntityToLegacySummary(entity, locale))
-    .filter((entity): entity is LocalizedEntitySummary => Boolean(entity));
-}

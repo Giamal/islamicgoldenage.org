@@ -5,7 +5,7 @@
  * This avoids scattering placeholder strings across routes while a real translation workflow is still being introduced.
  */
 import type { Locale } from "@/i18n/config";
-import type { EntityKind } from "@/lib/content/repository";
+import type { ContentEntityType } from "@/lib/content/types";
 
 /**
  * Returns localized copy for the shared navigation.
@@ -147,63 +147,35 @@ export function getEntityIndexCopy(locale: Locale) {
 }
 
 /**
- * Returns localized copy for the entity detail page sidebar.
+ * Returns a localized label for an entity type.
  */
-export function getEntityDetailCopy(locale: Locale) {
-  const dictionary = {
+export function getEntityTypeLabel(locale: Locale, entityType: ContentEntityType) {
+  const dictionary: Record<Locale, Record<ContentEntityType, string>> = {
     en: {
-      aboutTitle: "About this entry",
-      relatedTitle: "Related entries",
-      typeLabel: "Content type",
-      canonicalLabel: "Canonical slug",
-      yearLabel: "Featured year",
+      person: "Person",
+      work: "Work",
+      topic: "Topic",
+      event: "Event",
+      place: "Place",
+      source: "Source",
     },
     it: {
-      aboutTitle: "Informazioni sulla voce",
-      relatedTitle: "Voci correlate",
-      typeLabel: "Tipo di contenuto",
-      canonicalLabel: "Slug canonico",
-      yearLabel: "Anno principale",
+      person: "Persona",
+      work: "Opera",
+      topic: "Tema",
+      event: "Evento",
+      place: "Luogo",
+      source: "Fonte",
     },
     ar: {
-      aboutTitle: "حول هذه الصفحة",
-      relatedTitle: "صفحات مرتبطة",
-      typeLabel: "نوع المحتوى",
-      canonicalLabel: "المعرف المرجعي",
-      yearLabel: "السنة البارزة",
-    },
-  } as const;
-
-  return dictionary[locale];
-}
-
-/**
- * Returns a localized label for an entity kind.
- */
-export function getKindLabel(locale: Locale, kind: EntityKind) {
-  const dictionary: Record<Locale, Record<EntityKind, string>> = {
-    en: {
-      ARTICLE: "Article",
-      PERSON: "Person",
-      BOOK: "Book",
-      EVENT: "Event",
-      CATEGORY: "Category",
-    },
-    it: {
-      ARTICLE: "Articolo",
-      PERSON: "Persona",
-      BOOK: "Libro",
-      EVENT: "Evento",
-      CATEGORY: "Categoria",
-    },
-    ar: {
-      ARTICLE: "مقال",
-      PERSON: "شخصية",
-      BOOK: "كتاب",
-      EVENT: "حدث",
-      CATEGORY: "تصنيف",
+      person: "شخصية",
+      work: "عمل",
+      topic: "موضوع",
+      event: "حدث",
+      place: "مكان",
+      source: "مصدر",
     },
   };
 
-  return dictionary[locale][kind];
+  return dictionary[locale][entityType];
 }

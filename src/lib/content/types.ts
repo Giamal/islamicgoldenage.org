@@ -4,7 +4,7 @@
  * Implementation-facing type system for the multilingual content model.
  * Keeps entity identity, localized content, SEO fields, and relationships explicit.
  */
-import type { Locale } from "@/lib/types/i18n";
+import type { Locale } from "@/i18n/config";
 
 /** Supported core content entities. */
 export type ContentEntityType =

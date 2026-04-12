@@ -1,7 +1,8 @@
 // Prisma schema
 //
-// Defines the first production-minded content model for the platform.
-// The design keeps one canonical entity table, locale-specific translations, and explicit links for internal knowledge graph growth.
+// Database model aligned with the current multilingual content domain.
+// It keeps a shared canonical entity record, locale-specific fields, structured sections,
+// and typed profile tables for person/work/topic/event/place/source.
 
 generator client {
   provider = "prisma-client-js"
@@ -13,79 +14,286 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum EntityKind {
-  ARTICLE
-  PERSON
-  BOOK
-  EVENT
-  CATEGORY
+enum LocaleCode {
+  en
+  it
+  ar
 }
 
-enum EntityStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
+enum ContentEntityType {
+  person
+  work
+  topic
+  event
+  place
+  source
 }
 
-enum EntityLinkType {
-  RELATED
-  BELONGS_TO
-  MENTIONS
-  AUTHORED
-  INFLUENCED
+enum ContentStatus {
+  draft
+  published
+  archived
 }
 
-model Entity {
-  id            String              @id @default(cuid())
-  canonicalSlug String              @unique
-  kind          EntityKind
-  status        EntityStatus        @default(DRAFT)
-  featuredYear  Int?
-  startsAtYear  Int?
-  endsAtYear    Int?
-  publishedAt   DateTime?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  translations  EntityTranslation[]
-  outgoingLinks EntityLink[]        @relation("OutgoingEntityLinks")
-  incomingLinks EntityLink[]        @relation("IncomingEntityLinks")
-
-  @@index([kind, status])
-  @@index([publishedAt])
+enum PersonRole {
+  prophet
+  scholar
+  physician
+  philosopher
+  astronomer
+  mathematician
+  translator
+  chemist
+  jurist
+  theologian
+  patron
+  ruler
 }
 
-model EntityTranslation {
+enum WorkType {
+  book
+  treatise
+  manuscript
+  commentary
+  translation
+}
+
+enum WorkContributorRole {
+  author
+  translator
+  commentator
+  editor
+  compiler
+}
+
+enum TopicType {
+  discipline
+  concept
+  method
+  institution
+}
+
+enum EventType {
+  birth
+  death
+  publication
+  founding
+  translation_movement
+  battle
+  other
+}
+
+enum DatePrecision {
+  exact
+  year
+  range
+  approximate
+}
+
+enum PlaceType {
+  city
+  region
+  institution
+  empire
+}
+
+enum SourceType {
+  primary
+  secondary
+  encyclopedia
+  manuscript_catalog
+}
+
+enum RelationType {
+  authored
+  commented_on
+  translated
+  influenced
+  about
+  related_to
+  associated_with
+  born_in
+  died_in
+  located_in
+  occurred_in
+  participated_in
+  documented_by
+}
+
+model ContentEntity {
+  id              String                 @id @default(cuid())
+  entityType      ContentEntityType
+  canonicalSlug   String                 @unique
+  status          ContentStatus          @default(draft)
+  importanceScore Int                    @default(50)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  heroImageUrl    String?
+  heroImageAlt    String?
+  heroImageCredit String?
+
+  localizations          ContentEntityLocalization[]
+  outgoingRelationships  ContentRelationship[]      @relation("OutgoingContentRelationships")
+  incomingRelationships  ContentRelationship[]      @relation("IncomingContentRelationships")
+
+  personProfile PersonProfile?
+  workProfile   WorkProfile?
+  topicProfile  TopicProfile?
+  eventProfile  EventProfile?
+  placeProfile  PlaceProfile?
+  sourceProfile SourceProfile?
+
+  contributorAsWork   WorkContributor[] @relation("ContributorWork")
+  contributorAsPerson WorkContributor[] @relation("ContributorPerson")
+
+  @@index([entityType, status])
+}
+
+model ContentEntityLocalization {
   id             String   @id @default(cuid())
   entityId       String
-  locale         String   @db.VarChar(10)
+  locale         LocaleCode
   slug           String
   title          String
-  excerpt        String?
-  body           String?
-  seoTitle       String?
-  seoDescription String?
-  isPrimary      Boolean  @default(false)
+  summary        String
+  excerpt        String
+
+  seoTitle       String
+  seoDescription String
+  ogTitle        String?
+  ogDescription  String?
+  ogImage        String?
+  noIndex        Boolean  @default(false)
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  entity         Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  entity         ContentEntity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  sections       ContentSection[]
 
   @@unique([entityId, locale])
   @@unique([locale, slug])
   @@index([locale, title])
 }
 
-model EntityLink {
-  id             String         @id @default(cuid())
-  sourceEntityId String
-  targetEntityId String
-  type           EntityLinkType
-  note           String?
-  sortOrder      Int            @default(0)
-  createdAt      DateTime       @default(now())
-  sourceEntity   Entity         @relation("OutgoingEntityLinks", fields: [sourceEntityId], references: [id], onDelete: Cascade)
-  targetEntity   Entity         @relation("IncomingEntityLinks", fields: [targetEntityId], references: [id], onDelete: Cascade)
+model ContentSection {
+  id             String  @id @default(cuid())
+  localizationId String
+  sectionKey     String
+  heading        String
+  content        String
+  sortOrder      Int
 
-  @@unique([sourceEntityId, targetEntityId, type])
-  @@index([sourceEntityId, type, sortOrder])
-  @@index([targetEntityId, type])
+  localization   ContentEntityLocalization @relation(fields: [localizationId], references: [id], onDelete: Cascade)
+
+  @@unique([localizationId, sectionKey])
+  @@index([localizationId, sortOrder])
+}
+
+model PersonProfile {
+  entityId         String      @id
+  namePrimary      String
+  nameVariants     String[]
+  birthYear        Int?
+  deathYear        Int?
+  roles            PersonRole[]
+  domains          String[]
+  associatedPlaces String[]
+  eraLabel         String?
+  gender           String?
+
+  entity           ContentEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model WorkProfile {
+  entityId                 String   @id
+  titlePrimary             String
+  workType                 WorkType
+  compositionYear          Int?
+  languageOriginal         String?
+  alternateTitles          String[]
+  incipit                  String?
+  manuscriptPlaces         String[]
+
+  entity                   ContentEntity     @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model WorkContributor {
+  id            String              @id @default(cuid())
+  workEntityId  String
+  personEntityId String
+  role          WorkContributorRole
+  sortOrder     Int                 @default(0)
+
+  workEntity    ContentEntity @relation("ContributorWork", fields: [workEntityId], references: [id], onDelete: Cascade)
+  personEntity  ContentEntity @relation("ContributorPerson", fields: [personEntityId], references: [id], onDelete: Cascade)
+
+  @@unique([workEntityId, personEntityId, role])
+  @@index([workEntityId, sortOrder])
+  @@index([personEntityId])
+}
+
+model TopicProfile {
+  entityId                  String   @id
+  labelPrimary              String
+  topicType                 TopicType
+  parentTopicCanonicalSlug  String?
+  synonymLabels             String[]
+  relatedTopicCanonicalSlugs String[]
+
+  entity                    ContentEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model EventProfile {
+  entityId       String        @id
+  eventType      EventType
+  startDate      String
+  endDate        String?
+  datePrecision  DatePrecision?
+
+  entity         ContentEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model PlaceProfile {
+  entityId        String   @id
+  namePrimary     String
+  placeType       PlaceType
+  geoLat          Float?
+  geoLng          Float?
+  modernCountry   String?
+  historicalNames String[]
+
+  entity          ContentEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model SourceProfile {
+  entityId         String     @id
+  sourceType       SourceType
+  citationShort    String
+  citationFull     String
+  publicationYear  Int?
+  author           String?
+  publisher        String?
+  isbnOrIdentifier String?
+  url              String?
+
+  entity           ContentEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model ContentRelationship {
+  id              String       @id @default(cuid())
+  fromEntityId    String
+  toEntityId      String
+  relationType    RelationType
+  importanceScore Int          @default(50)
+  sourceEntityIds String[]
+  createdAt       DateTime     @default(now())
+
+  fromEntity      ContentEntity @relation("OutgoingContentRelationships", fields: [fromEntityId], references: [id], onDelete: Cascade)
+  toEntity        ContentEntity @relation("IncomingContentRelationships", fields: [toEntityId], references: [id], onDelete: Cascade)
+
+  @@unique([fromEntityId, toEntityId, relationType])
+  @@index([fromEntityId, relationType])
+  @@index([toEntityId, relationType])
 }

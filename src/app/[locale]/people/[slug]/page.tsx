@@ -8,7 +8,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Route } from "next";
 
-import { isLocale } from "@/i18n/config";
+import {
+  type Locale,
+  isLocale,
+} from "@/i18n/config";
 import {
   getDerivedConnections,
   getEntityById,
@@ -17,33 +20,17 @@ import {
 } from "@/lib/content/repository";
 import { buildLocaleMetadata } from "@/lib/seo";
 import type { ContentEntityType } from "@/lib/content/types";
-import type { Locale } from "@/lib/types/i18n";
 
 type PersonPageProps = {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 };
 
 function buildEntityHref(
   locale: string,
-  entityType: ContentEntityType,
+  _entityType: ContentEntityType,
   slug: string,
 ) {
-  switch (entityType) {
-    case "person":
-      return `/${locale}/people/${slug}`;
-    case "work":
-      return `/${locale}/works/${slug}`;
-    case "topic":
-      return `/${locale}/topics/${slug}`;
-    case "event":
-      return `/${locale}/events/${slug}`;
-    case "place":
-      return `/${locale}/places/${slug}`;
-    case "source":
-      return `/${locale}/sources/${slug}`;
-    default:
-      return `/${locale}`;
-  }
+  return `/${locale}/entities/${slug}`;
 }
 
 function getPersonPageLabels(locale: Locale) {
@@ -72,7 +59,7 @@ function getPersonPageLabels(locale: Locale) {
  * Generates metadata with locale-aware canonical and hreflang alternates.
  */
 export async function generateMetadata({ params }: PersonPageProps) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
     return {};
@@ -94,7 +81,7 @@ export async function generateMetadata({ params }: PersonPageProps) {
   return buildLocaleMetadata(typedLocale, {
     title: localizedPerson.localization.title,
     description: localizedPerson.localization.excerpt,
-    path: `/people/${localizedPerson.localization.slug}`,
+    path: `/entities/${localizedPerson.localization.slug}`,
   });
 }
 
@@ -102,7 +89,7 @@ export async function generateMetadata({ params }: PersonPageProps) {
  * Renders the localized person content and direct related entities.
  */
 export default async function PersonDetailPage({ params }: PersonPageProps) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
     notFound();

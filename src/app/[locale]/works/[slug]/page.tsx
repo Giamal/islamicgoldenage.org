@@ -8,7 +8,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { notFound } from "next/navigation";
 
-import { isLocale } from "@/i18n/config";
+import { type Locale, isLocale } from "@/i18n/config";
 import {
   getDerivedConnections,
   getEntityById,
@@ -17,10 +17,9 @@ import {
 } from "@/lib/content/repository";
 import { buildLocaleMetadata } from "@/lib/seo";
 import type { ContentEntityType, WorkContributorRole } from "@/lib/content/types";
-import type { Locale } from "@/lib/types/i18n";
 
 type WorkPageProps = {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 };
 
 type ContributorItem = {
@@ -132,7 +131,7 @@ function getWorkTypeLabel(locale: Locale, workType: string) {
  * Generates metadata with locale-aware canonical and hreflang alternates.
  */
 export async function generateMetadata({ params }: WorkPageProps) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
     return {};
@@ -162,7 +161,7 @@ export async function generateMetadata({ params }: WorkPageProps) {
  * Renders the localized work content, key metadata fields, and direct related entities.
  */
 export default async function WorkDetailPage({ params }: WorkPageProps) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
     notFound();

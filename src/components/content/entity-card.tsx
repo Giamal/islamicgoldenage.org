@@ -8,7 +8,7 @@ import Link from "next/link";
 
 import type { Locale } from "@/i18n/config";
 import type { LocalizedEntitySummary } from "@/lib/content/repository";
-import { getKindLabel } from "@/lib/ui-copy";
+import { getEntityTypeLabel } from "@/lib/ui-copy";
 
 type EntityCardProps = {
   entity: LocalizedEntitySummary;
@@ -25,7 +25,7 @@ export function EntityCard({ entity, locale }: EntityCardProps) {
       className="group rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface-strong)] p-6 transition hover:-translate-y-0.5 hover:border-[var(--accent)]"
     >
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--warm)]">
-        {getKindLabel(locale, entity.kind)}
+        {getEntityTypeLabel(locale, entity.entityType)}
       </p>
       <h2 className="mt-3 text-2xl font-semibold tracking-tight transition group-hover:text-[var(--accent)]">
         {entity.title}

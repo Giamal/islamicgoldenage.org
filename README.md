@@ -10,7 +10,7 @@ This repository is the lean foundation for a public educational website that can
 - books
 - events
 - discoveries
-- categories
+- topics
 - future editorial articles and timelines
 
 The first iteration is intentionally small. It focuses on architecture, multilingual routing, SEO, and data modeling instead of shipping a full content system too early.
@@ -45,9 +45,9 @@ The first iteration is intentionally small. It focuses on architecture, multilin
 |   |   |   |-- entities/
 |   |   |   `-- layout.tsx
 |   |   |-- globals.css
-|   |   |-- proxy.ts
 |   |   |-- robots.ts
 |   |   `-- sitemap.ts
+|   |-- proxy.ts
 |   |-- components/
 |   |   |-- content/
 |   |   |-- layout/
@@ -70,38 +70,47 @@ The first iteration is intentionally small. It focuses on architecture, multilin
 
 ## Key Architecture Decisions
 
-### 1. Canonical Entity Model First
+### 1. Canonical Core + Typed Profiles
 
-The initial database model uses one canonical `Entity` table plus `EntityTranslation`.
+The database model uses a shared `ContentEntity` table plus typed profile tables:
 
-Why:
-
-- it keeps the schema small for a solo developer
-- it avoids premature specialization for people, books, events, and categories
-- it makes multilingual support a first-class part of the data model
-- it keeps future ingestion pipelines simpler because every content object shares a stable canonical identity
-
-The `kind` field differentiates whether an entity is an article, person, book, event, or category.
-
-### 2. Categories Are Also Entities
-
-Instead of adding separate category tables and join tables immediately, categories are modeled as `Entity` rows with `kind = CATEGORY`.
+- `PersonProfile`
+- `WorkProfile`
+- `TopicProfile`
+- `EventProfile`
+- `PlaceProfile`
+- `SourceProfile`
 
 Why:
 
-- fewer tables to maintain in version `0.1`
-- categories still get translations, SEO fields, and internal links
-- future navigation and thematic hubs remain flexible
+- one stable canonical identity for all content (`canonicalSlug`, status, ranking)
+- clear type-specific fields without forcing everything into a single generic payload
+- easy migration path from in-memory repository to Prisma queries
+
+### 2. Localization as First-Class Data
+
+All translated fields live in `ContentEntityLocalization` with:
+
+- locale-specific slugs
+- title, summary, excerpt
+- SEO fields
+- structured `ContentSection` blocks
+
+Why:
+
+- multilingual behavior is explicit at the data layer
+- routes and SEO can stay locale-aware without duplicating canonical records
+- section-based rendering maps directly to current entity pages
 
 ### 3. Internal Linking Is Explicit
 
-`EntityLink` models relationships between canonical entities.
+`ContentRelationship` models graph edges between entities with typed semantics and importance score.
 
 Why:
 
-- strong internal linking is important for a reference platform
-- the site can grow toward a lightweight knowledge graph without adding a graph database
-- relationships like `BELONGS_TO`, `RELATED`, or `AUTHORED` stay queryable
+- keeps related-content blocks queryable and deterministic
+- supports future recommendation/timeline/map features
+- avoids hardcoded inline links in editorial content
 
 ### 4. Localized Routing Uses URL Segments
 
@@ -130,7 +139,7 @@ Why:
 
 - English is the primary locale
 - all public pages are locale-prefixed
-- unprefixed requests are redirected to `/en/...` via `src/app/proxy.ts`
+- unprefixed requests are redirected to `/en/...` via `src/proxy.ts`
 - locale metadata is generated centrally
 - page metadata is prepared for canonical URLs and `hreflang` alternates
 - Arabic already sets `dir="rtl"` at the document level
@@ -227,10 +236,10 @@ No custom Vercel infrastructure is required for version `0.1`. The repository is
 
 These decisions were made intentionally to keep the foundation lean:
 
-- A generic `Entity` model is used instead of separate `Person`, `Book`, and `Event` tables.
-- Categories are represented as entities instead of a dedicated taxonomy subsystem.
-- Placeholder content is file-backed for now, while Prisma is configured and ready for database-backed content next.
-- The first public listing route is `/[locale]/entities` because it matches the canonical model and keeps future specialization optional.
+- the public detail route is currently unified at `/[locale]/entities/[slug]`
+- entity-specific semantics (`person/work/topic/event/place/source`) are modeled in the domain and in Prisma
+- placeholder content remains file-backed for now, while Prisma is aligned and ready for the database transition
+- sections and relationships are first-class model concepts, not UI-only conventions
 
 ## Suggested Commit Plan
 

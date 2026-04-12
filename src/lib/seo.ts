@@ -12,7 +12,6 @@ import {
   locales,
   type Locale,
 } from "@/i18n/config";
-import type { LocalizedEntitySummary } from "@/lib/content/repository";
 import { getSiteUrl } from "@/lib/site-config";
 
 type LocaleMetadataInput = {
@@ -78,16 +77,3 @@ export function buildLocaleMetadata(
   };
 }
 
-/**
- * Builds detail page metadata from the localized entity record.
- */
-export function buildEntityMetadata(
-  locale: Locale,
-  entity: LocalizedEntitySummary,
-): Metadata {
-  return buildLocaleMetadata(locale, {
-    title: `${entity.title} | Islamic Golden Age`,
-    description: entity.excerpt,
-    path: `/entities/${entity.slug}`,
-  });
-}

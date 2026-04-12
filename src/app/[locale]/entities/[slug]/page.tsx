@@ -1,8 +1,8 @@
 /**
- * Topic detail page
+ * Entity detail page
  *
- * Uses the current generic entity route to render localized topic entries.
- * This keeps routing stable while validating topic-specific content behavior.
+ * Uses the current generic entity route to render localized entities.
+ * This keeps routing stable while validating cross-entity content behavior.
  */
 import Link from "next/link";
 import type { Route } from "next";
@@ -17,9 +17,9 @@ import {
 } from "@/lib/content/repository";
 import { buildLocaleMetadata } from "@/lib/seo";
 import type { ContentEntityType, TopicType } from "@/lib/content/types";
-import type { Locale } from "@/lib/types/i18n";
+import type { Locale } from "@/i18n/config";
 
-type TopicPageProps = {
+type EntityDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
 
@@ -37,7 +37,7 @@ function buildEntityHref(
   return `/${locale}/entities/${slug}`;
 }
 
-function getTopicPageLabels(locale: Locale) {
+function getEntityPageLabels(locale: Locale) {
   const dictionary = {
     en: {
       entityTypeLabel: "Content type",
@@ -116,9 +116,9 @@ function getEntityTypeLabel(locale: Locale, entityType: ContentEntityType) {
 }
 
 /**
- * Generates metadata for localized topic detail pages under the generic entity route.
+ * Generates metadata for localized entity detail pages under the generic route.
  */
-export async function generateMetadata({ params }: TopicPageProps) {
+export async function generateMetadata({ params }: EntityDetailPageProps) {
   const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
@@ -126,29 +126,29 @@ export async function generateMetadata({ params }: TopicPageProps) {
   }
 
   const typedLocale: Locale = locale;
-  const topic = getEntityBySlug(typedLocale, slug);
+  const entity = getEntityBySlug(typedLocale, slug);
 
-  if (!topic) {
+  if (!entity) {
     return {};
   }
 
-  const localizedTopic = getLocalizedEntity(topic, typedLocale);
+  const localizedEntity = getLocalizedEntity(entity, typedLocale);
 
-  if (!localizedTopic) {
+  if (!localizedEntity) {
     return {};
   }
 
   return buildLocaleMetadata(typedLocale, {
-    title: localizedTopic.localization.title,
-    description: localizedTopic.localization.excerpt,
-    path: `/entities/${localizedTopic.localization.slug}`,
+    title: localizedEntity.localization.title,
+    description: localizedEntity.localization.excerpt,
+    path: `/entities/${localizedEntity.localization.slug}`,
   });
 }
 
 /**
- * Renders a localized topic entry with related people, works, and topics.
+ * Renders a localized entity entry with related people, works, and topics.
  */
-export default async function TopicDetailPage({ params }: TopicPageProps) {
+export default async function EntityDetailPage({ params }: EntityDetailPageProps) {
   const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
@@ -156,20 +156,20 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
   }
 
   const typedLocale: Locale = locale;
-  const topic = getEntityBySlug(typedLocale, slug);
+  const entity = getEntityBySlug(typedLocale, slug);
 
-  if (!topic) {
+  if (!entity) {
     notFound();
   }
 
-  const localizedTopic = getLocalizedEntity(topic, typedLocale);
+  const localizedEntity = getLocalizedEntity(entity, typedLocale);
 
-  if (!localizedTopic) {
+  if (!localizedEntity) {
     notFound();
   }
 
-  const labels = getTopicPageLabels(typedLocale);
-  const derivedConnections = getDerivedConnections(topic.id);
+  const labels = getEntityPageLabels(typedLocale);
+  const derivedConnections = getDerivedConnections(entity.id);
 
   const relatedReferences = [
     ...derivedConnections.primaryConnections.relatedPeople,
@@ -201,7 +201,7 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
     })
     .filter((item): item is RelatedItem => Boolean(item));
 
-  const orderedSections = localizedTopic.localization.sections
+  const orderedSections = localizedEntity.localization.sections
     .slice()
     .sort((a, b) => a.order - b.order);
 
@@ -210,13 +210,13 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
       <header className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
         <div className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--warm)]">
-            {getEntityTypeLabel(typedLocale, topic.entityType)}
+            {getEntityTypeLabel(typedLocale, entity.entityType)}
           </p>
           <h1 className="text-4xl font-semibold tracking-tight">
-            {localizedTopic.localization.title}
+            {localizedEntity.localization.title}
           </h1>
           <p className="text-lg text-[var(--muted)]">
-            {localizedTopic.localization.excerpt}
+            {localizedEntity.localization.excerpt}
           </p>
         </div>
       </header>
@@ -238,9 +238,9 @@ export default async function TopicDetailPage({ params }: TopicPageProps) {
           <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
             <h2 className="text-2xl font-semibold">{labels.entityTypeLabel}</h2>
             <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
-              <li>{getEntityTypeLabel(typedLocale, topic.entityType)}</li>
-              {topic.entityType === "topic" ? (
-                <li>{getTopicTypeLabel(typedLocale, topic.topicType as TopicType)}</li>
+              <li>{getEntityTypeLabel(typedLocale, entity.entityType)}</li>
+              {entity.entityType === "topic" ? (
+                <li>{getTopicTypeLabel(typedLocale, entity.topicType as TopicType)}</li>
               ) : null}
             </ul>
           </section>
