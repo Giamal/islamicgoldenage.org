@@ -5,7 +5,7 @@
  * This avoids scattering placeholder strings across routes while a real translation workflow is still being introduced.
  */
 import type { Locale } from "@/i18n/config";
-import type { ContentEntityType } from "@/lib/content/types";
+import type { ContentEntityType } from "@prisma/client";
 
 /**
  * Returns localized copy for the shared navigation.

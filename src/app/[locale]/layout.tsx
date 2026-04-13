@@ -10,7 +10,6 @@ import { notFound } from "next/navigation";
 
 import "@/app/globals.css";
 
-import { SiteHeader } from "@/components/layout/site-header";
 import { isLocale, locales, type Locale } from "@/i18n/config";
 import { buildLocaleMetadata, getLocaleDirection } from "@/lib/seo";
 
@@ -65,7 +64,6 @@ export default async function LocaleLayout({
     <html lang={typedLocale} dir={getLocaleDirection(typedLocale)}>
       <body className="min-h-screen bg-transparent text-[var(--foreground)] antialiased">
         <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
-          <SiteHeader locale={typedLocale} />
           <main className="flex-1 py-10">{children}</main>
         </div>
       </body>

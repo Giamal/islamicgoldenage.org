@@ -2,13 +2,14 @@
  * Entity listing page
  *
  * Provides the first browseable directory of content in the application.
- * Uses repository helpers so the UI can later switch from placeholder data to Prisma without large route rewrites.
+ * Reads published records directly from Prisma.
  */
 import { notFound } from "next/navigation";
 
 import { EntityCard } from "@/components/content/entity-card";
+import { SiteHeader } from "@/components/layout/site-header";
 import { isLocale } from "@/i18n/config";
-import { getLocalizedEntities } from "@/lib/content/repository";
+import { getPublishedLocalizedEntitiesFromDb } from "@/lib/db/content-entity-list";
 import { buildLocaleMetadata } from "@/lib/seo";
 import { getEntityIndexCopy } from "@/lib/ui-copy";
 
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: EntityIndexPageProps) {
 }
 
 /**
- * Renders the placeholder content index for the selected locale.
+ * Renders the locale content index from database data.
  */
 export default async function EntityIndexPage({
   params,
@@ -47,10 +48,11 @@ export default async function EntityIndexPage({
   }
 
   const copy = getEntityIndexCopy(locale);
-  const entities = getLocalizedEntities(locale);
+  const entities = await getPublishedLocalizedEntitiesFromDb(locale);
 
   return (
     <div className="space-y-8">
+      <SiteHeader locale={locale} />
       <header className="space-y-3">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--warm)]">
           {copy.kicker}

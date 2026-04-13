@@ -1,19 +1,18 @@
 /**
  * Sitemap configuration
  *
- * Generates a small starter sitemap from the supported locales and placeholder content.
- * This gives search engines a solid foundation and can later be swapped to database-backed generation.
+ * Generates sitemap entries from locale routes and published database content.
  */
 import type { MetadataRoute } from "next";
 
 import { locales } from "@/i18n/config";
-import { getLocalizedEntities } from "@/lib/content/repository";
+import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-config";
 
 /**
- * Builds sitemap entries for the locale homepages and current placeholder content routes.
+ * Builds sitemap entries for the locale homepages and published entity routes.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
 
   const staticEntries = locales.flatMap((locale) => [
@@ -31,14 +30,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]);
 
-  const entityEntries = locales.flatMap((locale) =>
-    getLocalizedEntities(locale).map((entity) => ({
-      url: `${siteUrl}/${locale}/entities/${entity.slug}`,
-      lastModified: new Date(entity.updatedAt),
+  const records = await prisma.contentEntityLocalization.findMany({
+    where: {
+      locale: { in: [...locales] },
+      entity: { status: "published" },
+    },
+    select: {
+      locale: true,
+      slug: true,
+      entity: {
+        select: {
+          updatedAt: true,
+        },
+      },
+    },
+    orderBy: [{ entity: { importanceScore: "desc" } }, { title: "asc" }],
+  });
+
+  const entityEntries = records.map((record) => ({
+      url: `${siteUrl}/${record.locale}/entities/${record.slug}`,
+      lastModified: record.entity.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.7,
-    })),
-  );
+    }));
 
   return [...staticEntries, ...entityEntries];
 }

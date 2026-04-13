@@ -148,6 +148,8 @@ model ContentEntity {
   contributorAsPerson WorkContributor[] @relation("ContributorPerson")
 
   @@index([entityType, status])
+  @@index([status, importanceScore])
+  @@index([entityType, importanceScore])
 }
 
 model ContentEntityLocalization {
@@ -175,6 +177,7 @@ model ContentEntityLocalization {
   @@unique([entityId, locale])
   @@unique([locale, slug])
   @@index([locale, title])
+  @@index([locale, noIndex])
 }
 
 model ContentSection {
@@ -250,9 +253,14 @@ model EventProfile {
   eventType      EventType
   startDate      String
   endDate        String?
+  startYear      Int?
+  endYear        Int?
   datePrecision  DatePrecision?
 
   entity         ContentEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([eventType, startYear])
+  @@index([startYear, endYear])
 }
 
 model PlaceProfile {
@@ -279,6 +287,8 @@ model SourceProfile {
   url              String?
 
   entity           ContentEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([sourceType, publicationYear])
 }
 
 model ContentRelationship {
@@ -296,4 +306,5 @@ model ContentRelationship {
   @@unique([fromEntityId, toEntityId, relationType])
   @@index([fromEntityId, relationType])
   @@index([toEntityId, relationType])
+  @@index([relationType, importanceScore])
 }

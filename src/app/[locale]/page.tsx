@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { SiteHeader } from "@/components/layout/site-header";
 import { isLocale } from "@/i18n/config";
 import { buildLocaleMetadata } from "@/lib/seo";
 import { getHomepageCopy } from "@/lib/ui-copy";
@@ -47,6 +48,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <div className="space-y-10">
+      <SiteHeader locale={locale} />
       <section className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-8 shadow-[var(--shadow)] backdrop-blur sm:p-10">
         <div className="max-w-3xl space-y-6">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[var(--warm)]">

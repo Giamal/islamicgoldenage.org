@@ -5,50 +5,20 @@
  * Keeping this as a server component keeps the shell simple and avoids unnecessary client bundles.
  */
 import Link from "next/link";
-import { Suspense } from "react";
 
 import { LocaleSwitcher } from "@/components/navigation/locale-switcher";
 import type { Locale } from "@/i18n/config";
-import { localeLabels, locales } from "@/i18n/config";
 import { getNavigationCopy } from "@/lib/ui-copy";
 
 type SiteHeaderProps = {
   locale: Locale;
+  localizedEntityLinks?: Partial<Record<Locale, string>>;
 };
-
-/**
- * Provides a static locale switcher fallback while client navigation state is resolving.
- */
-function LocaleSwitcherFallback({ currentLocale }: { currentLocale: Locale }) {
-  return (
-    <div className="flex items-center gap-2">
-      {locales.map((locale) => {
-        const isActive = locale === currentLocale;
-
-        return (
-          <Link
-            key={locale}
-            href={`/${locale}`}
-            className={`rounded-full px-3 py-1.5 text-sm font-semibold transition ${
-              isActive
-                ? "bg-[var(--accent)] text-white"
-                : "border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)]"
-            }`}
-            hrefLang={locale}
-            lang={locale}
-          >
-            {localeLabels[locale]}
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
 
 /**
  * Renders the shared site header with primary navigation and locale switching.
  */
-export function SiteHeader({ locale }: SiteHeaderProps) {
+export function SiteHeader({ locale, localizedEntityLinks }: SiteHeaderProps) {
   const copy = getNavigationCopy(locale);
 
   return (
@@ -69,9 +39,10 @@ export function SiteHeader({ locale }: SiteHeaderProps) {
             <Link href={`/${locale}`}>{copy.home}</Link>
             <Link href={`/${locale}/entities`}>{copy.explore}</Link>
           </nav>
-          <Suspense fallback={<LocaleSwitcherFallback currentLocale={locale} />}>
-            <LocaleSwitcher currentLocale={locale} />
-          </Suspense>
+          <LocaleSwitcher
+            currentLocale={locale}
+            localizedEntityLinks={localizedEntityLinks}
+          />
         </div>
       </div>
     </header>

@@ -7,11 +7,22 @@
 import Link from "next/link";
 
 import type { Locale } from "@/i18n/config";
-import type { LocalizedEntitySummary } from "@/lib/content/repository";
 import { getEntityTypeLabel } from "@/lib/ui-copy";
 
+type EntityCardData = {
+  id: string;
+  canonicalSlug: string;
+  entityType: "person" | "work" | "topic" | "event" | "place" | "source";
+  featuredYear?: number;
+  updatedAt: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  bodyParagraphs: string[];
+};
+
 type EntityCardProps = {
-  entity: LocalizedEntitySummary;
+  entity: EntityCardData;
   locale: Locale;
 };
 

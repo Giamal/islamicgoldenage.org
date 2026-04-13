@@ -1,58 +1,45 @@
 /**
  * Entity detail page
  *
- * Uses the current generic entity route to render localized entities.
- * This keeps routing stable while validating cross-entity content behavior.
+ * Reads locale-specific entity content directly from Prisma.
  */
 import Link from "next/link";
-import type { Route } from "next";
 import { notFound } from "next/navigation";
+import type { Route } from "next";
 
+import { SiteHeader } from "@/components/layout/site-header";
 import { isLocale } from "@/i18n/config";
-import {
-  getDerivedConnections,
-  getEntityBySlug,
-  getEntityById,
-  getLocalizedEntity,
-} from "@/lib/content/repository";
+import { getContentEntityBySlugFromDb } from "@/lib/db/content-entity-read";
 import { buildLocaleMetadata } from "@/lib/seo";
-import type { ContentEntityType, TopicType } from "@/lib/content/types";
 import type { Locale } from "@/i18n/config";
+import type { ContentEntityType, TopicType } from "@prisma/client";
 
 type EntityDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
 
-type RelatedItem = {
-  id: string;
-  title: string;
-  href: Route;
-};
-
-function buildEntityHref(
-  locale: Locale,
-  _entityType: ContentEntityType,
-  slug: string,
-) {
-  return `/${locale}/entities/${slug}`;
-}
-
 function getEntityPageLabels(locale: Locale) {
   const dictionary = {
     en: {
       entityTypeLabel: "Content type",
-      relatedContent: "Related Content",
-      noRelatedEntries: "No related entries yet.",
+      works: "Works",
+      authors: "Authors",
+      topics: "Topics",
+      related: "Related",
     },
     it: {
       entityTypeLabel: "Tipo di contenuto",
-      relatedContent: "Contenuti correlati",
-      noRelatedEntries: "Nessuna voce correlata al momento.",
+      works: "Opere",
+      authors: "Autori",
+      topics: "Temi",
+      related: "Correlati",
     },
     ar: {
       entityTypeLabel: "نوع المحتوى",
-      relatedContent: "محتوى مرتبط",
-      noRelatedEntries: "لا توجد عناصر مرتبطة حتى الآن.",
+      works: "الأعمال",
+      authors: "المؤلفون",
+      topics: "الموضوعات",
+      related: "مرتبط",
     },
   } as const;
 
@@ -115,6 +102,42 @@ function getEntityTypeLabel(locale: Locale, entityType: ContentEntityType) {
   return labels[locale][entityType];
 }
 
+type RelatedLink = {
+  id: string;
+  title: string;
+  href: Route;
+};
+
+function buildRelatedLink(
+  locale: Locale,
+  entity: {
+    id: string;
+    localizations: Array<{ slug: string; title: string }>;
+  },
+): RelatedLink | null {
+  const localization = entity.localizations[0];
+  if (!localization) {
+    return null;
+  }
+
+  return {
+    id: entity.id,
+    title: localization.title,
+    href: `/${locale}/entities/${localization.slug}` as Route,
+  };
+}
+
+function uniqueLinks(links: Array<RelatedLink | null>): RelatedLink[] {
+  const map = new Map<string, RelatedLink>();
+  for (const link of links) {
+    if (!link) {
+      continue;
+    }
+    map.set(link.id, link);
+  }
+  return [...map.values()];
+}
+
 /**
  * Generates metadata for localized entity detail pages under the generic route.
  */
@@ -125,23 +148,15 @@ export async function generateMetadata({ params }: EntityDetailPageProps) {
     return {};
   }
 
-  const typedLocale: Locale = locale;
-  const entity = getEntityBySlug(typedLocale, slug);
-
-  if (!entity) {
+  const dbEntity = await getContentEntityBySlugFromDb(locale, slug);
+  if (!dbEntity) {
     return {};
   }
 
-  const localizedEntity = getLocalizedEntity(entity, typedLocale);
-
-  if (!localizedEntity) {
-    return {};
-  }
-
-  return buildLocaleMetadata(typedLocale, {
-    title: localizedEntity.localization.title,
-    description: localizedEntity.localization.excerpt,
-    path: `/entities/${localizedEntity.localization.slug}`,
+  return buildLocaleMetadata(locale, {
+    title: dbEntity.localization.title,
+    description: dbEntity.localization.excerpt,
+    path: `/entities/${dbEntity.localization.slug}`,
   });
 }
 
@@ -156,67 +171,134 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
   }
 
   const typedLocale: Locale = locale;
-  const entity = getEntityBySlug(typedLocale, slug);
-
-  if (!entity) {
-    notFound();
-  }
-
-  const localizedEntity = getLocalizedEntity(entity, typedLocale);
-
-  if (!localizedEntity) {
+  const dbEntity = await getContentEntityBySlugFromDb(typedLocale, slug);
+  if (!dbEntity) {
     notFound();
   }
 
   const labels = getEntityPageLabels(typedLocale);
-  const derivedConnections = getDerivedConnections(entity.id);
+  const orderedSections = dbEntity.localization.sections;
+  const topicType =
+    dbEntity.profile.kind === "topic" ? dbEntity.profile.data?.topicType : null;
 
-  const relatedReferences = [
-    ...derivedConnections.primaryConnections.relatedPeople,
-    ...derivedConnections.primaryConnections.relatedWorks,
-    ...derivedConnections.primaryConnections.relatedTopics,
-  ];
+  const authoredWorks =
+    dbEntity.entity.entityType === "person"
+      ? uniqueLinks(
+          dbEntity.entity.outgoingRelationships
+            .filter(
+              (relationship) =>
+                relationship.relationType === "authored" &&
+                relationship.toEntity.entityType === "work",
+            )
+            .map((relationship) =>
+              buildRelatedLink(typedLocale, relationship.toEntity),
+            ),
+        )
+      : [];
 
-  const relatedItems = relatedReferences
-    .map((reference) => getEntityById(reference.entityId))
-    .filter((entity): entity is NonNullable<ReturnType<typeof getEntityById>> =>
-      Boolean(entity),
-    )
-    .map((entity) => {
-      const localized = getLocalizedEntity(entity, typedLocale);
+  const authors =
+    dbEntity.entity.entityType === "work"
+      ? uniqueLinks(
+          dbEntity.entity.incomingRelationships
+            .filter(
+              (relationship) =>
+                relationship.relationType === "authored" &&
+                relationship.fromEntity.entityType === "person",
+            )
+            .map((relationship) =>
+              buildRelatedLink(typedLocale, relationship.fromEntity),
+            ),
+        )
+      : [];
 
-      if (!localized) {
-        return null;
-      }
+  const relatedTopics =
+    dbEntity.entity.entityType === "work"
+      ? uniqueLinks(
+          dbEntity.entity.outgoingRelationships
+            .filter(
+              (relationship) =>
+                (relationship.relationType === "about" ||
+                  relationship.relationType === "associated_with" ||
+                  relationship.relationType === "related_to") &&
+                relationship.toEntity.entityType === "topic",
+            )
+            .map((relationship) =>
+              buildRelatedLink(typedLocale, relationship.toEntity),
+            ),
+        )
+      : [];
 
-      return {
-        id: entity.id,
-        title: localized.localization.title,
-        href: buildEntityHref(
-          typedLocale,
-          entity.entityType,
-          localized.localization.slug,
-        ) as Route,
-      };
-    })
-    .filter((item): item is RelatedItem => Boolean(item));
+  const topicWorks =
+    dbEntity.entity.entityType === "topic"
+      ? uniqueLinks(
+          dbEntity.entity.incomingRelationships
+            .filter(
+              (relationship) =>
+                (relationship.relationType === "about" ||
+                  relationship.relationType === "associated_with" ||
+                  relationship.relationType === "related_to") &&
+                relationship.fromEntity.entityType === "work",
+            )
+            .map((relationship) =>
+              buildRelatedLink(typedLocale, relationship.fromEntity),
+            ),
+        )
+      : [];
 
-  const orderedSections = localizedEntity.localization.sections
-    .slice()
-    .sort((a, b) => a.order - b.order);
+  const topicPeople =
+    dbEntity.entity.entityType === "topic"
+      ? uniqueLinks(
+          dbEntity.entity.incomingRelationships
+            .filter(
+              (relationship) =>
+                (relationship.relationType === "associated_with" ||
+                  relationship.relationType === "influenced" ||
+                  relationship.relationType === "about") &&
+                relationship.fromEntity.entityType === "person",
+            )
+            .map((relationship) =>
+              buildRelatedLink(typedLocale, relationship.fromEntity),
+            ),
+        )
+      : [];
+
+  const consumedRelatedIds = new Set<string>([
+    ...authoredWorks.map((item) => item.id),
+    ...authors.map((item) => item.id),
+    ...relatedTopics.map((item) => item.id),
+    ...topicWorks.map((item) => item.id),
+    ...topicPeople.map((item) => item.id),
+  ]);
+
+  const genericRelated = uniqueLinks([
+    ...dbEntity.entity.outgoingRelationships.map((relationship) =>
+      buildRelatedLink(typedLocale, relationship.toEntity),
+    ),
+    ...dbEntity.entity.incomingRelationships.map((relationship) =>
+      buildRelatedLink(typedLocale, relationship.fromEntity),
+    ),
+  ]).filter((item) => !consumedRelatedIds.has(item.id));
+
+  const localizedEntityLinks = Object.fromEntries(
+    dbEntity.entity.localizations.map((item) => [
+      item.locale,
+      `/${item.locale}/entities/${item.slug}`,
+    ]),
+  ) as Partial<Record<Locale, string>>;
 
   return (
     <article className="mx-auto w-full max-w-6xl space-y-8">
+      <SiteHeader locale={typedLocale} localizedEntityLinks={localizedEntityLinks} />
       <header className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
         <div className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--warm)]">
-            {getEntityTypeLabel(typedLocale, entity.entityType)}
+            {getEntityTypeLabel(typedLocale, dbEntity.entity.entityType)}
           </p>
           <h1 className="text-4xl font-semibold tracking-tight">
-            {localizedEntity.localization.title}
+            {dbEntity.localization.title}
           </h1>
           <p className="text-lg text-[var(--muted)]">
-            {localizedEntity.localization.excerpt}
+            {dbEntity.localization.summary}
           </p>
         </div>
       </header>
@@ -238,20 +320,18 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
           <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
             <h2 className="text-2xl font-semibold">{labels.entityTypeLabel}</h2>
             <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
-              <li>{getEntityTypeLabel(typedLocale, entity.entityType)}</li>
-              {entity.entityType === "topic" ? (
-                <li>{getTopicTypeLabel(typedLocale, entity.topicType as TopicType)}</li>
+              <li>{getEntityTypeLabel(typedLocale, dbEntity.entity.entityType)}</li>
+              {topicType ? (
+                <li>{getTopicTypeLabel(typedLocale, topicType as TopicType)}</li>
               ) : null}
             </ul>
           </section>
 
-          <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-3">
-            <h2 className="text-2xl font-semibold">{labels.relatedContent}</h2>
-            {relatedItems.length === 0 ? (
-              <p className="text-[var(--muted)]">{labels.noRelatedEntries}</p>
-            ) : (
-              <ul className="list-disc list-inside space-y-1">
-                {relatedItems.map((item) => (
+          {authoredWorks.length > 0 ? (
+            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
+              <h2 className="text-2xl font-semibold">{labels.works}</h2>
+              <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
+                {authoredWorks.map((item) => (
                   <li key={item.id}>
                     <Link href={item.href} className="hover:underline">
                       {item.title}
@@ -259,8 +339,75 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
                   </li>
                 ))}
               </ul>
-            )}
-          </section>
+            </section>
+          ) : null}
+
+          {authors.length > 0 ? (
+            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
+              <h2 className="text-2xl font-semibold">{labels.authors}</h2>
+              <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
+                {authors.map((item) => (
+                  <li key={item.id}>
+                    <Link href={item.href} className="hover:underline">
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {(relatedTopics.length > 0 || topicPeople.length > 0) ? (
+            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
+              <h2 className="text-2xl font-semibold">{labels.topics}</h2>
+              <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
+                {relatedTopics.map((item) => (
+                  <li key={item.id}>
+                    <Link href={item.href} className="hover:underline">
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+                {topicPeople.map((item) => (
+                  <li key={item.id}>
+                    <Link href={item.href} className="hover:underline">
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {topicWorks.length > 0 ? (
+            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
+              <h2 className="text-2xl font-semibold">{labels.works}</h2>
+              <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
+                {topicWorks.map((item) => (
+                  <li key={item.id}>
+                    <Link href={item.href} className="hover:underline">
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {genericRelated.length > 0 ? (
+            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
+              <h2 className="text-2xl font-semibold">{labels.related}</h2>
+              <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
+                {genericRelated.map((item) => (
+                  <li key={item.id}>
+                    <Link href={item.href} className="hover:underline">
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
         </aside>
       </section>
     </article>

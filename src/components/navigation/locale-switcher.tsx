@@ -14,12 +14,16 @@ import { localeLabels, locales, type Locale } from "@/i18n/config";
 
 type LocaleSwitcherProps = {
   currentLocale: Locale;
+  localizedEntityLinks?: Partial<Record<Locale, string>>;
 };
 
 /**
  * Renders supported locale links and highlights the active locale.
  */
-export function LocaleSwitcher({ currentLocale }: LocaleSwitcherProps) {
+export function LocaleSwitcher({
+  currentLocale,
+  localizedEntityLinks,
+}: LocaleSwitcherProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -29,6 +33,10 @@ export function LocaleSwitcher({ currentLocale }: LocaleSwitcherProps) {
    * against Next.js generated route unions without an unsafe cast.
    */
   function buildLocalizedPath(targetLocale: Locale) {
+    if (localizedEntityLinks) {
+      return localizedEntityLinks[targetLocale] ?? `/${targetLocale}/entities`;
+    }
+
     const segments = pathname.split("/");
 
     if (segments.length > 1 && locales.includes(segments[1] as Locale)) {
