@@ -12,11 +12,17 @@ type LocalizationInput = {
   slug: string;
   summary: string;
   bodyMarkdown: string;
+  imageAlt: string;
+  imageCaption: string;
+  videoUrl: string;
+  audioUrl: string;
 };
 
 type EntityFormData = {
   entityType: ContentEntityType;
   status: ContentStatus;
+  heroImageUrl: string;
+  heroImageCredit: string;
   localizations: LocalizationInput[];
 };
 
@@ -27,7 +33,12 @@ type EntityFormProps = {
 };
 
 const allowedEntityTypes: ContentEntityType[] = ["person", "work", "topic"];
-const allowedStatuses: ContentStatus[] = ["draft", "published", "archived"];
+const allowedStatuses: ContentStatus[] = [
+  "draft",
+  "ready_for_review",
+  "published",
+  "archived",
+];
 
 function getLocalizationValue(
   localizations: LocalizationInput[],
@@ -40,6 +51,10 @@ function getLocalizationValue(
       slug: "",
       summary: "",
       bodyMarkdown: "",
+      imageAlt: "",
+      imageCaption: "",
+      videoUrl: "",
+      audioUrl: "",
     }
   );
 }
@@ -78,6 +93,28 @@ export function EntityForm({ mode, defaultData, action }: EntityFormProps) {
                 </option>
               ))}
             </select>
+          </label>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-2 text-sm">
+            <span className="font-medium">Primary image URL</span>
+            <input
+              name="heroImageUrl"
+              defaultValue={defaultData.heroImageUrl}
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
+              placeholder="https://..."
+            />
+          </label>
+
+          <label className="space-y-2 text-sm">
+            <span className="font-medium">Image source / credit</span>
+            <input
+              name="heroImageCredit"
+              defaultValue={defaultData.heroImageCredit}
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
+              placeholder="Source or credit line"
+            />
           </label>
         </div>
       </section>
@@ -129,6 +166,48 @@ export function EntityForm({ mode, defaultData, action }: EntityFormProps) {
                 className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 font-mono"
               />
             </label>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block space-y-2 text-sm">
+                <span className="font-medium">Image alt text (localized)</span>
+                <input
+                  name={`${locale}_image_alt`}
+                  defaultValue={values.imageAlt}
+                  className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
+                />
+              </label>
+
+              <label className="block space-y-2 text-sm">
+                <span className="font-medium">Image caption (localized)</span>
+                <input
+                  name={`${locale}_image_caption`}
+                  defaultValue={values.imageCaption}
+                  className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
+                />
+              </label>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block space-y-2 text-sm">
+                <span className="font-medium">Video URL (optional)</span>
+                <input
+                  name={`${locale}_video_url`}
+                  defaultValue={values.videoUrl}
+                  className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
+                  placeholder="https://..."
+                />
+              </label>
+
+              <label className="block space-y-2 text-sm">
+                <span className="font-medium">Audio URL (optional)</span>
+                <input
+                  name={`${locale}_audio_url`}
+                  defaultValue={values.audioUrl}
+                  className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
+                  placeholder="https://..."
+                />
+              </label>
+            </div>
           </section>
         );
       })}

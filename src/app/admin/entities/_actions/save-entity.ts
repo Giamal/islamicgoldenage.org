@@ -17,7 +17,12 @@ import {
 import type { ContentEntityType, ContentStatus } from "@prisma/client";
 
 const editableEntityTypes = ["person", "work", "topic"];
-const editableStatuses = ["draft", "published", "archived"];
+const editableStatuses = [
+  "draft",
+  "ready_for_review",
+  "published",
+  "archived",
+];
 
 function getStringField(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -42,17 +47,27 @@ function parseEntityUpsertInput(formData: FormData): AdminEntityUpsertInput {
     slug: getStringField(formData, `${locale}_slug`),
     summary: getStringField(formData, `${locale}_summary`),
     bodyMarkdown: getStringField(formData, `${locale}_body`),
+    imageAlt: getStringField(formData, `${locale}_image_alt`),
+    imageCaption: getStringField(formData, `${locale}_image_caption`),
+    videoUrl: getStringField(formData, `${locale}_video_url`),
+    audioUrl: getStringField(formData, `${locale}_audio_url`),
   })) as Array<{
     locale: Locale;
     title: string;
     slug: string;
     summary: string;
     bodyMarkdown: string;
+    imageAlt: string;
+    imageCaption: string;
+    videoUrl: string;
+    audioUrl: string;
   }>;
 
   return {
     entityType: rawEntityType as ContentEntityType,
     status: rawStatus as ContentStatus,
+    heroImageUrl: getStringField(formData, "heroImageUrl"),
+    heroImageCredit: getStringField(formData, "heroImageCredit"),
     localizations,
   };
 }

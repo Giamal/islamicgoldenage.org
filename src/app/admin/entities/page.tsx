@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Admin entities list page
  *
  * Displays the current entity catalog for quick editorial navigation.
@@ -13,7 +13,7 @@ function formatLocaleLabels(
 ) {
   return localizations
     .map((item) => `${item.locale.toUpperCase()}: ${item.title || item.slug}`)
-    .join(" · ");
+    .join(" | ");
 }
 
 export default async function AdminEntitiesPage() {

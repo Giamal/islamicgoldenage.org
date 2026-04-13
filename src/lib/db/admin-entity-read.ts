@@ -30,12 +30,18 @@ export type AdminEntityEditorLocalization = {
   slug: string;
   summary: string;
   bodyMarkdown: string;
+  imageAlt: string;
+  imageCaption: string;
+  videoUrl: string;
+  audioUrl: string;
 };
 
 export type AdminEntityEditorData = {
   id: string;
   entityType: ContentEntityType;
   status: ContentStatus;
+  heroImageUrl: string;
+  heroImageCredit: string;
   localizations: AdminEntityEditorLocalization[];
   outgoingRelationships: AdminEntityRelationshipRow[];
   incomingRelationships: AdminEntityRelationshipRow[];
@@ -58,6 +64,21 @@ export type AdminRelationshipCandidate = {
   entityType: ContentEntityType;
   label: string;
 };
+
+const localizedSectionKeys = {
+  body: "body",
+  imageAlt: "media_image_alt",
+  imageCaption: "media_image_caption",
+  videoUrl: "media_video_url",
+  audioUrl: "media_audio_url",
+} as const;
+
+function getSectionValue(
+  sections: Array<{ sectionKey: string; content: string }>,
+  key: string,
+) {
+  return sections.find((section) => section.sectionKey === key)?.content ?? "";
+}
 
 function pickBestLocalizedLabel(
   localizations: Array<{ locale: Locale; title: string; slug: string }>,
@@ -119,6 +140,8 @@ export async function getAdminEntityByIdFromDb(
       id: true,
       entityType: true,
       status: true,
+      heroImageUrl: true,
+      heroImageCredit: true,
       localizations: {
         where: {
           locale: { in: [...locales] },
@@ -129,9 +152,22 @@ export async function getAdminEntityByIdFromDb(
           slug: true,
           summary: true,
           sections: {
-            where: { sectionKey: "body" },
+            where: {
+              sectionKey: {
+                in: [
+                  localizedSectionKeys.body,
+                  localizedSectionKeys.imageAlt,
+                  localizedSectionKeys.imageCaption,
+                  localizedSectionKeys.videoUrl,
+                  localizedSectionKeys.audioUrl,
+                ],
+              },
+            },
             orderBy: { sortOrder: "asc" },
-            select: { content: true },
+            select: {
+              sectionKey: true,
+              content: true,
+            },
           },
         },
       },
@@ -196,6 +232,10 @@ export async function getAdminEntityByIdFromDb(
       slug: "",
       summary: "",
       bodyMarkdown: "",
+      imageAlt: "",
+      imageCaption: "",
+      videoUrl: "",
+      audioUrl: "",
     });
   }
 
@@ -206,7 +246,14 @@ export async function getAdminEntityByIdFromDb(
       title: item.title,
       slug: item.slug,
       summary: item.summary,
-      bodyMarkdown: item.sections[0]?.content ?? "",
+      bodyMarkdown: getSectionValue(item.sections, localizedSectionKeys.body),
+      imageAlt: getSectionValue(item.sections, localizedSectionKeys.imageAlt),
+      imageCaption: getSectionValue(
+        item.sections,
+        localizedSectionKeys.imageCaption,
+      ),
+      videoUrl: getSectionValue(item.sections, localizedSectionKeys.videoUrl),
+      audioUrl: getSectionValue(item.sections, localizedSectionKeys.audioUrl),
     });
   }
 
@@ -285,6 +332,8 @@ export async function getAdminEntityByIdFromDb(
     id: record.id,
     entityType: record.entityType,
     status: record.status,
+    heroImageUrl: record.heroImageUrl ?? "",
+    heroImageCredit: record.heroImageCredit ?? "",
     localizations: locales.map((locale) => byLocale.get(locale)!),
     outgoingRelationships,
     incomingRelationships,

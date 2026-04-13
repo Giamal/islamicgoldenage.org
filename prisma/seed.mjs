@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 /**
  * @typedef {"person"|"work"|"topic"|"event"|"place"|"source"} EntityType
- * @typedef {"draft"|"published"|"archived"} Status
+ * @typedef {"draft"|"ready_for_review"|"published"|"archived"} Status
  * @typedef {"en"|"it"|"ar"} Locale
  * @typedef {{sectionKey:string; heading:string; content:string; sortOrder?:number}} Section
  * @typedef {{slug:string; title:string; summary:string; excerpt:string; seoTitle:string; seoDescription:string; sections:Section[]}} Loc

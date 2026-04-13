@@ -2,7 +2,7 @@
  * Admin write helpers
  *
  * Implements minimal editorial create/update operations for entities and localized content.
- * Long-form localized body content is stored in ContentSection using sectionKey="body".
+ * Long-form and media-localized fields are stored in ContentSection with stable section keys.
  */
 import type { Locale } from "@/i18n/config";
 import { prisma } from "@/lib/prisma";
@@ -18,13 +18,27 @@ export type AdminLocalizedInput = {
   slug: string;
   summary: string;
   bodyMarkdown: string;
+  imageAlt: string;
+  imageCaption: string;
+  videoUrl: string;
+  audioUrl: string;
 };
 
 export type AdminEntityUpsertInput = {
   entityType: ContentEntityType;
   status: ContentStatus;
+  heroImageUrl: string;
+  heroImageCredit: string;
   localizations: AdminLocalizedInput[];
 };
+
+const localizedSectionKeys = {
+  body: "body",
+  imageAlt: "media_image_alt",
+  imageCaption: "media_image_caption",
+  videoUrl: "media_video_url",
+  audioUrl: "media_audio_url",
+} as const;
 
 function normalizeLocalizationInput(localization: AdminLocalizedInput) {
   return {
@@ -33,6 +47,10 @@ function normalizeLocalizationInput(localization: AdminLocalizedInput) {
     slug: localization.slug.trim(),
     summary: localization.summary.trim(),
     bodyMarkdown: localization.bodyMarkdown.trim(),
+    imageAlt: localization.imageAlt.trim(),
+    imageCaption: localization.imageCaption.trim(),
+    videoUrl: localization.videoUrl.trim(),
+    audioUrl: localization.audioUrl.trim(),
   };
 }
 
@@ -45,6 +63,43 @@ function getActiveLocalizations(localizations: AdminLocalizedInput[]) {
 function pickCanonicalSlug(localizations: AdminLocalizedInput[]) {
   const first = getActiveLocalizations(localizations)[0];
   return first?.slug;
+}
+
+async function upsertOrDeleteSection(
+  localizationId: string,
+  sectionKey: string,
+  heading: string,
+  sortOrder: number,
+  value: string,
+) {
+  if (value.length === 0) {
+    await prisma.contentSection.deleteMany({
+      where: {
+        localizationId,
+        sectionKey,
+      },
+    });
+    return;
+  }
+
+  await prisma.contentSection.upsert({
+    where: {
+      localizationId_sectionKey: {
+        localizationId,
+        sectionKey,
+      },
+    },
+    create: {
+      localizationId,
+      sectionKey,
+      heading,
+      content: value,
+      sortOrder,
+    },
+    update: {
+      content: value,
+    },
+  });
 }
 
 export async function createAdminEntityInDb(input: AdminEntityUpsertInput) {
@@ -63,6 +118,8 @@ export async function createAdminEntityInDb(input: AdminEntityUpsertInput) {
       entityType: input.entityType,
       status: input.status,
       canonicalSlug,
+      heroImageUrl: input.heroImageUrl.trim() || null,
+      heroImageCredit: input.heroImageCredit.trim() || null,
     },
     select: {
       id: true,
@@ -70,7 +127,7 @@ export async function createAdminEntityInDb(input: AdminEntityUpsertInput) {
   });
 
   for (const localization of activeLocalizations) {
-    await prisma.contentEntityLocalization.create({
+    const savedLocalization = await prisma.contentEntityLocalization.create({
       data: {
         entityId: entity.id,
         locale: localization.locale,
@@ -80,19 +137,47 @@ export async function createAdminEntityInDb(input: AdminEntityUpsertInput) {
         excerpt: localization.summary || localization.title,
         seoTitle: localization.title,
         seoDescription: localization.summary || localization.title,
-        sections:
-          localization.bodyMarkdown.length > 0
-            ? {
-                create: {
-                  sectionKey: "body",
-                  heading: "Body",
-                  content: localization.bodyMarkdown,
-                  sortOrder: 100,
-                },
-              }
-            : undefined,
+      },
+      select: {
+        id: true,
       },
     });
+
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.body,
+      "Body",
+      100,
+      localization.bodyMarkdown,
+    );
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.imageAlt,
+      "Image alt",
+      110,
+      localization.imageAlt,
+    );
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.imageCaption,
+      "Image caption",
+      120,
+      localization.imageCaption,
+    );
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.videoUrl,
+      "Video URL",
+      130,
+      localization.videoUrl,
+    );
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.audioUrl,
+      "Audio URL",
+      140,
+      localization.audioUrl,
+    );
   }
 
   return entity.id;
@@ -118,6 +203,8 @@ export async function updateAdminEntityInDb(
       entityType: input.entityType,
       status: input.status,
       canonicalSlug,
+      heroImageUrl: input.heroImageUrl.trim() || null,
+      heroImageCredit: input.heroImageCredit.trim() || null,
     },
   });
 
@@ -152,33 +239,41 @@ export async function updateAdminEntityInDb(
       },
     });
 
-    if (localization.bodyMarkdown.length > 0) {
-      await prisma.contentSection.upsert({
-        where: {
-          localizationId_sectionKey: {
-            localizationId: savedLocalization.id,
-            sectionKey: "body",
-          },
-        },
-        create: {
-          localizationId: savedLocalization.id,
-          sectionKey: "body",
-          heading: "Body",
-          content: localization.bodyMarkdown,
-          sortOrder: 100,
-        },
-        update: {
-          content: localization.bodyMarkdown,
-        },
-      });
-    } else {
-      await prisma.contentSection.deleteMany({
-        where: {
-          localizationId: savedLocalization.id,
-          sectionKey: "body",
-        },
-      });
-    }
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.body,
+      "Body",
+      100,
+      localization.bodyMarkdown,
+    );
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.imageAlt,
+      "Image alt",
+      110,
+      localization.imageAlt,
+    );
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.imageCaption,
+      "Image caption",
+      120,
+      localization.imageCaption,
+    );
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.videoUrl,
+      "Video URL",
+      130,
+      localization.videoUrl,
+    );
+    await upsertOrDeleteSection(
+      savedLocalization.id,
+      localizedSectionKeys.audioUrl,
+      "Audio URL",
+      140,
+      localization.audioUrl,
+    );
   }
 
   return entityId;

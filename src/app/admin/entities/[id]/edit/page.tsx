@@ -5,8 +5,10 @@
  */
 import { notFound } from "next/navigation";
 
+import { CompletenessPanel } from "@/app/admin/entities/_components/completeness-panel";
 import { EntityForm } from "@/app/admin/entities/_components/entity-form";
 import { RelationshipEditor } from "@/app/admin/entities/_components/relationship-editor";
+import { buildEditorialCompletenessReport } from "@/lib/admin/editorial-completeness";
 import { updateEntityAction } from "@/app/admin/entities/_actions/save-entity";
 import { getAdminEntityByIdFromDb } from "@/lib/db/admin-entity-read";
 
@@ -25,6 +27,7 @@ export default async function AdminEditEntityPage({
   }
 
   const saveAction = updateEntityAction.bind(null, entity.id);
+  const completenessReport = buildEditorialCompletenessReport(entity);
 
   return (
     <div className="space-y-6">
@@ -39,9 +42,13 @@ export default async function AdminEditEntityPage({
         defaultData={{
           entityType: entity.entityType,
           status: entity.status,
+          heroImageUrl: entity.heroImageUrl,
+          heroImageCredit: entity.heroImageCredit,
           localizations: entity.localizations,
         }}
       />
+
+      <CompletenessPanel report={completenessReport} />
 
       <RelationshipEditor
         entityId={entity.id}
