@@ -2,6 +2,7 @@
  * Minimal Prisma listing helper for locale-scoped entity cards.
  */
 import type { Locale } from "@/i18n/config";
+import { locales } from "@/i18n/config";
 import { prisma } from "@/lib/prisma";
 
 export type EntityListItem = {
@@ -14,6 +15,12 @@ export type EntityListItem = {
   title: string;
   excerpt: string;
   bodyParagraphs: string[];
+};
+
+export type SitemapEntityItem = {
+  locale: Locale;
+  slug: string;
+  lastModified: Date;
 };
 
 /**
@@ -58,5 +65,47 @@ export async function getPublishedLocalizedEntitiesFromDb(
     excerpt: record.excerpt || record.summary,
     bodyParagraphs: [record.summary],
   }));
+}
+
+/**
+ * Returns published localized entities for sitemap generation.
+ *
+ * Notes:
+ * - constrained to supported app locales from i18n config
+ * - excludes empty slugs
+ * - uses localization.updatedAt first, then entity.updatedAt as fallback
+ */
+export async function getPublishedLocalizedSitemapEntitiesFromDb(): Promise<
+  SitemapEntityItem[]
+> {
+  const records = await prisma.contentEntityLocalization.findMany({
+    where: {
+      locale: { in: [...locales] },
+      slug: { not: "" },
+      entity: {
+        status: "published",
+      },
+    },
+    select: {
+      locale: true,
+      slug: true,
+      updatedAt: true,
+      entity: {
+        select: {
+          updatedAt: true,
+          importanceScore: true,
+        },
+      },
+    },
+    orderBy: [{ entity: { importanceScore: "desc" } }, { title: "asc" }],
+  });
+
+  return records
+    .filter((record) => record.slug.trim().length > 0)
+    .map((record) => ({
+      locale: record.locale as Locale,
+      slug: record.slug,
+      lastModified: record.updatedAt ?? record.entity.updatedAt,
+    }));
 }
 

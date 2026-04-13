@@ -4,13 +4,14 @@
  * Reads locale-specific entity content directly from Prisma.
  */
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { Route } from "next";
 
 import { SiteHeader } from "@/components/layout/site-header";
 import { isLocale } from "@/i18n/config";
 import { getContentEntityBySlugFromDb } from "@/lib/db/content-entity-read";
-import { buildLocaleMetadata } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/site-config";
 import type { Locale } from "@/i18n/config";
 import type { ContentEntityType, TopicType } from "@prisma/client";
 
@@ -23,23 +24,29 @@ function getEntityPageLabels(locale: Locale) {
     en: {
       entityTypeLabel: "Content type",
       works: "Works",
+      topicWorks: "Related works",
       authors: "Authors",
       topics: "Topics",
+      scholars: "Scholars",
       related: "Related",
     },
     it: {
       entityTypeLabel: "Tipo di contenuto",
       works: "Opere",
+      topicWorks: "Opere correlate",
       authors: "Autori",
       topics: "Temi",
+      scholars: "Studiosi",
       related: "Correlati",
     },
     ar: {
-      entityTypeLabel: "نوع المحتوى",
-      works: "الأعمال",
-      authors: "المؤلفون",
-      topics: "الموضوعات",
-      related: "مرتبط",
+      entityTypeLabel: "\u0646\u0648\u0639 \u0627\u0644\u0645\u062D\u062A\u0648\u0649",
+      works: "\u0627\u0644\u0623\u0639\u0645\u0627\u0644",
+      topicWorks: "\u0623\u0639\u0645\u0627\u0644 \u0630\u0627\u062A \u0635\u0644\u0629",
+      authors: "\u0627\u0644\u0645\u0624\u0644\u0641\u0648\u0646",
+      topics: "\u0627\u0644\u0645\u0648\u0636\u0648\u0639\u0627\u062A",
+      scholars: "\u0627\u0644\u0639\u0644\u0645\u0627\u0621",
+      related: "\u0645\u0631\u062A\u0628\u0637",
     },
   } as const;
 
@@ -61,16 +68,15 @@ function getTopicTypeLabel(locale: Locale, topicType: TopicType) {
       institution: "Istituzione",
     },
     ar: {
-      discipline: "تخصص",
-      concept: "مفهوم",
-      method: "منهج",
-      institution: "مؤسسة",
+      discipline: "\u062A\u062E\u0635\u0635",
+      concept: "\u0645\u0641\u0647\u0648\u0645",
+      method: "\u0645\u0646\u0647\u062C",
+      institution: "\u0645\u0624\u0633\u0633\u0629",
     },
   } as const;
 
   return labels[locale][topicType];
 }
-
 function getEntityTypeLabel(locale: Locale, entityType: ContentEntityType) {
   const labels = {
     en: {
@@ -112,10 +118,13 @@ function buildRelatedLink(
   locale: Locale,
   entity: {
     id: string;
-    localizations: Array<{ slug: string; title: string }>;
+    localizations: Array<{ locale: string; slug: string; title: string }>;
   },
 ): RelatedLink | null {
-  const localization = entity.localizations[0];
+  const localization =
+    entity.localizations.find((item) => item.locale === locale) ??
+    entity.localizations[0];
+
   if (!localization) {
     return null;
   }
@@ -138,10 +147,16 @@ function uniqueLinks(links: Array<RelatedLink | null>): RelatedLink[] {
   return [...map.values()];
 }
 
+function buildEntityAbsoluteUrl(siteUrl: string, locale: string, slug: string) {
+  return `${siteUrl}/${locale}/entities/${encodeURIComponent(slug)}`;
+}
+
 /**
  * Generates metadata for localized entity detail pages under the generic route.
  */
-export async function generateMetadata({ params }: EntityDetailPageProps) {
+export async function generateMetadata({
+  params,
+}: EntityDetailPageProps): Promise<Metadata> {
   const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
@@ -153,11 +168,45 @@ export async function generateMetadata({ params }: EntityDetailPageProps) {
     return {};
   }
 
-  return buildLocaleMetadata(locale, {
-    title: dbEntity.localization.title,
-    description: dbEntity.localization.excerpt,
-    path: `/entities/${dbEntity.localization.slug}`,
-  });
+  const siteUrl = getSiteUrl();
+  const siteName = "Islamic Golden Age";
+  const canonicalUrl = buildEntityAbsoluteUrl(
+    siteUrl,
+    locale,
+    dbEntity.localization.slug,
+  );
+  const pageTitle = `${dbEntity.localization.title} | ${siteName}`;
+  const pageDescription =
+    dbEntity.localization.summary ||
+    dbEntity.localization.excerpt ||
+    dbEntity.localization.seoDescription;
+
+  const languageAlternates = Object.fromEntries(
+    dbEntity.entity.localizations
+      .filter((item) => item.slug.trim().length > 0)
+      .map((item) => [
+        item.locale,
+        buildEntityAbsoluteUrl(siteUrl, item.locale, item.slug),
+      ]),
+  );
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: pageTitle,
+    description: pageDescription,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: languageAlternates,
+    },
+    openGraph: {
+      title: pageTitle,
+      description: pageDescription,
+      url: canonicalUrl,
+      siteName,
+      locale,
+      type: "website",
+    },
+  };
 }
 
 /**
@@ -357,7 +406,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
             </section>
           ) : null}
 
-          {(relatedTopics.length > 0 || topicPeople.length > 0) ? (
+          {relatedTopics.length > 0 ? (
             <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
               <h2 className="text-2xl font-semibold">{labels.topics}</h2>
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
@@ -368,6 +417,14 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
                     </Link>
                   </li>
                 ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {topicPeople.length > 0 ? (
+            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
+              <h2 className="text-2xl font-semibold">{labels.scholars}</h2>
+              <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {topicPeople.map((item) => (
                   <li key={item.id}>
                     <Link href={item.href} className="hover:underline">
@@ -381,7 +438,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
 
           {topicWorks.length > 0 ? (
             <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
-              <h2 className="text-2xl font-semibold">{labels.works}</h2>
+              <h2 className="text-2xl font-semibold">{labels.topicWorks}</h2>
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {topicWorks.map((item) => (
                   <li key={item.id}>
