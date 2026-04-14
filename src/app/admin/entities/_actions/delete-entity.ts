@@ -8,6 +8,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Route } from "next";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 import { locales } from "@/i18n/config";
 import { deleteAdminEntityInDb } from "@/lib/db/admin-entity-write";
@@ -86,6 +87,9 @@ export async function deleteEntityAction(
 
     redirect(buildAdminEntitiesRedirect(status, "success") as Route);
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
     console.error("[admin-delete] Unexpected delete action error", error);
     const status = resolveStatusFilter(getStringField(formData, "currentStatus"));
     redirect(buildAdminEntitiesRedirect(status, "error") as Route);
