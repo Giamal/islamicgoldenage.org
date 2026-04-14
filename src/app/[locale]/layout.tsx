@@ -6,6 +6,7 @@
  */
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import "@/app/globals.css";
@@ -63,8 +64,24 @@ export default async function LocaleLayout({
   return (
     <html lang={typedLocale} dir={getLocaleDirection(typedLocale)}>
       <body className="min-h-screen bg-transparent text-[var(--foreground)] antialiased">
-        <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
-          <main className="flex-1 py-10">{children}</main>
+        <div className="mx-auto flex min-h-screen w-full max-w-[76rem] flex-col px-4 py-6 sm:px-6 lg:px-10">
+          <main className="flex-1 py-8 sm:py-10">{children}</main>
+          <footer className="mt-12 border-t border-[var(--border)] pt-6 pb-8">
+            <div className="flex flex-col gap-3 text-sm text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
+              <p>Islamic Golden Age Archive</p>
+              <div className="flex items-center gap-4">
+                <Link href={`/${typedLocale}`} className="hover:text-[var(--accent)]">
+                  Home
+                </Link>
+                <Link
+                  href={`/${typedLocale}/entities`}
+                  className="hover:text-[var(--accent)]"
+                >
+                  Entities
+                </Link>
+              </div>
+            </div>
+          </footer>
         </div>
       </body>
     </html>

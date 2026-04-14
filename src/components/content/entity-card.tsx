@@ -34,12 +34,12 @@ export function EntityCard({ entity, locale }: EntityCardProps) {
     <Link
       href={`/${locale}/entities/${encodeURIComponent(entity.slug)}`}
       prefetch={true}
-      className="group rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface-strong)] p-6 transition hover:-translate-y-0.5 hover:border-[var(--accent)]"
+      className="group rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-6 transition hover:-translate-y-0.5 hover:border-[var(--accent)] hover:shadow-[var(--shadow-soft)]"
     >
-      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--warm)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--warm)]">
         {getEntityTypeLabel(locale, entity.entityType)}
       </p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-tight transition group-hover:text-[var(--accent)]">
+      <h2 className="mt-3 text-[1.65rem] font-semibold leading-tight tracking-tight transition group-hover:text-[var(--accent)]">
         {entity.title}
       </h2>
       <p className="mt-3 text-sm leading-7 text-[var(--muted)]">

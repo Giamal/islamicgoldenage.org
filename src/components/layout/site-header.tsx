@@ -59,22 +59,26 @@ export function SiteHeader({ locale, localizedEntityLinks }: SiteHeaderProps) {
   const copy = getNavigationCopy(locale);
 
   return (
-    <header className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-5 py-4 shadow-[var(--shadow)] backdrop-blur">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <header className="public-surface px-5 py-4 sm:px-6">
+      <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div>
           <Link
             href={`/${locale}`}
-            className="text-lg font-semibold tracking-[0.08em] text-[var(--foreground)]"
+            className="text-xl font-semibold tracking-[0.04em] text-[var(--foreground)]"
           >
             Islamic Golden Age
           </Link>
-          <p className="mt-1 text-sm text-[var(--muted)]">{copy.tagline}</p>
+          <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{copy.tagline}</p>
         </div>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           <nav className="flex flex-wrap items-center gap-4 text-sm font-medium text-[var(--muted)]">
-            <Link href={`/${locale}`}>{copy.home}</Link>
-            <Link href={`/${locale}/entities`}>{copy.explore}</Link>
+            <Link href={`/${locale}`} className="hover:text-[var(--accent)]">
+              {copy.home}
+            </Link>
+            <Link href={`/${locale}/entities`} className="hover:text-[var(--accent)]">
+              {copy.explore}
+            </Link>
           </nav>
           <Suspense
             fallback={

@@ -359,38 +359,42 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
   );
 
   return (
-    <article className="mx-auto w-full max-w-6xl space-y-8">
+    <article className="mx-auto w-full max-w-[72rem] space-y-8">
       <SiteHeader locale={typedLocale} localizedEntityLinks={localizedEntityLinks} />
-      <header className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
-        <div className="space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--warm)]">
+      <header className="public-surface p-7 sm:p-9">
+        <div className="space-y-4">
+          <p className="public-kicker">
             {getEntityTypeLabel(typedLocale, dbEntity.entity.entityType)}
           </p>
-          <h1 className="text-4xl font-semibold tracking-tight">
+          <h1 className="max-w-4xl text-4xl font-semibold tracking-tight sm:text-5xl">
             {dbEntity.localization.title}
           </h1>
-          <p className="text-lg text-[var(--muted)]">
+          <p className="max-w-4xl text-lg leading-8 text-[var(--muted)]">
             {dbEntity.localization.summary}
           </p>
         </div>
       </header>
 
-      <section className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
-        <div className="space-y-6">
+      <section className="grid gap-7 lg:grid-cols-[minmax(0,2.1fr)_minmax(280px,1fr)] lg:items-start">
+        <div className="space-y-5">
           {orderedSections.map((section) => (
             <section
               key={section.sectionKey}
-              className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2"
+              className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] px-5 py-6 sm:px-7"
             >
-              <h2 className="text-2xl font-semibold">{section.heading}</h2>
-              <p className="leading-8 text-[var(--muted)]">{section.content}</p>
+              <h2 className="text-[1.9rem] font-semibold tracking-tight">
+                {section.heading}
+              </h2>
+              <p className="mt-3 leading-8 text-[var(--muted)]">{section.content}</p>
             </section>
           ))}
         </div>
 
-        <aside className="space-y-6">
-          <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
-            <h2 className="text-2xl font-semibold">{labels.entityTypeLabel}</h2>
+        <aside className="space-y-5 lg:sticky lg:top-8">
+          <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6">
+            <h2 className="text-[1.7rem] font-semibold tracking-tight">
+              {labels.entityTypeLabel}
+            </h2>
             <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
               <li>{getEntityTypeLabel(typedLocale, dbEntity.entity.entityType)}</li>
               {topicType ? (
@@ -400,12 +404,16 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
           </section>
 
           {authoredWorks.length > 0 ? (
-            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
-              <h2 className="text-2xl font-semibold">{labels.works}</h2>
+            <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6">
+              <h2 className="text-[1.6rem] font-semibold tracking-tight">{labels.works}</h2>
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {authoredWorks.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} prefetch={true} className="hover:underline">
+                    <Link
+                      href={item.href}
+                      prefetch={true}
+                      className="hover:text-[var(--accent)] hover:underline"
+                    >
                       {item.title}
                     </Link>
                   </li>
@@ -415,12 +423,16 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
           ) : null}
 
           {authors.length > 0 ? (
-            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
-              <h2 className="text-2xl font-semibold">{labels.authors}</h2>
+            <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6">
+              <h2 className="text-[1.6rem] font-semibold tracking-tight">{labels.authors}</h2>
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {authors.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} prefetch={true} className="hover:underline">
+                    <Link
+                      href={item.href}
+                      prefetch={true}
+                      className="hover:text-[var(--accent)] hover:underline"
+                    >
                       {item.title}
                     </Link>
                   </li>
@@ -430,12 +442,16 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
           ) : null}
 
           {relatedTopics.length > 0 ? (
-            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
-              <h2 className="text-2xl font-semibold">{labels.topics}</h2>
+            <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6">
+              <h2 className="text-[1.6rem] font-semibold tracking-tight">{labels.topics}</h2>
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {relatedTopics.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} prefetch={true} className="hover:underline">
+                    <Link
+                      href={item.href}
+                      prefetch={true}
+                      className="hover:text-[var(--accent)] hover:underline"
+                    >
                       {item.title}
                     </Link>
                   </li>
@@ -445,12 +461,18 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
           ) : null}
 
           {topicPeople.length > 0 ? (
-            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
-              <h2 className="text-2xl font-semibold">{labels.scholars}</h2>
+            <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6">
+              <h2 className="text-[1.6rem] font-semibold tracking-tight">
+                {labels.scholars}
+              </h2>
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {topicPeople.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} prefetch={true} className="hover:underline">
+                    <Link
+                      href={item.href}
+                      prefetch={true}
+                      className="hover:text-[var(--accent)] hover:underline"
+                    >
                       {item.title}
                     </Link>
                   </li>
@@ -460,12 +482,18 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
           ) : null}
 
           {topicWorks.length > 0 ? (
-            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
-              <h2 className="text-2xl font-semibold">{labels.topicWorks}</h2>
+            <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6">
+              <h2 className="text-[1.6rem] font-semibold tracking-tight">
+                {labels.topicWorks}
+              </h2>
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {topicWorks.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} prefetch={true} className="hover:underline">
+                    <Link
+                      href={item.href}
+                      prefetch={true}
+                      className="hover:text-[var(--accent)] hover:underline"
+                    >
                       {item.title}
                     </Link>
                   </li>
@@ -475,12 +503,18 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
           ) : null}
 
           {genericRelated.length > 0 ? (
-            <section className="rounded-[1.25rem] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6 space-y-2">
-              <h2 className="text-2xl font-semibold">{labels.related}</h2>
+            <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6">
+              <h2 className="text-[1.6rem] font-semibold tracking-tight">
+                {labels.related}
+              </h2>
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {genericRelated.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} prefetch={true} className="hover:underline">
+                    <Link
+                      href={item.href}
+                      prefetch={true}
+                      className="hover:text-[var(--accent)] hover:underline"
+                    >
                       {item.title}
                     </Link>
                   </li>

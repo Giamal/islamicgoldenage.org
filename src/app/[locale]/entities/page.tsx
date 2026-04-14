@@ -58,23 +58,35 @@ export default async function EntityIndexPage({
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SiteHeader locale={locale} />
-      <header className="space-y-3">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--warm)]">
+      <header className="public-surface space-y-4 p-7 sm:p-8">
+        <p className="public-kicker">
           {copy.kicker}
         </p>
-        <h1 className="text-4xl font-semibold tracking-tight">{copy.title}</h1>
-        <p className="max-w-3xl text-lg leading-8 text-[var(--muted)]">
+        <h1 className="text-4xl font-semibold tracking-tight sm:text-[2.8rem]">
+          {copy.title}
+        </h1>
+        <p className="max-w-3xl text-base leading-8 text-[var(--muted)] sm:text-lg">
           {copy.description}
         </p>
       </header>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {entities.map((entity) => (
-          <EntityCard key={entity.id} entity={entity} locale={locale} />
-        ))}
-      </div>
+      {entities.length > 0 ? (
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {entities.map((entity) => (
+            <EntityCard key={entity.id} entity={entity} locale={locale} />
+          ))}
+        </div>
+      ) : (
+        <section className="public-surface p-6 sm:p-8">
+          <h2 className="text-2xl font-semibold tracking-tight">No entries yet</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
+            Published content will appear here once the first entries are available
+            in this locale.
+          </p>
+        </section>
+      )}
     </div>
   );
 }

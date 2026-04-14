@@ -38,78 +38,77 @@ export function getNavigationCopy(locale: Locale) {
 export function getHomepageCopy(locale: Locale) {
   const dictionary = {
     en: {
-      kicker: "Version 0.1 Foundation",
-      title: "A multilingual reference platform for the Islamic Golden Age.",
+      kicker: "Editorial Archive",
+      title: "A multilingual archive of the Islamic Golden Age.",
       description:
-        "This first version establishes the core architecture for a public educational website that can grow into a trusted, well-linked knowledge base across languages.",
-      primaryCta: "Browse placeholder content",
-      secondaryCta: "Open the first profile",
+        "Explore scholars, works, and disciplines through a calm, verifiable editorial structure designed for long-term educational use.",
+      primaryCta: "Explore entries",
+      secondaryCta: "Read a featured profile",
       highlights: [
         {
-          title: "Canonical by design",
+          title: "Structured for reference",
           description:
-            "People, books, events, and categories are modeled as canonical entities so translations and links stay organized as the catalog expands.",
+            "People, works, and topics are modeled as canonical entities so links and translations stay coherent as the archive grows.",
         },
         {
-          title: "Built for localization",
+          title: "Multilingual by default",
           description:
-            "Locale-prefixed routing, metadata helpers, and direction-aware layout decisions make later multilingual growth far easier.",
+            "Locale-aware routing, SEO metadata, and right-to-left support ensure the same content can be read across languages.",
         },
         {
-          title: "Solo-maintainable",
+          title: "Editorially maintainable",
           description:
-            "The project starts as a clean monolith with explicit modules, avoiding extra infrastructure before it becomes useful.",
+            "The interface prioritizes clarity, reading comfort, and reusable patterns over visual noise or trend-driven layouts.",
         },
       ],
     },
     it: {
-      kicker: "Fondazione Versione 0.1",
-      title:
-        "Una piattaforma di riferimento multilingue per l'eta dell'oro islamica.",
+      kicker: "Archivio Editoriale",
+      title: "Un archivio multilingue sull'età dell'oro islamica.",
       description:
-        "Questa prima versione imposta l'architettura di base per un sito educativo pubblico che possa crescere in una knowledge base affidabile e ben collegata.",
-      primaryCta: "Sfoglia i contenuti iniziali",
-      secondaryCta: "Apri il primo profilo",
+        "Esplora studiosi, opere e discipline attraverso una struttura editoriale chiara e verificabile, pensata per la crescita nel tempo.",
+      primaryCta: "Esplora le voci",
+      secondaryCta: "Leggi un profilo in evidenza",
       highlights: [
         {
-          title: "Modello canonico",
+          title: "Struttura da archivio",
           description:
-            "Persone, libri, eventi e categorie sono modellati come entita canoniche cosi che traduzioni e collegamenti restino ordinati nel tempo.",
+            "Persone, opere e temi sono modellati come entità canoniche così che traduzioni e collegamenti restino coerenti.",
         },
         {
-          title: "Pensato per le lingue",
+          title: "Multilingue per impostazione",
           description:
-            "Routing con prefisso locale, helper SEO e supporto alla direzione del testo rendono piu semplice la crescita multilingue futura.",
+            "Routing per lingua, metadati SEO e supporto RTL permettono una consultazione stabile in più lingue.",
         },
         {
-          title: "Gestibile da una sola persona",
+          title: "Rigore editoriale",
           description:
-            "Il progetto parte come monolite pulito con moduli espliciti, senza infrastrutture aggiuntive finche non servono davvero.",
+            "L'interfaccia privilegia leggibilità, gerarchia e continuità, evitando elementi decorativi superflui.",
         },
       ],
     },
     ar: {
-      kicker: "أساس الإصدار 0.1",
-      title: "منصة مرجعية متعددة اللغات عن العصر الذهبي الإسلامي.",
+      kicker: "أرشيف تحريري",
+      title: "أرشيف متعدد اللغات عن العصر الذهبي الإسلامي.",
       description:
-        "يضع هذا الإصدار الأول الأساس المعماري لموقع تعليمي عام يمكن أن ينمو إلى قاعدة معرفة موثوقة ومترابطة عبر اللغات.",
-      primaryCta: "تصفح المحتوى الأولي",
-      secondaryCta: "افتح أول صفحة تعريفية",
+        "استكشف العلماء والأعمال والموضوعات ضمن بنية تحريرية هادئة وموثوقة مصممة للنمو المعرفي طويل المدى.",
+      primaryCta: "استكشف المداخل",
+      secondaryCta: "اقرأ ملفًا مميزًا",
       highlights: [
         {
-          title: "تصميم مرجعي",
+          title: "بنية مرجعية",
           description:
-            "تمثل الشخصيات والكتب والأحداث والتصنيفات كيانات مرجعية أساسية حتى تبقى الترجمات والروابط منظمة مع توسع المحتوى.",
+            "تُنظَّم الشخصيات والأعمال والموضوعات ككيانات معيارية للحفاظ على اتساق الروابط والترجمات.",
         },
         {
-          title: "جاهز للتعريب",
+          title: "متعدد اللغات افتراضيًا",
           description:
-            "يؤسس التوجيه المحلي في المسارات ومساعدات SEO والتعامل مع اتجاه النص قاعدة قوية للتوسع متعدد اللغات لاحقًا.",
+            "يوفر التوجيه حسب اللغة وبيانات SEO ودعم اتجاه النص تجربة قراءة مستقرة عبر اللغات.",
         },
         {
-          title: "مناسب للمطور الفردي",
+          title: "انضباط تحريري",
           description:
-            "يبدأ المشروع كتطبيق موحد واضح البنية دون بنية تحتية إضافية قبل أن تظهر الحاجة الحقيقية إليها.",
+            "يركز التصميم على الوضوح وقابلية القراءة والاتساق، بعيدًا عن الضوضاء البصرية.",
         },
       ],
     },
@@ -125,21 +124,21 @@ export function getEntityIndexCopy(locale: Locale) {
   const dictionary = {
     en: {
       kicker: "Explore",
-      title: "Early Reference Entries",
+      title: "Entities Archive",
       description:
-        "The first listing page is intentionally generic so the content architecture can support articles, scholars, books, events, and categories from one consistent foundation.",
+        "Browse published entries across people, works, and topics in a unified editorial index.",
     },
     it: {
       kicker: "Esplora",
-      title: "Prime Voci di Riferimento",
+      title: "Archivio delle Entità",
       description:
-        "La prima pagina elenco e volutamente generica, cosi l'architettura puo sostenere articoli, studiosi, libri, eventi e categorie da una base coerente.",
+        "Consulta le voci pubblicate tra persone, opere e temi in un indice editoriale unificato.",
     },
     ar: {
       kicker: "استكشاف",
-      title: "مداخل مرجعية أولية",
+      title: "أرشيف الكيانات",
       description:
-        "تم تصميم صفحة القائمة الأولى بشكل عام حتى تتمكن البنية نفسها من دعم المقالات والعلماء والكتب والأحداث والتصنيفات من أساس واحد متماسك.",
+        "تصفح المداخل المنشورة ضمن فهرس تحريري موحّد يربط الشخصيات والأعمال والموضوعات.",
     },
   } as const;
 
