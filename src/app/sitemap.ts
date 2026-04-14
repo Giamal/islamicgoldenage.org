@@ -9,7 +9,7 @@ import { defaultLocale, locales, type Locale } from "@/i18n/config";
 import { getPublishedSitemapEntityLocalizationGroupsFromDb } from "@/lib/db/content-entity-list";
 import { getSiteUrl } from "@/lib/site-config";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
