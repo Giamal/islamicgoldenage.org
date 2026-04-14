@@ -39,7 +39,7 @@ export function getHomepageCopy(locale: Locale) {
   const dictionary = {
     en: {
       kicker: "Editorial Archive",
-      title: "A multilingual archive of the Islamic Golden Age.",
+      title: "The Islamic Golden Age.",
       description:
         "Explore scholars, works, and disciplines through a calm, verifiable editorial structure designed for long-term educational use.",
       primaryCta: "Explore entries",
@@ -64,7 +64,7 @@ export function getHomepageCopy(locale: Locale) {
     },
     it: {
       kicker: "Archivio Editoriale",
-      title: "Un archivio multilingue sull'età dell'oro islamica.",
+      title: "L'età d'oro islamica.",
       description:
         "Esplora studiosi, opere e discipline attraverso una struttura editoriale chiara e verificabile, pensata per la crescita nel tempo.",
       primaryCta: "Esplora le voci",
@@ -89,7 +89,7 @@ export function getHomepageCopy(locale: Locale) {
     },
     ar: {
       kicker: "أرشيف تحريري",
-      title: "أرشيف متعدد اللغات عن العصر الذهبي الإسلامي.",
+      title: "العصر الذهبي الإسلامي.",
       description:
         "استكشف العلماء والأعمال والموضوعات ضمن بنية تحريرية هادئة وموثوقة مصممة للنمو المعرفي طويل المدى.",
       primaryCta: "استكشف المداخل",

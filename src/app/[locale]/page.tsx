@@ -182,9 +182,11 @@ export default async function HomePage({ params }: HomePageProps) {
       preferredLanguageTag?.startsWith(`${supportedLocale}-`),
   );
   const secondaryHeroLocale =
-    preferredLocale && preferredLocale !== "ar"
-      ? preferredLocale
-      : defaultSecondaryHeroLocale;
+    typedLocale === "ar"
+      ? preferredLocale && preferredLocale !== "ar"
+        ? preferredLocale
+        : defaultSecondaryHeroLocale
+      : typedLocale;
   const primaryHeroLocales: Locale[] = Array.from(
     new Set<Locale>(["ar", secondaryHeroLocale]),
   );
