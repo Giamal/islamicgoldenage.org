@@ -59,7 +59,7 @@ export function SiteHeader({ locale, localizedEntityLinks }: SiteHeaderProps) {
   const copy = getNavigationCopy(locale);
 
   return (
-    <header className="public-surface px-5 py-4 sm:px-6">
+    <header className="public-surface mt-6 px-5 py-4 sm:mt-8 sm:px-6">
       <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div>
           <Link

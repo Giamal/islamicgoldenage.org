@@ -64,8 +64,8 @@ export default async function LocaleLayout({
   return (
     <html lang={typedLocale} dir={getLocaleDirection(typedLocale)}>
       <body className="min-h-screen bg-transparent text-[var(--foreground)] antialiased">
-        <div className="mx-auto flex min-h-screen w-full max-w-[76rem] flex-col px-4 py-6 sm:px-6 lg:px-10">
-          <main className="flex-1 py-8 sm:py-10">{children}</main>
+        <div className="mx-auto flex min-h-screen w-full max-w-[76rem] flex-col px-4 pb-6 sm:px-6 lg:px-10">
+          <main className="flex-1">{children}</main>
           <footer className="mt-12 border-t border-[var(--border)] pt-6 pb-8">
             <div className="flex flex-col gap-3 text-sm text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
               <p>Islamic Golden Age Archive</p>
