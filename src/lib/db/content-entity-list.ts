@@ -90,7 +90,7 @@ export const getPublishedLocalizedEntitiesFromDb = unstable_cache(
  * - excludes empty slugs
  * - keeps all localizations grouped by entity to build hreflang alternates
  */
-export async function getPublishedSitemapEntityLocalizationGroupsFromDb(): Promise<
+async function getPublishedSitemapEntityLocalizationGroupsFromDbUncached(): Promise<
   SitemapEntityLocalizationGroup[]
 > {
   const queryStartedAt = Date.now();
@@ -140,4 +140,10 @@ export async function getPublishedSitemapEntityLocalizationGroupsFromDb(): Promi
       };
     });
 }
+
+export const getPublishedSitemapEntityLocalizationGroupsFromDb = unstable_cache(
+  async () => getPublishedSitemapEntityLocalizationGroupsFromDbUncached(),
+  ["content-entities-sitemap-localization-groups"],
+  { revalidate: 3600 },
+);
 

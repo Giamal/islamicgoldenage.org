@@ -35,30 +35,20 @@ function buildLocaleAlternates(
   return alternates;
 }
 
-function dedupeSitemapEntries(entries: SitemapEntry[]): SitemapEntry[] {
-  const byUrl = new Map<string, SitemapEntry>();
+function getCanonicalLocaleForAlternates(
+  localizedUrls: Partial<Record<Locale, string>>,
+): Locale | null {
+  if (localizedUrls[defaultLocale]) {
+    return defaultLocale;
+  }
 
-  for (const entry of entries) {
-    const existing = byUrl.get(entry.url);
-
-    if (!existing) {
-      byUrl.set(entry.url, entry);
-      continue;
-    }
-
-    const existingTime = existing.lastModified
-      ? new Date(existing.lastModified).getTime()
-      : 0;
-    const incomingTime = entry.lastModified
-      ? new Date(entry.lastModified).getTime()
-      : 0;
-
-    if (incomingTime > existingTime) {
-      byUrl.set(entry.url, entry);
+  for (const locale of locales) {
+    if (localizedUrls[locale]) {
+      return locale;
     }
   }
 
-  return [...byUrl.values()];
+  return null;
 }
 
 /**
@@ -84,33 +74,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     locales.map((locale) => [locale, `${siteUrl}/${locale}/entities`]),
   ) as Partial<Record<Locale, string>>;
 
-  const staticEntries: SitemapEntry[] = locales.flatMap((locale) => {
-    const homeUrl = staticHomeUrls[locale];
-    const entityIndexUrl = staticEntityIndexUrls[locale];
+  const staticEntries: SitemapEntry[] = [];
 
-    if (!homeUrl || !entityIndexUrl) {
-      return [];
-    }
+  const canonicalHomeLocale = getCanonicalLocaleForAlternates(staticHomeUrls);
+  if (canonicalHomeLocale) {
+    staticEntries.push({
+      url: staticHomeUrls[canonicalHomeLocale] as string,
+      lastModified: staticLastModified,
+      changeFrequency: "weekly" as const,
+      priority: 1,
+      alternates: { languages: buildLocaleAlternates(staticHomeUrls) },
+    });
+  }
 
-    return [
-      {
-        url: homeUrl,
-        lastModified: staticLastModified,
-        changeFrequency: "weekly" as const,
-        priority: 1,
-        alternates: { languages: buildLocaleAlternates(staticHomeUrls) },
-      },
-      {
-        url: entityIndexUrl,
-        lastModified: staticLastModified,
-        changeFrequency: "weekly" as const,
-        priority: 0.8,
-        alternates: { languages: buildLocaleAlternates(staticEntityIndexUrls) },
-      },
-    ];
-  });
+  const canonicalEntityIndexLocale =
+    getCanonicalLocaleForAlternates(staticEntityIndexUrls);
+  if (canonicalEntityIndexLocale) {
+    staticEntries.push({
+      url: staticEntityIndexUrls[canonicalEntityIndexLocale] as string,
+      lastModified: staticLastModified,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+      alternates: { languages: buildLocaleAlternates(staticEntityIndexUrls) },
+    });
+  }
 
-  const entityEntries: SitemapEntry[] = entityGroups.flatMap((group) => {
+  const entityEntries: SitemapEntry[] = entityGroups.reduce<SitemapEntry[]>(
+    (entries, group) => {
     const localizedUrls = Object.fromEntries(
       group.localizations.map((localization) => [
         localization.locale,
@@ -120,26 +110,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ]),
     ) as Partial<Record<Locale, string>>;
 
-    const alternates = buildLocaleAlternates(localizedUrls);
-
-    return group.localizations.reduce<SitemapEntry[]>((entries, localization) => {
-      const url = localizedUrls[localization.locale];
-
-      if (!url) {
-        return entries;
-      }
-
-      entries.push({
-        url,
-        lastModified: group.lastModified,
-        changeFrequency: "monthly" as const,
-        priority: 0.7,
-        alternates: { languages: alternates },
-      });
-
+    const canonicalLocale = getCanonicalLocaleForAlternates(localizedUrls);
+    if (!canonicalLocale) {
       return entries;
-    }, []);
-  });
+    }
 
-  return dedupeSitemapEntries([...staticEntries, ...entityEntries]);
+    const alternates = buildLocaleAlternates(localizedUrls);
+    entries.push({
+      url: localizedUrls[canonicalLocale] as string,
+      lastModified: group.lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      alternates: { languages: alternates },
+    });
+
+    return entries;
+  }, []);
+
+  return [...staticEntries, ...entityEntries];
 }
