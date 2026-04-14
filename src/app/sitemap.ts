@@ -5,7 +5,7 @@
  */
 import type { MetadataRoute } from "next";
 
-import { defaultLocale, locales, type Locale } from "@/i18n/config";
+import { defaultPublicLocale, publicLocales, type Locale } from "@/i18n/config";
 import { getPublishedSitemapEntityLocalizationGroupsFromDb } from "@/lib/db/content-entity-list";
 import { getSiteUrl } from "@/lib/site-config";
 
@@ -18,7 +18,7 @@ function buildLocaleAlternates(
 ): Record<string, string> {
   const alternates: Record<string, string> = {};
 
-  for (const locale of locales) {
+  for (const locale of publicLocales) {
     const url = localizedUrls[locale];
     if (url) {
       alternates[locale] = url;
@@ -26,7 +26,7 @@ function buildLocaleAlternates(
   }
 
   const xDefaultUrl =
-    localizedUrls[defaultLocale] ?? Object.values(alternates)[0];
+    localizedUrls[defaultPublicLocale] ?? Object.values(alternates)[0];
 
   if (xDefaultUrl) {
     alternates["x-default"] = xDefaultUrl;
@@ -38,11 +38,11 @@ function buildLocaleAlternates(
 function getCanonicalLocaleForAlternates(
   localizedUrls: Partial<Record<Locale, string>>,
 ): Locale | null {
-  if (localizedUrls[defaultLocale]) {
-    return defaultLocale;
+  if (localizedUrls[defaultPublicLocale]) {
+    return defaultPublicLocale;
   }
 
-  for (const locale of locales) {
+  for (const locale of publicLocales) {
     if (localizedUrls[locale]) {
       return locale;
     }
@@ -68,10 +68,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       : undefined;
 
   const staticHomeUrls = Object.fromEntries(
-    locales.map((locale) => [locale, `${siteUrl}/${locale}`]),
+    publicLocales.map((locale) => [locale, `${siteUrl}/${locale}`]),
   ) as Partial<Record<Locale, string>>;
   const staticEntityIndexUrls = Object.fromEntries(
-    locales.map((locale) => [locale, `${siteUrl}/${locale}/entities`]),
+    publicLocales.map((locale) => [locale, `${siteUrl}/${locale}/entities`]),
   ) as Partial<Record<Locale, string>>;
 
   const staticEntries: SitemapEntry[] = [];
@@ -102,12 +102,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entityEntries: SitemapEntry[] = entityGroups.reduce<SitemapEntry[]>(
     (entries, group) => {
     const localizedUrls = Object.fromEntries(
-      group.localizations.map((localization) => [
-        localization.locale,
-        `${siteUrl}/${localization.locale}/entities/${encodeURIComponent(
+      group.localizations
+        .filter((localization) => publicLocales.includes(localization.locale))
+        .map((localization) => [
+          localization.locale,
+          `${siteUrl}/${localization.locale}/entities/${encodeURIComponent(
           localization.slug,
-        )}`,
-      ]),
+          )}`,
+        ]),
     ) as Partial<Record<Locale, string>>;
 
     const canonicalLocale = getCanonicalLocaleForAlternates(localizedUrls);

@@ -10,7 +10,7 @@ import type { Route } from "next";
 
 import { LocaleSwitcher } from "@/components/navigation/locale-switcher";
 import type { Locale } from "@/i18n/config";
-import { localeLabels, locales } from "@/i18n/config";
+import { localeLabels, publicLocales } from "@/i18n/config";
 import { getNavigationCopy } from "@/lib/ui-copy";
 
 type SiteHeaderProps = {
@@ -27,7 +27,7 @@ function LocaleSwitcherFallback({
 }) {
   return (
     <div className="flex items-center gap-2">
-      {locales.map((locale) => {
+      {publicLocales.map((locale) => {
         const isActive = locale === currentLocale;
 
         return (

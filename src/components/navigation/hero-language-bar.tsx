@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import type { Locale } from "@/i18n/config";
-import { localeLabels, locales } from "@/i18n/config";
+import { localeLabels, publicLocales } from "@/i18n/config";
 
 type HeroLanguageBarProps = {
   currentLocale: Locale;
@@ -16,9 +16,9 @@ export function HeroLanguageBar({
   primaryLocales,
 }: HeroLanguageBarProps) {
   const uniquePrimaryLocales = Array.from(new Set(primaryLocales)).filter(
-    (localeOption): localeOption is Locale => locales.includes(localeOption),
+    (localeOption): localeOption is Locale => publicLocales.includes(localeOption),
   );
-  const secondaryLocales = locales.filter(
+  const secondaryLocales = publicLocales.filter(
     (localeOption) => !uniquePrimaryLocales.includes(localeOption),
   );
   const isCurrentLocalePrimary = uniquePrimaryLocales.includes(currentLocale);

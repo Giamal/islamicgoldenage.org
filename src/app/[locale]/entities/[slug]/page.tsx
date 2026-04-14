@@ -11,7 +11,11 @@ import type { Route } from "next";
 import { cache } from "react";
 
 import { PublicHero } from "@/components/layout/public-hero";
-import { defaultLocale, isLocale } from "@/i18n/config";
+import {
+  defaultPublicLocale,
+  isLocale,
+  publicLocales,
+} from "@/i18n/config";
 import { getContentEntityBySlugFromDb } from "@/lib/db/content-entity-read";
 import { getHeroPrimaryLocales } from "@/lib/hero-locale";
 import { getSiteUrl } from "@/lib/site-config";
@@ -236,14 +240,17 @@ export async function generateMetadata({
 
   const localeAlternates = Object.fromEntries(
     dbEntity.entity.localizations
-      .filter((item) => item.slug.trim().length > 0)
+      .filter(
+        (item) =>
+          item.slug.trim().length > 0 && publicLocales.includes(item.locale),
+      )
       .map((item) => [
         item.locale,
         buildEntityAbsoluteUrl(siteUrl, item.locale, item.slug),
       ]),
   );
   const xDefaultAlternate =
-    localeAlternates[defaultLocale] ??
+    localeAlternates[defaultPublicLocale] ??
     localeAlternates[locale] ??
     canonicalUrl;
 

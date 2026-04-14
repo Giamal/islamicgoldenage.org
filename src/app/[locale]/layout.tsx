@@ -11,7 +11,7 @@ import { notFound } from "next/navigation";
 
 import "@/app/globals.css";
 
-import { isLocale, locales, type Locale } from "@/i18n/config";
+import { isLocale, publicLocales, type Locale } from "@/i18n/config";
 import { buildLocaleMetadata, getLocaleDirection } from "@/lib/seo";
 
 type LocaleLayoutProps = {
@@ -23,7 +23,7 @@ type LocaleLayoutProps = {
  * Prebuilds the supported locale roots so the routing contract stays explicit.
  */
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return publicLocales.map((locale) => ({ locale }));
 }
 
 /**

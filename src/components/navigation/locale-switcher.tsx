@@ -10,7 +10,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { UrlObject } from "url";
 
-import { localeLabels, locales, type Locale } from "@/i18n/config";
+import { localeLabels, locales, publicLocales, type Locale } from "@/i18n/config";
 
 type LocaleSwitcherProps = {
   currentLocale: Locale;
@@ -60,7 +60,7 @@ export function LocaleSwitcher({
 
   return (
     <div className="flex items-center gap-2">
-      {locales.map((locale) => {
+      {publicLocales.map((locale) => {
         const isActive = locale === currentLocale;
 
         return (

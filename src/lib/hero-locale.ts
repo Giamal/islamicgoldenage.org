@@ -1,4 +1,4 @@
-import { locales } from "@/i18n/config";
+import { publicLocales } from "@/i18n/config";
 import type { Locale } from "@/i18n/config";
 
 type HeroLocaleOptions = {
@@ -25,7 +25,7 @@ export function getHeroPrimaryLocales(
     .split(",")[0]
     ?.trim()
     .toLowerCase();
-  const preferredLocale = locales.find(
+  const preferredLocale = publicLocales.find(
     (supportedLocale) =>
       preferredLanguageTag === supportedLocale ||
       preferredLanguageTag?.startsWith(`${supportedLocale}-`),

@@ -7,9 +7,9 @@
 import type { Metadata } from "next";
 
 import {
-  defaultLocale,
+  defaultPublicLocale,
   localeDirections,
-  locales,
+  publicLocales,
   type Locale,
 } from "@/i18n/config";
 import { getSiteUrl } from "@/lib/site-config";
@@ -44,7 +44,7 @@ export function buildLocaleMetadata(
   input: LocaleMetadataInput,
 ): Metadata {
   const alternates = Object.fromEntries(
-    locales.map((supportedLocale) => [
+    publicLocales.map((supportedLocale) => [
       supportedLocale,
       buildAbsoluteLocaleUrl(supportedLocale, input.path),
     ]),
@@ -58,7 +58,7 @@ export function buildLocaleMetadata(
       canonical: buildAbsoluteLocaleUrl(locale, input.path),
       languages: {
         ...alternates,
-        "x-default": buildAbsoluteLocaleUrl(defaultLocale, input.path),
+        "x-default": buildAbsoluteLocaleUrl(defaultPublicLocale, input.path),
       },
     },
     openGraph: {

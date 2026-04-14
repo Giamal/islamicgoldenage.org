@@ -8,7 +8,13 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-import { defaultLocale, isLocale, locales, type Locale } from "@/i18n/config";
+import {
+  defaultPublicLocale,
+  isLocale,
+  isPublicLocale,
+  publicLocales,
+  type Locale,
+} from "@/i18n/config";
 
 function unauthorizedAdminResponse() {
   return new NextResponse("Authentication required.", {
@@ -60,21 +66,22 @@ function isAuthorizedAdminRequest(request: NextRequest) {
 
 /**
  * Resolves the locale from the first Accept-Language item only.
- * Example: "it-IT,it;q=0.9,en;q=0.8" -> "it"
+ * Italian is temporarily disabled for public resolution, so "it" falls back to English.
+ * Example: "it-IT,it;q=0.9,en;q=0.8" -> "en"
  */
 function resolveLocaleFromAcceptLanguage(headerValue: string | null): Locale {
   if (!headerValue) {
-    return defaultLocale;
+    return defaultPublicLocale;
   }
 
   const firstLanguage = headerValue.split(",")[0]?.trim().toLowerCase();
   const normalizedLanguage = firstLanguage?.split("-")[0];
 
-  if (normalizedLanguage && locales.includes(normalizedLanguage as Locale)) {
+  if (normalizedLanguage && publicLocales.includes(normalizedLanguage as Locale)) {
     return normalizedLanguage as Locale;
   }
 
-  return defaultLocale;
+  return defaultPublicLocale;
 }
 
 /**
@@ -104,6 +111,13 @@ export function proxy(request: NextRequest) {
   const [, maybeLocale] = pathname.split("/");
 
   if (isLocale(maybeLocale)) {
+    if (!isPublicLocale(maybeLocale)) {
+      const redirectedUrl = request.nextUrl.clone();
+      const pathWithoutLocale = pathname.replace(/^\/[^/]+/, "") || "";
+      redirectedUrl.pathname = `/${defaultPublicLocale}${pathWithoutLocale}`;
+      return NextResponse.redirect(redirectedUrl);
+    }
+
     return NextResponse.next();
   }
 
@@ -117,7 +131,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(localizedUrl);
   }
 
-  localizedUrl.pathname = `/${defaultLocale}${pathname}`;
+  localizedUrl.pathname = `/${defaultPublicLocale}${pathname}`;
 
   return NextResponse.redirect(localizedUrl);
 }
