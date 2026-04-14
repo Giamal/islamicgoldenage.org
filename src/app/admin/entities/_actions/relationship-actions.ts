@@ -60,7 +60,7 @@ export async function addRelationshipAction(entityId: string, formData: FormData
     otherEntityId,
   });
 
-  redirect(`/admin/entities/${entityId}/edit?relationships=1` as Route);
+  redirect(`/admin/entities/${entityId}/edit?status=relationship_added` as Route);
 }
 
 export async function removeRelationshipAction(
@@ -73,5 +73,5 @@ export async function removeRelationshipAction(
   }
 
   await removeAdminRelationshipInDb(entityId, relationshipId);
-  redirect(`/admin/entities/${entityId}/edit?relationships=1` as Route);
+  redirect(`/admin/entities/${entityId}/edit?status=relationship_removed` as Route);
 }

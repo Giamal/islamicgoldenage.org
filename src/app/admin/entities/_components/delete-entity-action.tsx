@@ -28,7 +28,15 @@ function DeleteSubmitButton() {
       disabled={pending}
       className="rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {pending ? "Deleting..." : "Delete permanently"}
+      <span className="inline-flex items-center gap-2">
+        {pending ? (
+          <span
+            className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+            aria-hidden="true"
+          />
+        ) : null}
+        {pending ? "Deleting..." : "Delete permanently"}
+      </span>
     </button>
   );
 }
@@ -98,4 +106,3 @@ export function DeleteEntityAction({
     </div>
   );
 }
-

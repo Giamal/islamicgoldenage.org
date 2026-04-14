@@ -4,6 +4,7 @@
  * Provides a minimal UI to review, add, and remove entity relationships.
  */
 import { addRelationshipAction, removeRelationshipAction } from "@/app/admin/entities/_actions/relationship-actions";
+import { SubmitButton } from "@/app/admin/entities/_components/submit-button";
 import type {
   AdminEntityRelationshipRow,
   AdminRelationshipCandidate,
@@ -61,12 +62,11 @@ function RelationshipList({
               </span>
               <form action={removeAction}>
                 <input type="hidden" name="relationshipId" value={row.id} />
-                <button
-                  type="submit"
-                  className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold hover:border-[var(--accent)]"
-                >
-                  Remove
-                </button>
+                <SubmitButton
+                  idleLabel="Remove"
+                  pendingLabel="Removing..."
+                  className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold text-[var(--foreground)] hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-70"
+                />
               </form>
             </li>
           ))}
@@ -140,12 +140,11 @@ export function RelationshipEditor({
           </label>
 
           <div className="md:col-span-4">
-            <button
-              type="submit"
-              className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white"
-            >
-              Add relationship
-            </button>
+            <SubmitButton
+              idleLabel="Add relationship"
+              pendingLabel="Adding..."
+              className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
+            />
           </div>
         </form>
       </section>

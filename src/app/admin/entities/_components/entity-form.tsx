@@ -4,6 +4,7 @@
  * Reusable form for creating and editing multilingual content entities.
  */
 import { locales, type Locale } from "@/i18n/config";
+import { SubmitButton } from "@/app/admin/entities/_components/submit-button";
 import type { ContentEntityType, ContentStatus } from "@prisma/client";
 
 type LocalizationInput = {
@@ -211,12 +212,11 @@ export function EntityForm({ mode, defaultData, action }: EntityFormProps) {
         );
       })}
 
-      <button
-        type="submit"
-        className="rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white"
-      >
-        {mode === "create" ? "Create entity" : "Save changes"}
-      </button>
+      <SubmitButton
+        idleLabel={mode === "create" ? "Create entity" : "Save changes"}
+        pendingLabel={mode === "create" ? "Creating..." : "Saving..."}
+        className="rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
+      />
     </form>
   );
 }

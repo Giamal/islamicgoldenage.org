@@ -107,7 +107,7 @@ export async function createEntityAction(formData: FormData) {
   const localizedSlugs = collectLocalizedSlugs(input);
   const entityId = await createAdminEntityInDb(input);
   revalidateContentCaches(localizedSlugs);
-  redirect(`/admin/entities/${entityId}/edit?saved=1` as Route);
+  redirect(`/admin/entities/${entityId}/edit?status=created` as Route);
 }
 
 export async function updateEntityAction(entityId: string, formData: FormData) {
@@ -115,5 +115,5 @@ export async function updateEntityAction(entityId: string, formData: FormData) {
   const localizedSlugs = collectLocalizedSlugs(input);
   await updateAdminEntityInDb(entityId, input);
   revalidateContentCaches(localizedSlugs);
-  redirect(`/admin/entities/${entityId}/edit?saved=1` as Route);
+  redirect(`/admin/entities/${entityId}/edit?status=updated` as Route);
 }
