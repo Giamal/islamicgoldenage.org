@@ -32,7 +32,7 @@ type EntityCardProps = {
 export function EntityCard({ entity, locale }: EntityCardProps) {
   return (
     <Link
-      href={`/${locale}/entities/${entity.slug}`}
+      href={`/${locale}/entities/${encodeURIComponent(entity.slug)}`}
       className="group rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface-strong)] p-6 transition hover:-translate-y-0.5 hover:border-[var(--accent)]"
     >
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--warm)]">

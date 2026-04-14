@@ -76,7 +76,9 @@ export default async function HomePage({ params }: HomePageProps) {
               {copy.primaryCta}
             </Link>
             <Link
-              href={`/${typedLocale}/entities/${featuredEntitySlugByLocale[typedLocale]}`}
+              href={`/${typedLocale}/entities/${encodeURIComponent(
+                featuredEntitySlugByLocale[typedLocale],
+              )}`}
               className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)]"
             >
               {copy.secondaryCta}

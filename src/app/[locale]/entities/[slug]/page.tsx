@@ -134,7 +134,7 @@ function buildRelatedLink(
   return {
     id: entity.id,
     title: localization.title,
-    href: `/${locale}/entities/${localization.slug}` as Route,
+    href: `/${locale}/entities/${encodeURIComponent(localization.slug)}` as Route,
   };
 }
 
@@ -334,7 +334,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
   const localizedEntityLinks = Object.fromEntries(
     dbEntity.entity.localizations.map((item) => [
       item.locale,
-      `/${item.locale}/entities/${item.slug}`,
+      `/${item.locale}/entities/${encodeURIComponent(item.slug)}`,
     ]),
   ) as Partial<Record<Locale, string>>;
   const renderDurationMs = Date.now() - renderStartedAt;
