@@ -15,7 +15,7 @@ import { getSiteUrl } from "@/lib/site-config";
 import type { Locale } from "@/i18n/config";
 import type { ContentEntityType, TopicType } from "@prisma/client";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 type EntityDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>;
@@ -215,6 +215,7 @@ export async function generateMetadata({
  * Renders a localized entity entry with related people, works, and topics.
  */
 export default async function EntityDetailPage({ params }: EntityDetailPageProps) {
+  const renderStartedAt = Date.now();
   const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
@@ -336,6 +337,10 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
       `/${item.locale}/entities/${item.slug}`,
     ]),
   ) as Partial<Record<Locale, string>>;
+  const renderDurationMs = Date.now() - renderStartedAt;
+  console.info(
+    `[perf][entity-detail][render] locale=${typedLocale} slug=${slug} entityType=${dbEntity.entity.entityType} duration_ms=${renderDurationMs}`,
+  );
 
   return (
     <article className="mx-auto w-full max-w-6xl space-y-8">

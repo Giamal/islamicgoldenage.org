@@ -13,7 +13,7 @@ import { getPublishedLocalizedEntitiesFromDb } from "@/lib/db/content-entity-lis
 import { buildLocaleMetadata } from "@/lib/seo";
 import { getEntityIndexCopy } from "@/lib/ui-copy";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 type EntityIndexPageProps = {
   params: Promise<{ locale: string }>;
@@ -43,6 +43,7 @@ export async function generateMetadata({ params }: EntityIndexPageProps) {
 export default async function EntityIndexPage({
   params,
 }: EntityIndexPageProps) {
+  const renderStartedAt = Date.now();
   const { locale } = await params;
 
   if (!isLocale(locale)) {
@@ -51,6 +52,10 @@ export default async function EntityIndexPage({
 
   const copy = getEntityIndexCopy(locale);
   const entities = await getPublishedLocalizedEntitiesFromDb(locale);
+  const renderDurationMs = Date.now() - renderStartedAt;
+  console.info(
+    `[perf][entities-list][render] locale=${locale} rows=${entities.length} duration_ms=${renderDurationMs}`,
+  );
 
   return (
     <div className="space-y-8">

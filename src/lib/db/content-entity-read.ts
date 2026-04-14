@@ -5,6 +5,7 @@
  * end-to-end while the project is still transitioning from in-memory data.
  */
 import type { Locale } from "@/i18n/config";
+import { unstable_cache } from "next/cache";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
@@ -111,7 +112,7 @@ function pickRelevantProfile(
  * - entity core record
  * - relevant profile for person/work/topic
  */
-export async function getContentEntityBySlugFromDb(
+async function getContentEntityBySlugFromDbUncached(
   locale: Locale,
   slug: string,
 ): Promise<ContentEntityBySlugResult | null> {
@@ -131,6 +132,7 @@ export async function getContentEntityBySlugFromDb(
     // Ignore malformed URI input and keep the raw slug candidate only.
   }
 
+  const queryStartedAt = Date.now();
   const record = await prisma.contentEntityLocalization.findFirst({
     where: {
       locale,
@@ -195,6 +197,10 @@ export async function getContentEntityBySlugFromDb(
       },
     },
   });
+  const queryDurationMs = Date.now() - queryStartedAt;
+  console.info(
+    `[perf][entity-detail][db] locale=${locale} slug=${slug} found=${Boolean(record)} duration_ms=${queryDurationMs}`,
+  );
 
   if (!record) {
     return null;
@@ -208,3 +214,10 @@ export async function getContentEntityBySlugFromDb(
     profile: pickRelevantProfile(entity),
   };
 }
+
+export const getContentEntityBySlugFromDb = unstable_cache(
+  async (locale: Locale, slug: string) =>
+    getContentEntityBySlugFromDbUncached(locale, slug),
+  ["content-entity-detail-by-locale-slug"],
+  { revalidate: 3600 },
+);

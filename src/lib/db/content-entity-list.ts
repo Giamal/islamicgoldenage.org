@@ -3,6 +3,7 @@
  */
 import type { Locale } from "@/i18n/config";
 import { locales } from "@/i18n/config";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 export type EntityListItem = {
@@ -30,9 +31,10 @@ export type SitemapEntityItem = {
  * 1) canonical importance descending
  * 2) localized title ascending
  */
-export async function getPublishedLocalizedEntitiesFromDb(
+async function getPublishedLocalizedEntitiesFromDbUncached(
   locale: Locale,
 ): Promise<EntityListItem[]> {
+  const queryStartedAt = Date.now();
   const records = await prisma.contentEntityLocalization.findMany({
     where: {
       locale,
@@ -53,6 +55,10 @@ export async function getPublishedLocalizedEntitiesFromDb(
     },
     orderBy: [{ entity: { importanceScore: "desc" } }, { title: "asc" }],
   });
+  const queryDurationMs = Date.now() - queryStartedAt;
+  console.info(
+    `[perf][entities-list][db] locale=${locale} rows=${records.length} duration_ms=${queryDurationMs}`,
+  );
 
   return records.map((record) => ({
     id: record.entity.id,
@@ -67,6 +73,12 @@ export async function getPublishedLocalizedEntitiesFromDb(
   }));
 }
 
+export const getPublishedLocalizedEntitiesFromDb = unstable_cache(
+  async (locale: Locale) => getPublishedLocalizedEntitiesFromDbUncached(locale),
+  ["content-entities-list-by-locale"],
+  { revalidate: 3600 },
+);
+
 /**
  * Returns published localized entities for sitemap generation.
  *
@@ -78,6 +90,7 @@ export async function getPublishedLocalizedEntitiesFromDb(
 export async function getPublishedLocalizedSitemapEntitiesFromDb(): Promise<
   SitemapEntityItem[]
 > {
+  const queryStartedAt = Date.now();
   const records = await prisma.contentEntityLocalization.findMany({
     where: {
       locale: { in: [...locales] },
@@ -99,6 +112,10 @@ export async function getPublishedLocalizedSitemapEntitiesFromDb(): Promise<
     },
     orderBy: [{ entity: { importanceScore: "desc" } }, { title: "asc" }],
   });
+  const queryDurationMs = Date.now() - queryStartedAt;
+  console.info(
+    `[perf][sitemap-entities][db] rows=${records.length} duration_ms=${queryDurationMs}`,
+  );
 
   return records
     .filter((record) => record.slug.trim().length > 0)
