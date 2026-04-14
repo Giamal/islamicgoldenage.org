@@ -86,6 +86,18 @@ export type ContentEntityBySlugResult = {
   profile: RelevantProfile;
 };
 
+function canonicalizeSlugForCache(slug: string): string {
+  let decodedSlug = slug;
+
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch {
+    // Keep the raw slug when decoding fails.
+  }
+
+  return decodedSlug.normalize("NFC");
+}
+
 function pickRelevantProfile(
   entity: LocalizationWithEntity["entity"],
 ): RelevantProfile {
@@ -116,27 +128,11 @@ async function getContentEntityBySlugFromDbUncached(
   locale: Locale,
   slug: string,
 ): Promise<ContentEntityBySlugResult | null> {
-  const slugCandidates = new Set<string>();
-  const addCandidate = (value: string) => {
-    if (!value) {
-      return;
-    }
-    slugCandidates.add(value);
-    slugCandidates.add(value.normalize("NFC"));
-  };
-
-  addCandidate(slug);
-  try {
-    addCandidate(decodeURIComponent(slug));
-  } catch {
-    // Ignore malformed URI input and keep the raw slug candidate only.
-  }
-
   const queryStartedAt = Date.now();
   const record = await prisma.contentEntityLocalization.findFirst({
     where: {
       locale,
-      slug: { in: [...slugCandidates] },
+      slug,
     },
     include: {
       sections: {
@@ -215,9 +211,24 @@ async function getContentEntityBySlugFromDbUncached(
   };
 }
 
-export const getContentEntityBySlugFromDb = unstable_cache(
+const getContentEntityBySlugFromDbCached = unstable_cache(
   async (locale: Locale, slug: string) =>
     getContentEntityBySlugFromDbUncached(locale, slug),
   ["content-entity-detail-by-locale-slug"],
   { revalidate: 3600 },
 );
+
+export async function getContentEntityBySlugFromDb(
+  locale: Locale,
+  slug: string,
+): Promise<ContentEntityBySlugResult | null> {
+  const canonicalLocale = locale.toLowerCase() as Locale;
+  const canonicalSlug = canonicalizeSlugForCache(slug);
+  const isArabicLocale = canonicalLocale === "ar";
+
+  console.info(
+    `[perf][entity-detail][slug] locale=${canonicalLocale} isArabicLocale=${isArabicLocale} rawSlug=${slug} canonicalSlug=${canonicalSlug}`,
+  );
+
+  return getContentEntityBySlugFromDbCached(canonicalLocale, canonicalSlug);
+}
