@@ -8,12 +8,16 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
+import { PublicHero } from "@/components/layout/public-hero";
 import { isLocale } from "@/i18n/config";
 import type { Locale } from "@/i18n/config";
-import { localeLabels, locales } from "@/i18n/config";
 import { getPublishedLocalizedEntitiesFromDb } from "@/lib/db/content-entity-list";
+import { getHeroPrimaryLocales } from "@/lib/hero-locale";
 import { buildLocaleMetadata } from "@/lib/seo";
-import { getEntityTypeLabel, getHomepageCopy } from "@/lib/ui-copy";
+import {
+  getEntityTypeLabel,
+  getHomepageCopy,
+} from "@/lib/ui-copy";
 
 type HomePageProps = {
   params: Promise<{ locale: string }>;
@@ -24,37 +28,26 @@ const featuredEntitySlugByLocale: Record<Locale, string> = {
   it: "al-khwarizmi",
   ar: "الخوارزمي",
 };
-const defaultSecondaryHeroLocale: Locale = "en";
-
-const heroUiCopy: Record<
+const heroSearchCopy: Record<
   Locale,
   {
-    navHome: string;
-    navExplore: string;
-    searchPlaceholder: string;
-    searchSubmit: string;
+    placeholder: string;
+    submit: string;
   }
 > = {
   en: {
-    navHome: "Home",
-    navExplore: "Archive",
-    searchPlaceholder: "Search scholars, works, topics",
-    searchSubmit: "Search",
+    placeholder: "Search scholars, works, topics",
+    submit: "Search",
   },
   it: {
-    navHome: "Home",
-    navExplore: "Archivio",
-    searchPlaceholder: "Cerca studiosi, opere, temi",
-    searchSubmit: "Cerca",
+    placeholder: "Cerca studiosi, opere, temi",
+    submit: "Cerca",
   },
   ar: {
-    navHome: "الرئيسية",
-    navExplore: "الأرشيف",
-    searchPlaceholder: "ابحث عن العلماء والأعمال والموضوعات",
-    searchSubmit: "بحث",
+    placeholder: "Search scholars, works, topics",
+    submit: "Search",
   },
 };
-
 const homeSectionCopy: Record<
   Locale,
   {
@@ -172,31 +165,13 @@ export default async function HomePage({ params }: HomePageProps) {
   const typedLocale: Locale = locale;
   const requestHeaders = await headers();
   const acceptLanguageHeader = requestHeaders.get("accept-language") ?? "";
-  const preferredLanguageTag = acceptLanguageHeader
-    .split(",")[0]
-    ?.trim()
-    .toLowerCase();
-  const preferredLocale = locales.find(
-    (supportedLocale) =>
-      preferredLanguageTag === supportedLocale ||
-      preferredLanguageTag?.startsWith(`${supportedLocale}-`),
-  );
-  const secondaryHeroLocale =
-    typedLocale === "ar"
-      ? preferredLocale && preferredLocale !== "ar"
-        ? preferredLocale
-        : defaultSecondaryHeroLocale
-      : typedLocale;
-  const primaryHeroLocales: Locale[] = Array.from(
-    new Set<Locale>(["ar", secondaryHeroLocale]),
+  const primaryHeroLocales = getHeroPrimaryLocales(
+    typedLocale,
+    acceptLanguageHeader,
   );
   const copy = getHomepageCopy(locale);
   const sectionCopy = homeSectionCopy[typedLocale];
-  const heroCopy = heroUiCopy[typedLocale];
-  const secondaryHeroLocales = locales.filter(
-    (localeOption) => !primaryHeroLocales.includes(localeOption),
-  );
-  const isCurrentLocalePrimary = primaryHeroLocales.includes(typedLocale);
+  const searchCopy = heroSearchCopy[typedLocale];
   const featuredEntities = (await getPublishedLocalizedEntitiesFromDb(typedLocale)).slice(
     0,
     3,
@@ -204,158 +179,47 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <div className="space-y-16">
-      <header className="relative w-screen overflow-hidden [margin-inline:calc(50%-50vw)]">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(12,16,24,0.52) 0%, rgba(20,14,10,0.72) 100%), radial-gradient(120% 80% at 50% 5%, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 50%), url('/images/hero/home-hero.png') center/cover no-repeat, linear-gradient(120deg, #4f6f8d 0%, #8a6a42 58%, #a56f2d 100%)",
-          }}
-        />
-        <div className="relative z-10 px-5 py-6 text-white sm:px-8 sm:py-10">
-          <nav className="absolute right-5 top-5 flex items-center gap-4 text-sm font-semibold sm:right-8 sm:top-6">
-            <Link
-              href={`/${typedLocale}`}
-              className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)] hover:text-white/85"
-            >
-              {heroCopy.navHome}
-            </Link>
-            <Link
-              href={`/${typedLocale}/entities`}
-              className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)] hover:text-white/85"
-            >
-              {heroCopy.navExplore}
-            </Link>
-            <div className="flex items-center gap-2 rounded-full border border-white/55 bg-black/45 px-3 py-1.5 backdrop-blur-sm">
-              <span className="inline-flex h-5 w-5 items-center justify-center text-white">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.7"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M3 12h18" />
-                  <path d="M12 3a14 14 0 0 1 0 18" />
-                  <path d="M12 3a14 14 0 0 0 0 18" />
-                </svg>
-              </span>
-              <div className="flex items-center gap-2">
-                {primaryHeroLocales.map((localeOption) => {
-                  const isActive = localeOption === typedLocale;
-                  return (
-                    <Link
-                      key={localeOption}
-                      href={`/${localeOption}`}
-                      hrefLang={localeOption}
-                      lang={localeOption}
-                      className={`rounded-full px-2 py-0.5 text-xs font-semibold transition ${
-                        isActive
-                          ? "bg-sky-500 text-white"
-                          : "text-white hover:bg-white/20"
-                      }`}
-                    >
-                      {localeLabels[localeOption]}
-                    </Link>
-                  );
-                })}
-                {secondaryHeroLocales.length > 0 ? (
-                  <details className="relative">
-                    <summary
-                      className="cursor-pointer list-none rounded-full p-1 text-white transition hover:bg-white/20 [&::-webkit-details-marker]:hidden"
-                      aria-label="Open language menu"
-                    >
-                      <svg
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        className="h-4 w-4"
-                        aria-hidden="true"
-                      >
-                        <path d="M5 8l5 5 5-5" />
-                      </svg>
-                    </summary>
-                    <div className="absolute right-0 z-20 mt-2 min-w-28 rounded-xl border border-white/50 bg-black/70 p-1.5 shadow-xl backdrop-blur-sm">
-                      {!isCurrentLocalePrimary ? (
-                        <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-white/80">
-                          {localeLabels[typedLocale]}
-                        </p>
-                      ) : null}
-                      {secondaryHeroLocales.map((localeOption) => {
-                        const isActive = localeOption === typedLocale;
+      <PublicHero
+        locale={typedLocale}
+        primaryLocales={primaryHeroLocales}
+        hrefForLocale={(localeOption) => `/${localeOption}`}
+        kicker={sectionCopy.archiveLabel}
+        title={copy.title}
+        description={copy.description}
+      >
+        <form
+          action={`/${typedLocale}/entities`}
+          method="get"
+          className="mx-auto mt-4 flex w-full max-w-xl items-center gap-2 rounded-full border border-white/45 bg-white/88 px-3 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
+        >
+          <input
+            type="search"
+            name="q"
+            placeholder={searchCopy.placeholder}
+            className="w-full bg-transparent px-2 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted)]"
+          />
+          <button
+            type="submit"
+            className="rounded-full bg-[var(--accent)] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[var(--accent-strong)]"
+          >
+            {searchCopy.submit}
+          </button>
+        </form>
 
-                        return (
-                          <Link
-                            key={localeOption}
-                            href={`/${localeOption}`}
-                            hrefLang={localeOption}
-                            lang={localeOption}
-                            className={`block rounded-lg px-2 py-1 text-xs font-semibold ${
-                              isActive
-                                ? "bg-sky-500 text-white"
-                                : "text-white hover:bg-white/20"
-                            }`}
-                          >
-                            {localeLabels[localeOption]}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </details>
-                ) : null}
-              </div>
-            </div>
-          </nav>
-
-          <div className="mx-auto max-w-3xl space-y-5 pt-6 text-center sm:pt-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/80">
-              {sectionCopy.archiveLabel}
-            </p>
-            <h1 className="text-[2.5rem] font-semibold leading-[1.05] tracking-tight sm:text-[4rem]">
-              {copy.title}
-            </h1>
-            <p className="mx-auto max-w-2xl text-base leading-7 text-white/90 sm:text-lg">
-              {copy.description}
-            </p>
-
-            <form
-              action={`/${typedLocale}/entities`}
-              method="get"
-              className="mx-auto mt-4 flex w-full max-w-xl items-center gap-2 rounded-full border border-white/45 bg-white/88 px-3 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
-            >
-              <input
-                type="search"
-                name="q"
-                placeholder={heroCopy.searchPlaceholder}
-                className="w-full bg-transparent px-2 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted)]"
-              />
-              <button
-                type="submit"
-                className="rounded-full bg-[var(--accent)] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[var(--accent-strong)]"
-              >
-                {heroCopy.searchSubmit}
-              </button>
-            </form>
-
-            <div className="flex justify-center gap-5 text-sm font-semibold text-white/90">
-              <Link href={`/${locale}/entities`} className="hover:text-white hover:underline">
-                {copy.primaryCta}
-              </Link>
-              <Link
-                href={`/${typedLocale}/entities/${encodeURIComponent(
-                  featuredEntitySlugByLocale[typedLocale],
-                )}`}
-                className="hover:text-white hover:underline"
-              >
-                {copy.secondaryCta}
-              </Link>
-            </div>
-          </div>
+        <div className="flex justify-center gap-5 text-sm font-semibold text-white/90">
+          <Link href={`/${locale}/entities`} className="hover:text-white hover:underline">
+            {copy.primaryCta}
+          </Link>
+          <Link
+            href={`/${typedLocale}/entities/${encodeURIComponent(
+              featuredEntitySlugByLocale[typedLocale],
+            )}`}
+            className="hover:text-white hover:underline"
+          >
+            {copy.secondaryCta}
+          </Link>
         </div>
-      </header>
+      </PublicHero>
 
       <section className="space-y-5 border-t border-[var(--border)] pt-9">
         <div className="space-y-3">
@@ -440,3 +304,4 @@ export default async function HomePage({ params }: HomePageProps) {
     </div>
   );
 }
+

@@ -33,6 +33,28 @@ export function getNavigationCopy(locale: Locale) {
 }
 
 /**
+ * Returns localized hero navigation labels used in public hero headers.
+ */
+export function getHeroNavigationCopy(locale: Locale) {
+  const dictionary = {
+    en: {
+      home: "Home",
+      archive: "Archive",
+    },
+    it: {
+      home: "Home",
+      archive: "Archivio",
+    },
+    ar: {
+      home: "الرئيسية",
+      archive: "الأرشيف",
+    },
+  } as const;
+
+  return dictionary[locale];
+}
+
+/**
  * Returns localized copy for the homepage.
  */
 export function getHomepageCopy(locale: Locale) {

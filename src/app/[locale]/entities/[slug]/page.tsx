@@ -5,13 +5,15 @@
  */
 import Link from "next/link";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import type { Route } from "next";
 import { cache } from "react";
 
-import { SiteHeader } from "@/components/layout/site-header";
+import { PublicHero } from "@/components/layout/public-hero";
 import { defaultLocale, isLocale } from "@/i18n/config";
 import { getContentEntityBySlugFromDb } from "@/lib/db/content-entity-read";
+import { getHeroPrimaryLocales } from "@/lib/hero-locale";
 import { getSiteUrl } from "@/lib/site-config";
 import type { Locale } from "@/i18n/config";
 import type { ContentEntityType, TopicType } from "@prisma/client";
@@ -31,6 +33,15 @@ function getEntityPageLabels(locale: Locale) {
   const dictionary = {
     en: {
       entityTypeLabel: "Content type",
+      personInfoboxTitle: "Profile",
+      personAliases: "Aliases",
+      personBorn: "Born",
+      personDied: "Died",
+      personEra: "Era",
+      personRoles: "Roles",
+      personDomains: "Domains",
+      personPlaces: "Places",
+      personNoImage: "Portrait not available",
       works: "Works",
       topicWorks: "Related works",
       authors: "Authors",
@@ -40,6 +51,15 @@ function getEntityPageLabels(locale: Locale) {
     },
     it: {
       entityTypeLabel: "Tipo di contenuto",
+      personInfoboxTitle: "Profilo",
+      personAliases: "Nomi alternativi",
+      personBorn: "Nascita",
+      personDied: "Morte",
+      personEra: "Epoca",
+      personRoles: "Ruoli",
+      personDomains: "Aree",
+      personPlaces: "Luoghi",
+      personNoImage: "Ritratto non disponibile",
       works: "Opere",
       topicWorks: "Opere correlate",
       authors: "Autori",
@@ -48,13 +68,22 @@ function getEntityPageLabels(locale: Locale) {
       related: "Correlati",
     },
     ar: {
-      entityTypeLabel: "نوع المحتوى",
-      works: "الأعمال",
-      topicWorks: "أعمال ذات صلة",
-      authors: "المؤلفون",
-      topics: "الموضوعات",
-      scholars: "العلماء",
-      related: "مرتبط",
+      entityTypeLabel: "Content type",
+      personInfoboxTitle: "Profile",
+      personAliases: "Aliases",
+      personBorn: "Born",
+      personDied: "Died",
+      personEra: "Era",
+      personRoles: "Roles",
+      personDomains: "Domains",
+      personPlaces: "Places",
+      personNoImage: "Portrait not available",
+      works: "Works",
+      topicWorks: "Related works",
+      authors: "Authors",
+      topics: "Topics",
+      scholars: "Scholars",
+      related: "Related",
     },
   } as const;
 
@@ -159,6 +188,19 @@ function buildEntityAbsoluteUrl(siteUrl: string, locale: string, slug: string) {
   return `${siteUrl}/${locale}/entities/${encodeURIComponent(slug)}`;
 }
 
+const localizedSectionKeys = {
+  imageAlt: "media_image_alt",
+  imageCaption: "media_image_caption",
+} as const;
+
+function formatYearLabel(value: number | null | undefined) {
+  if (typeof value !== "number") {
+    return null;
+  }
+
+  return `${value} CE`;
+}
+
 /**
  * Generates metadata for localized entity detail pages under the generic route.
  */
@@ -231,7 +273,6 @@ export async function generateMetadata({
  * Renders a localized entity entry with related people, works, and topics.
  */
 export default async function EntityDetailPage({ params }: EntityDetailPageProps) {
-  const renderStartedAt = Date.now();
   const { locale, slug } = await params;
 
   if (!isLocale(locale)) {
@@ -239,6 +280,12 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
   }
 
   const typedLocale: Locale = locale;
+  const requestHeaders = await headers();
+  const acceptLanguageHeader = requestHeaders.get("accept-language") ?? "";
+  const primaryHeroLocales = getHeroPrimaryLocales(
+    typedLocale,
+    acceptLanguageHeader,
+  );
   const dbEntity = await getEntityDetailForRequest(typedLocale, slug);
   if (!dbEntity) {
     notFound();
@@ -246,6 +293,22 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
 
   const labels = getEntityPageLabels(typedLocale);
   const orderedSections = dbEntity.localization.sections;
+  const visibleSections = orderedSections.filter(
+    (section) =>
+      section.sectionKey !== localizedSectionKeys.imageAlt &&
+      section.sectionKey !== localizedSectionKeys.imageCaption,
+  );
+  const imageAlt =
+    orderedSections.find(
+      (section) => section.sectionKey === localizedSectionKeys.imageAlt,
+    )?.content || dbEntity.entity.heroImageAlt || dbEntity.localization.title;
+  const imageCaption = orderedSections.find(
+    (section) => section.sectionKey === localizedSectionKeys.imageCaption,
+  )?.content;
+  const personProfile =
+    dbEntity.entity.entityType === "person" && dbEntity.profile.kind === "person"
+      ? dbEntity.profile.data
+      : null;
   const topicType =
     dbEntity.profile.kind === "topic" ? dbEntity.profile.data?.topicType : null;
 
@@ -353,31 +416,168 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
       `/${item.locale}/entities/${encodeURIComponent(item.slug)}`,
     ]),
   ) as Partial<Record<Locale, string>>;
-  const renderDurationMs = Date.now() - renderStartedAt;
-  console.info(
-    `[perf][entity-detail][render] locale=${typedLocale} slug=${slug} entityType=${dbEntity.entity.entityType} duration_ms=${renderDurationMs}`,
-  );
+  const heroHrefForLocale = (localeOption: Locale) =>
+    localizedEntityLinks[localeOption] ?? `/${localeOption}/entities`;
+
+  if (dbEntity.entity.entityType === "person" && personProfile) {
+    const born = formatYearLabel(personProfile.birthYear);
+    const died = formatYearLabel(personProfile.deathYear);
+
+    return (
+      <article className="mx-auto w-full max-w-[72rem] space-y-8">
+        <PublicHero
+          locale={typedLocale}
+          primaryLocales={primaryHeroLocales}
+          hrefForLocale={heroHrefForLocale}
+          kicker={getEntityTypeLabel(typedLocale, dbEntity.entity.entityType)}
+          title={dbEntity.localization.title}
+          description={dbEntity.localization.summary}
+        />
+
+        <section className="grid gap-7 lg:grid-cols-[minmax(0,2.1fr)_minmax(280px,1fr)] lg:items-start">
+          <div className="space-y-5">
+            {visibleSections.map((section) => (
+              <section
+                key={section.sectionKey}
+                className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] px-5 py-6 sm:px-7"
+              >
+                <h2 className="text-[1.9rem] font-semibold tracking-tight">
+                  {section.heading}
+                </h2>
+                <p className="mt-3 leading-8 text-[var(--muted)]">{section.content}</p>
+              </section>
+            ))}
+          </div>
+
+          <aside className="space-y-5 lg:sticky lg:top-8">
+            <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[#f4efe5] text-[var(--foreground)] shadow-[var(--shadow)]">
+              <div className="h-72 border-b border-[var(--border)] bg-[var(--surface-muted)] sm:h-80">
+                {dbEntity.entity.heroImageUrl ? (
+                  <div
+                    role="img"
+                    aria-label={imageAlt}
+                    className="h-full w-full bg-cover bg-center"
+                    style={{ backgroundImage: `url('${dbEntity.entity.heroImageUrl}')` }}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center px-5 text-sm text-[var(--muted)]">
+                    {labels.personNoImage}
+                  </div>
+                )}
+              </div>
+              <div className="space-y-4 p-5">
+                <h2 className="text-xl font-semibold tracking-tight">
+                  {labels.personInfoboxTitle}
+                </h2>
+                {imageCaption ? (
+                  <p className="text-xs leading-6 text-[var(--muted)]">{imageCaption}</p>
+                ) : null}
+                <dl className="space-y-2 text-sm">
+                  {born ? (
+                    <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2 border-t border-[var(--border)] pt-2">
+                      <dt className="font-semibold">{labels.personBorn}</dt>
+                      <dd>{born}</dd>
+                    </div>
+                  ) : null}
+                  {died ? (
+                    <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2 border-t border-[var(--border)] pt-2">
+                      <dt className="font-semibold">{labels.personDied}</dt>
+                      <dd>{died}</dd>
+                    </div>
+                  ) : null}
+                  {personProfile.eraLabel ? (
+                    <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2 border-t border-[var(--border)] pt-2">
+                      <dt className="font-semibold">{labels.personEra}</dt>
+                      <dd>{personProfile.eraLabel}</dd>
+                    </div>
+                  ) : null}
+                  {personProfile.roles.length > 0 ? (
+                    <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2 border-t border-[var(--border)] pt-2">
+                      <dt className="font-semibold">{labels.personRoles}</dt>
+                      <dd>{personProfile.roles.join(", ")}</dd>
+                    </div>
+                  ) : null}
+                  {personProfile.domains.length > 0 ? (
+                    <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2 border-t border-[var(--border)] pt-2">
+                      <dt className="font-semibold">{labels.personDomains}</dt>
+                      <dd>{personProfile.domains.join(", ")}</dd>
+                    </div>
+                  ) : null}
+                  {personProfile.associatedPlaces.length > 0 ? (
+                    <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2 border-t border-[var(--border)] pt-2">
+                      <dt className="font-semibold">{labels.personPlaces}</dt>
+                      <dd>{personProfile.associatedPlaces.join(", ")}</dd>
+                    </div>
+                  ) : null}
+                  {personProfile.nameVariants.length > 0 ? (
+                    <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2 border-t border-[var(--border)] pt-2">
+                      <dt className="font-semibold">{labels.personAliases}</dt>
+                      <dd>{personProfile.nameVariants.join(", ")}</dd>
+                    </div>
+                  ) : null}
+                </dl>
+              </div>
+            </section>
+
+            {authoredWorks.length > 0 ? (
+              <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6">
+                <h2 className="text-[1.6rem] font-semibold tracking-tight">{labels.works}</h2>
+                <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
+                  {authoredWorks.map((item) => (
+                    <li key={item.id}>
+                      <Link
+                        href={item.href}
+                        prefetch={true}
+                        className="hover:text-[var(--accent)] hover:underline"
+                      >
+                        {item.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
+            {genericRelated.length > 0 ? (
+              <section className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] p-5 sm:p-6">
+                <h2 className="text-[1.6rem] font-semibold tracking-tight">
+                  {labels.related}
+                </h2>
+                <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
+                  {genericRelated.map((item) => (
+                    <li key={item.id}>
+                      <Link
+                        href={item.href}
+                        prefetch={true}
+                        className="hover:text-[var(--accent)] hover:underline"
+                      >
+                        {item.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+          </aside>
+        </section>
+      </article>
+    );
+  }
 
   return (
     <article className="mx-auto w-full max-w-[72rem] space-y-8">
-      <SiteHeader locale={typedLocale} localizedEntityLinks={localizedEntityLinks} />
-      <header className="public-surface p-7 sm:p-9">
-        <div className="space-y-4">
-          <p className="public-kicker">
-            {getEntityTypeLabel(typedLocale, dbEntity.entity.entityType)}
-          </p>
-          <h1 className="max-w-4xl text-4xl font-semibold tracking-tight sm:text-5xl">
-            {dbEntity.localization.title}
-          </h1>
-          <p className="max-w-4xl text-lg leading-8 text-[var(--muted)]">
-            {dbEntity.localization.summary}
-          </p>
-        </div>
-      </header>
+      <PublicHero
+        locale={typedLocale}
+        primaryLocales={primaryHeroLocales}
+        hrefForLocale={heroHrefForLocale}
+        kicker={getEntityTypeLabel(typedLocale, dbEntity.entity.entityType)}
+        title={dbEntity.localization.title}
+        description={dbEntity.localization.summary}
+      />
 
       <section className="grid gap-7 lg:grid-cols-[minmax(0,2.1fr)_minmax(280px,1fr)] lg:items-start">
         <div className="space-y-5">
-          {orderedSections.map((section) => (
+          {visibleSections.map((section) => (
             <section
               key={section.sectionKey}
               className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] px-5 py-6 sm:px-7"
@@ -527,3 +727,4 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
     </article>
   );
 }
+
