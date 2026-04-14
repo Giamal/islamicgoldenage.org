@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { Route } from "next";
+import { cache } from "react";
 
 import { SiteHeader } from "@/components/layout/site-header";
 import { isLocale } from "@/i18n/config";
@@ -16,6 +17,11 @@ import type { Locale } from "@/i18n/config";
 import type { ContentEntityType, TopicType } from "@prisma/client";
 
 export const revalidate = 3600;
+
+const getEntityDetailForRequest = cache(
+  async (locale: Locale, slug: string) =>
+    getContentEntityBySlugFromDb(locale, slug),
+);
 
 type EntityDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>;
@@ -165,7 +171,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const dbEntity = await getContentEntityBySlugFromDb(locale, slug);
+  const dbEntity = await getEntityDetailForRequest(locale, slug);
   if (!dbEntity) {
     return {};
   }
@@ -223,7 +229,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
   }
 
   const typedLocale: Locale = locale;
-  const dbEntity = await getContentEntityBySlugFromDb(typedLocale, slug);
+  const dbEntity = await getEntityDetailForRequest(typedLocale, slug);
   if (!dbEntity) {
     notFound();
   }
