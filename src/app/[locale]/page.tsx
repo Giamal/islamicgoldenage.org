@@ -176,8 +176,8 @@ export default async function HomePage({ params }: HomePageProps) {
   );
 
   return (
-    <div className="space-y-16">
-      <header className="relative -mx-4 overflow-hidden sm:-mx-6 lg:-mx-10">
+    <div className="-mt-8 space-y-16 sm:-mt-10">
+      <header className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden">
         <div
           className="absolute inset-0"
           style={{
