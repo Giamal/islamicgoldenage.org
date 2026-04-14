@@ -131,6 +131,44 @@ export async function getAdminEntityListFromDb(): Promise<AdminEntityListItem[]>
   }));
 }
 
+export async function getAdminEntityListByStatusFromDb(
+  status: ContentStatus | "all",
+): Promise<AdminEntityListItem[]> {
+  const records = await prisma.contentEntity.findMany({
+    where: status === "all" ? undefined : { status },
+    orderBy: [{ updatedAt: "desc" }],
+    select: {
+      id: true,
+      entityType: true,
+      status: true,
+      updatedAt: true,
+      localizations: {
+        where: {
+          locale: { in: [...locales] },
+        },
+        orderBy: { locale: "asc" },
+        select: {
+          locale: true,
+          title: true,
+          slug: true,
+        },
+      },
+    },
+  });
+
+  return records.map((record) => ({
+    id: record.id,
+    entityType: record.entityType,
+    status: record.status,
+    updatedAt: record.updatedAt,
+    localizations: record.localizations.map((item) => ({
+      locale: item.locale as Locale,
+      title: item.title,
+      slug: item.slug,
+    })),
+  }));
+}
+
 export async function getAdminEntityByIdFromDb(
   id: string,
 ): Promise<AdminEntityEditorData | null> {

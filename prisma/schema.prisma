@@ -31,7 +31,6 @@ enum ContentEntityType {
 
 enum ContentStatus {
   draft
-  ready_for_review
   published
   archived
 }

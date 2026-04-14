@@ -204,6 +204,10 @@ async function getContentEntityBySlugFromDbUncached(
     return null;
   }
 
+  if (record.entity.status !== "published") {
+    return null;
+  }
+
   const { entity, ...localization } = record;
 
   return {

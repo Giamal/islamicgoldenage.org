@@ -7,9 +7,13 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { DeleteEntityAction } from "@/app/admin/entities/_components/delete-entity-action";
-import { getAdminEntityListFromDb } from "@/lib/db/admin-entity-read";
+import { getAdminEntityListByStatusFromDb } from "@/lib/db/admin-entity-read";
+import type { ContentStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
+
+const statusFilters = ["all", "draft", "published", "archived"] as const;
+type StatusFilter = (typeof statusFilters)[number];
 
 function formatLocaleLabels(
   localizations: Array<{ locale: string; title: string; slug: string }>,
@@ -27,8 +31,33 @@ function getPrimaryEntityLabel(
   return fallback?.title || fallback?.slug || "Untitled entity";
 }
 
-export default async function AdminEntitiesPage() {
-  const entities = await getAdminEntityListFromDb();
+function getStatusBadgeClass(status: ContentStatus) {
+  if (status === "published") {
+    return "border-green-200 bg-green-50 text-green-700";
+  }
+
+  if (status === "archived") {
+    return "border-slate-200 bg-slate-100 text-slate-700";
+  }
+
+  return "border-amber-200 bg-amber-50 text-amber-700";
+}
+
+type AdminEntitiesPageProps = {
+  searchParams?: Promise<{ status?: string }>;
+};
+
+export default async function AdminEntitiesPage({
+  searchParams,
+}: AdminEntitiesPageProps) {
+  const params = searchParams ? await searchParams : undefined;
+  const selectedStatus: StatusFilter = statusFilters.includes(
+    params?.status as StatusFilter,
+  )
+    ? (params?.status as StatusFilter)
+    : "all";
+
+  const entities = await getAdminEntityListByStatusFromDb(selectedStatus);
 
   return (
     <div className="space-y-6">
@@ -47,6 +76,29 @@ export default async function AdminEntitiesPage() {
         </Link>
       </header>
 
+      <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="font-medium text-[var(--muted)]">Filter:</span>
+          {statusFilters.map((status) => (
+            <Link
+              key={status}
+              href={
+                status === "all"
+                  ? ("/admin/entities" as Route)
+                  : (`/admin/entities?status=${status}` as Route)
+              }
+              className={`rounded-full px-3 py-1.5 font-semibold ${
+                selectedStatus === status
+                  ? "bg-[var(--accent)] text-white"
+                  : "border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)]"
+              }`}
+            >
+              {status}
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
         <table className="min-w-full text-left text-sm">
           <thead>
@@ -62,7 +114,15 @@ export default async function AdminEntitiesPage() {
             {entities.map((entity) => (
               <tr key={entity.id} className="border-b border-[var(--border)]">
                 <td className="px-4 py-3">{entity.entityType}</td>
-                <td className="px-4 py-3">{entity.status}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${getStatusBadgeClass(
+                      entity.status,
+                    )}`}
+                  >
+                    {entity.status}
+                  </span>
+                </td>
                 <td className="px-4 py-3">
                   {formatLocaleLabels(entity.localizations) || "No localizations yet"}
                 </td>

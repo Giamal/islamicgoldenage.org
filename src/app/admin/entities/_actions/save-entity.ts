@@ -20,7 +20,6 @@ import type { ContentEntityType, ContentStatus } from "@prisma/client";
 const editableEntityTypes = ["person", "work", "topic"];
 const editableStatuses = [
   "draft",
-  "ready_for_review",
   "published",
   "archived",
 ];
