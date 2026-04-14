@@ -44,7 +44,7 @@ function getStatusBadgeClass(status: ContentStatus) {
 }
 
 type AdminEntitiesPageProps = {
-  searchParams?: Promise<{ status?: string }>;
+  searchParams?: Promise<{ status?: string; delete?: string }>;
 };
 
 export default async function AdminEntitiesPage({
@@ -58,6 +58,9 @@ export default async function AdminEntitiesPage({
     : "all";
 
   const entities = await getAdminEntityListByStatusFromDb(selectedStatus);
+  const deleteState = params?.delete === "success" || params?.delete === "error"
+    ? params.delete
+    : null;
 
   return (
     <div className="space-y-6">
@@ -75,6 +78,20 @@ export default async function AdminEntitiesPage({
           New entity
         </Link>
       </header>
+
+      {deleteState ? (
+        <div
+          className={`rounded-xl border px-4 py-3 text-sm ${
+            deleteState === "success"
+              ? "border-green-200 bg-green-50 text-green-800"
+              : "border-red-200 bg-red-50 text-red-800"
+          }`}
+        >
+          {deleteState === "success"
+            ? "Entry deleted successfully."
+            : "Delete failed. Please retry."}
+        </div>
+      ) : null}
 
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
         <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -138,6 +155,7 @@ export default async function AdminEntitiesPage({
                     <DeleteEntityAction
                       entityId={entity.id}
                       entityLabel={getPrimaryEntityLabel(entity.localizations)}
+                      currentStatusFilter={selectedStatus}
                     />
                   </div>
                 </td>

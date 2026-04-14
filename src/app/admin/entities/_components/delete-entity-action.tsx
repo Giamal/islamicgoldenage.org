@@ -5,18 +5,15 @@
  */
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useFormStatus } from "react-dom";
 
-import {
-  deleteEntityAction,
-  initialDeleteEntityActionState,
-} from "@/app/admin/entities/_actions/delete-entity";
+import { deleteEntityAction } from "@/app/admin/entities/_actions/delete-entity";
 
 type DeleteEntityActionProps = {
   entityId: string;
   entityLabel: string;
+  currentStatusFilter: "all" | "draft" | "published" | "archived";
 };
 
 function DeleteSubmitButton() {
@@ -44,20 +41,9 @@ function DeleteSubmitButton() {
 export function DeleteEntityAction({
   entityId,
   entityLabel,
+  currentStatusFilter,
 }: DeleteEntityActionProps) {
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [state, formAction] = useActionState(
-    deleteEntityAction,
-    initialDeleteEntityActionState,
-  );
-
-  useEffect(() => {
-    if (state.status === "success") {
-      setIsOpen(false);
-      router.refresh();
-    }
-  }, [router, state.status]);
 
   return (
     <div className="space-y-2">
@@ -71,11 +57,11 @@ export function DeleteEntityAction({
 
       {isOpen ? (
         <form
-          action={formAction}
+          action={deleteEntityAction}
           className="w-[22rem] rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-900 shadow-sm"
         >
           <input type="hidden" name="entityId" value={entityId} />
-          <input type="hidden" name="entityLabel" value={entityLabel} />
+          <input type="hidden" name="currentStatus" value={currentStatusFilter} />
 
           <p className="font-semibold">Delete this entry permanently?</p>
           <p className="mt-1">
@@ -94,13 +80,6 @@ export function DeleteEntityAction({
               Cancel
             </button>
           </div>
-
-          {state.status === "error" ? (
-            <p className="mt-2 text-red-700">{state.message}</p>
-          ) : null}
-          {state.status === "success" ? (
-            <p className="mt-2 text-green-700">{state.message}</p>
-          ) : null}
         </form>
       ) : null}
     </div>
