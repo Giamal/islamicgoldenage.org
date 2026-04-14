@@ -30,7 +30,6 @@ const heroUiCopy: Record<
   {
     navHome: string;
     navExplore: string;
-    moreLanguages: string;
     searchPlaceholder: string;
     searchSubmit: string;
   }
@@ -38,21 +37,18 @@ const heroUiCopy: Record<
   en: {
     navHome: "Home",
     navExplore: "Archive",
-    moreLanguages: "More",
     searchPlaceholder: "Search scholars, works, topics",
     searchSubmit: "Search",
   },
   it: {
     navHome: "Home",
     navExplore: "Archivio",
-    moreLanguages: "Altre",
     searchPlaceholder: "Cerca studiosi, opere, temi",
     searchSubmit: "Cerca",
   },
   ar: {
     navHome: "الرئيسية",
     navExplore: "الأرشيف",
-    moreLanguages: "لغات",
     searchPlaceholder: "ابحث عن العلماء والأعمال والموضوعات",
     searchSubmit: "بحث",
   },
@@ -236,7 +232,7 @@ export default async function HomePage({ params }: HomePageProps) {
                       lang={localeOption}
                       className={`rounded-full px-2 py-0.5 text-xs font-semibold transition ${
                         isActive
-                          ? "bg-white text-[var(--foreground)]"
+                          ? "bg-white text-neutral-900"
                           : "text-white hover:bg-white/20"
                       }`}
                     >
@@ -246,12 +242,27 @@ export default async function HomePage({ params }: HomePageProps) {
                 })}
                 {secondaryHeroLocales.length > 0 ? (
                   <details className="relative">
-                    <summary className="cursor-pointer list-none rounded-full px-2 py-0.5 text-xs font-semibold text-white transition hover:bg-white/20 [&::-webkit-details-marker]:hidden">
-                      {isCurrentLocalePrimary
-                        ? heroCopy.moreLanguages
-                        : localeLabels[typedLocale]}
+                    <summary
+                      className="cursor-pointer list-none rounded-full p-1 text-white transition hover:bg-white/20 [&::-webkit-details-marker]:hidden"
+                      aria-label="Open language menu"
+                    >
+                      <svg
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        className="h-4 w-4"
+                        aria-hidden="true"
+                      >
+                        <path d="M5 8l5 5 5-5" />
+                      </svg>
                     </summary>
                     <div className="absolute right-0 z-20 mt-2 min-w-28 rounded-xl border border-white/50 bg-black/70 p-1.5 shadow-xl backdrop-blur-sm">
+                      {!isCurrentLocalePrimary ? (
+                        <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-white/80">
+                          {localeLabels[typedLocale]}
+                        </p>
+                      ) : null}
                       {secondaryHeroLocales.map((localeOption) => {
                         const isActive = localeOption === typedLocale;
 
@@ -263,7 +274,7 @@ export default async function HomePage({ params }: HomePageProps) {
                             lang={localeOption}
                             className={`block rounded-lg px-2 py-1 text-xs font-semibold ${
                               isActive
-                                ? "bg-white text-[var(--foreground)]"
+                                ? "bg-white text-neutral-900"
                                 : "text-white hover:bg-white/20"
                             }`}
                           >
