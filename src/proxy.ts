@@ -8,7 +8,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-import { defaultLocale, isLocale } from "@/i18n/config";
+import { defaultLocale, isLocale, locales, type Locale } from "@/i18n/config";
 
 function unauthorizedAdminResponse() {
   return new NextResponse("Authentication required.", {
@@ -59,6 +59,25 @@ function isAuthorizedAdminRequest(request: NextRequest) {
 }
 
 /**
+ * Resolves the locale from the first Accept-Language item only.
+ * Example: "it-IT,it;q=0.9,en;q=0.8" -> "it"
+ */
+function resolveLocaleFromAcceptLanguage(headerValue: string | null): Locale {
+  if (!headerValue) {
+    return defaultLocale;
+  }
+
+  const firstLanguage = headerValue.split(",")[0]?.trim().toLowerCase();
+  const normalizedLanguage = firstLanguage?.split("-")[0];
+
+  if (normalizedLanguage && locales.includes(normalizedLanguage as Locale)) {
+    return normalizedLanguage as Locale;
+  }
+
+  return defaultLocale;
+}
+
+/**
  * Ensures the application always serves locale-prefixed routes.
  * This keeps SEO and multilingual expansion consistent from the first release.
  */
@@ -89,7 +108,16 @@ export function proxy(request: NextRequest) {
   }
 
   const localizedUrl = request.nextUrl.clone();
-  localizedUrl.pathname = `/${defaultLocale}${pathname === "/" ? "" : pathname}`;
+
+  if (pathname === "/") {
+    const preferredLocale = resolveLocaleFromAcceptLanguage(
+      request.headers.get("accept-language"),
+    );
+    localizedUrl.pathname = `/${preferredLocale}`;
+    return NextResponse.redirect(localizedUrl);
+  }
+
+  localizedUrl.pathname = `/${defaultLocale}${pathname}`;
 
   return NextResponse.redirect(localizedUrl);
 }
