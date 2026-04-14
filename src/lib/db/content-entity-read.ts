@@ -129,10 +129,12 @@ async function getContentEntityBySlugFromDbUncached(
   slug: string,
 ): Promise<ContentEntityBySlugResult | null> {
   const queryStartedAt = Date.now();
-  const record = await prisma.contentEntityLocalization.findFirst({
+  const record = await prisma.contentEntityLocalization.findUnique({
     where: {
-      locale,
-      slug,
+      locale_slug: {
+        locale,
+        slug,
+      },
     },
     include: {
       sections: {

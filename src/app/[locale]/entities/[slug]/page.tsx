@@ -48,13 +48,13 @@ function getEntityPageLabels(locale: Locale) {
       related: "Correlati",
     },
     ar: {
-      entityTypeLabel: "\u0646\u0648\u0639 \u0627\u0644\u0645\u062D\u062A\u0648\u0649",
-      works: "\u0627\u0644\u0623\u0639\u0645\u0627\u0644",
-      topicWorks: "\u0623\u0639\u0645\u0627\u0644 \u0630\u0627\u062A \u0635\u0644\u0629",
-      authors: "\u0627\u0644\u0645\u0624\u0644\u0641\u0648\u0646",
-      topics: "\u0627\u0644\u0645\u0648\u0636\u0648\u0639\u0627\u062A",
-      scholars: "\u0627\u0644\u0639\u0644\u0645\u0627\u0621",
-      related: "\u0645\u0631\u062A\u0628\u0637",
+      entityTypeLabel: "نوع المحتوى",
+      works: "الأعمال",
+      topicWorks: "أعمال ذات صلة",
+      authors: "المؤلفون",
+      topics: "الموضوعات",
+      scholars: "العلماء",
+      related: "مرتبط",
     },
   } as const;
 
@@ -76,10 +76,10 @@ function getTopicTypeLabel(locale: Locale, topicType: TopicType) {
       institution: "Istituzione",
     },
     ar: {
-      discipline: "\u062A\u062E\u0635\u0635",
-      concept: "\u0645\u0641\u0647\u0648\u0645",
-      method: "\u0645\u0646\u0647\u062C",
-      institution: "\u0645\u0624\u0633\u0633\u0629",
+      discipline: "تخصص",
+      concept: "مفهوم",
+      method: "منهج",
+      institution: "مؤسسة",
     },
   } as const;
 
@@ -395,7 +395,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {authoredWorks.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} className="hover:underline">
+                    <Link href={item.href} prefetch={true} className="hover:underline">
                       {item.title}
                     </Link>
                   </li>
@@ -410,7 +410,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {authors.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} className="hover:underline">
+                    <Link href={item.href} prefetch={true} className="hover:underline">
                       {item.title}
                     </Link>
                   </li>
@@ -425,7 +425,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {relatedTopics.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} className="hover:underline">
+                    <Link href={item.href} prefetch={true} className="hover:underline">
                       {item.title}
                     </Link>
                   </li>
@@ -440,7 +440,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {topicPeople.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} className="hover:underline">
+                    <Link href={item.href} prefetch={true} className="hover:underline">
                       {item.title}
                     </Link>
                   </li>
@@ -455,7 +455,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {topicWorks.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} className="hover:underline">
+                    <Link href={item.href} prefetch={true} className="hover:underline">
                       {item.title}
                     </Link>
                   </li>
@@ -470,7 +470,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
               <ul className="list-disc list-inside space-y-1 text-[var(--muted)]">
                 {genericRelated.map((item) => (
                   <li key={item.id}>
-                    <Link href={item.href} className="hover:underline">
+                    <Link href={item.href} prefetch={true} className="hover:underline">
                       {item.title}
                     </Link>
                   </li>
