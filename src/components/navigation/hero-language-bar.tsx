@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Route } from "next";
 
 import type { Locale } from "@/i18n/config";
 import { localeLabels, locales } from "@/i18n/config";
@@ -45,7 +46,7 @@ export function HeroLanguageBar({
           return (
             <Link
               key={localeOption}
-              href={hrefForLocale(localeOption)}
+              href={hrefForLocale(localeOption) as Route}
               hrefLang={localeOption}
               lang={localeOption}
               className={`rounded-full px-2 py-0.5 text-xs font-semibold transition ${
@@ -85,7 +86,7 @@ export function HeroLanguageBar({
                 return (
                   <Link
                     key={localeOption}
-                    href={hrefForLocale(localeOption)}
+                    href={hrefForLocale(localeOption) as Route}
                     hrefLang={localeOption}
                     lang={localeOption}
                     className={`block rounded-lg px-2 py-1 text-xs font-semibold ${
