@@ -23,12 +23,14 @@ const featuredEntitySlugByLocale: Record<Locale, string> = {
   it: "al-khwarizmi",
   ar: "الخوارزمي",
 };
+const primaryHeroLocales: Locale[] = ["ar", "en"];
 
 const heroUiCopy: Record<
   Locale,
   {
     navHome: string;
     navExplore: string;
+    moreLanguages: string;
     searchPlaceholder: string;
     searchSubmit: string;
   }
@@ -36,18 +38,21 @@ const heroUiCopy: Record<
   en: {
     navHome: "Home",
     navExplore: "Archive",
+    moreLanguages: "More",
     searchPlaceholder: "Search scholars, works, topics",
     searchSubmit: "Search",
   },
   it: {
     navHome: "Home",
     navExplore: "Archivio",
+    moreLanguages: "Altre",
     searchPlaceholder: "Cerca studiosi, opere, temi",
     searchSubmit: "Cerca",
   },
   ar: {
     navHome: "الرئيسية",
     navExplore: "الأرشيف",
+    moreLanguages: "لغات",
     searchPlaceholder: "ابحث عن العلماء والأعمال والموضوعات",
     searchSubmit: "بحث",
   },
@@ -171,6 +176,10 @@ export default async function HomePage({ params }: HomePageProps) {
   const copy = getHomepageCopy(locale);
   const sectionCopy = homeSectionCopy[typedLocale];
   const heroCopy = heroUiCopy[typedLocale];
+  const secondaryHeroLocales = locales.filter(
+    (localeOption) => !primaryHeroLocales.includes(localeOption),
+  );
+  const isCurrentLocalePrimary = primaryHeroLocales.includes(typedLocale);
   const featuredEntities = (await getPublishedLocalizedEntitiesFromDb(typedLocale)).slice(
     0,
     3,
@@ -183,22 +192,25 @@ export default async function HomePage({ params }: HomePageProps) {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(15,22,31,0.32) 0%, rgba(26,18,10,0.54) 100%), url('/images/hero/home-hero.png') center/cover no-repeat, linear-gradient(120deg, #4f6f8d 0%, #8a6a42 58%, #a56f2d 100%)",
+              "linear-gradient(180deg, rgba(12,16,24,0.52) 0%, rgba(20,14,10,0.72) 100%), radial-gradient(120% 80% at 50% 5%, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 50%), url('/images/hero/home-hero.png') center/cover no-repeat, linear-gradient(120deg, #4f6f8d 0%, #8a6a42 58%, #a56f2d 100%)",
           }}
         />
         <div className="relative z-10 px-5 py-6 text-white sm:px-8 sm:py-10">
           <nav className="absolute right-5 top-5 flex items-center gap-4 text-sm font-semibold sm:right-8 sm:top-6">
-            <Link href={`/${typedLocale}`} className="text-white/90 hover:text-white">
+            <Link
+              href={`/${typedLocale}`}
+              className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)] hover:text-white/85"
+            >
               {heroCopy.navHome}
             </Link>
             <Link
               href={`/${typedLocale}/entities`}
-              className="text-white/90 hover:text-white"
+              className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)] hover:text-white/85"
             >
               {heroCopy.navExplore}
             </Link>
-            <div className="flex items-center gap-2 rounded-full border border-white/45 bg-black/20 px-3 py-1.5 backdrop-blur-sm">
-              <span className="inline-flex h-5 w-5 items-center justify-center text-white/90">
+            <div className="flex items-center gap-2 rounded-full border border-white/55 bg-black/45 px-3 py-1.5 backdrop-blur-sm">
+              <span className="inline-flex h-5 w-5 items-center justify-center text-white">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -214,7 +226,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 </svg>
               </span>
               <div className="flex items-center gap-2">
-                {locales.map((localeOption) => {
+                {primaryHeroLocales.map((localeOption) => {
                   const isActive = localeOption === typedLocale;
                   return (
                     <Link
@@ -225,13 +237,43 @@ export default async function HomePage({ params }: HomePageProps) {
                       className={`rounded-full px-2 py-0.5 text-xs font-semibold transition ${
                         isActive
                           ? "bg-white text-[var(--foreground)]"
-                          : "text-white/90 hover:bg-white/20 hover:text-white"
+                          : "text-white hover:bg-white/20"
                       }`}
                     >
                       {localeLabels[localeOption]}
                     </Link>
                   );
                 })}
+                {secondaryHeroLocales.length > 0 ? (
+                  <details className="relative">
+                    <summary className="cursor-pointer list-none rounded-full px-2 py-0.5 text-xs font-semibold text-white transition hover:bg-white/20 [&::-webkit-details-marker]:hidden">
+                      {isCurrentLocalePrimary
+                        ? heroCopy.moreLanguages
+                        : localeLabels[typedLocale]}
+                    </summary>
+                    <div className="absolute right-0 z-20 mt-2 min-w-28 rounded-xl border border-white/50 bg-black/70 p-1.5 shadow-xl backdrop-blur-sm">
+                      {secondaryHeroLocales.map((localeOption) => {
+                        const isActive = localeOption === typedLocale;
+
+                        return (
+                          <Link
+                            key={localeOption}
+                            href={`/${localeOption}`}
+                            hrefLang={localeOption}
+                            lang={localeOption}
+                            className={`block rounded-lg px-2 py-1 text-xs font-semibold ${
+                              isActive
+                                ? "bg-white text-[var(--foreground)]"
+                                : "text-white hover:bg-white/20"
+                            }`}
+                          >
+                            {localeLabels[localeOption]}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </details>
+                ) : null}
               </div>
             </div>
           </nav>
