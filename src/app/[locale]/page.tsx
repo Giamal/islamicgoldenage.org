@@ -7,7 +7,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { SiteHeader } from "@/components/layout/site-header";
 import { isLocale } from "@/i18n/config";
 import type { Locale } from "@/i18n/config";
 import { getPublishedLocalizedEntitiesFromDb } from "@/lib/db/content-entity-list";
@@ -22,6 +21,35 @@ const featuredEntitySlugByLocale: Record<Locale, string> = {
   en: "al-khwarizmi",
   it: "al-khwarizmi",
   ar: "الخوارزمي",
+};
+
+const heroUiCopy: Record<
+  Locale,
+  {
+    navHome: string;
+    navExplore: string;
+    searchPlaceholder: string;
+    searchSubmit: string;
+  }
+> = {
+  en: {
+    navHome: "Home",
+    navExplore: "Archive",
+    searchPlaceholder: "Search scholars, works, topics",
+    searchSubmit: "Search",
+  },
+  it: {
+    navHome: "Home",
+    navExplore: "Archivio",
+    searchPlaceholder: "Cerca studiosi, opere, temi",
+    searchSubmit: "Cerca",
+  },
+  ar: {
+    navHome: "الرئيسية",
+    navExplore: "الأرشيف",
+    searchPlaceholder: "ابحث عن العلماء والأعمال والموضوعات",
+    searchSubmit: "بحث",
+  },
 };
 
 const homeSectionCopy: Record<
@@ -141,6 +169,7 @@ export default async function HomePage({ params }: HomePageProps) {
   const typedLocale: Locale = locale;
   const copy = getHomepageCopy(locale);
   const sectionCopy = homeSectionCopy[typedLocale];
+  const heroCopy = heroUiCopy[typedLocale];
   const featuredEntities = (await getPublishedLocalizedEntitiesFromDb(typedLocale)).slice(
     0,
     3,
@@ -148,30 +177,73 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <div className="space-y-16">
-      <SiteHeader locale={locale} />
+      <header className="relative overflow-hidden rounded-[var(--radius-section)] border border-[rgba(255,255,255,0.24)]">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(15,22,31,0.38) 0%, rgba(26,18,10,0.52) 100%), radial-gradient(circle at 18% 40%, rgba(237,170,94,0.38) 0%, rgba(28,37,52,0.05) 55%), linear-gradient(120deg, #4f6f8d 0%, #8a6a42 58%, #a56f2d 100%)",
+          }}
+        />
+        <div className="relative z-10 px-5 py-6 text-white sm:px-8 sm:py-10">
+          <nav className="absolute right-5 top-5 flex items-center gap-4 text-sm font-semibold sm:right-8 sm:top-6">
+            <Link href={`/${typedLocale}`} className="text-white/90 hover:text-white">
+              {heroCopy.navHome}
+            </Link>
+            <Link
+              href={`/${typedLocale}/entities`}
+              className="text-white/90 hover:text-white"
+            >
+              {heroCopy.navExplore}
+            </Link>
+          </nav>
 
-      <section className="space-y-7 pt-3 sm:pt-6">
-        <p className="public-kicker">{sectionCopy.archiveLabel}</p>
-        <h1 className="max-w-5xl text-[2.85rem] font-semibold leading-[1.08] tracking-tight sm:text-[4.2rem]">
-          {sectionCopy.introTitle}
-        </h1>
-        <p className="max-w-3xl text-lg leading-9 text-[var(--muted)]">
-          {sectionCopy.introText}
-        </p>
-        <div className="flex flex-wrap items-center gap-5 text-sm font-semibold">
-          <Link href={`/${locale}/entities`} className="text-[var(--accent)] hover:underline">
-            {copy.primaryCta}
-          </Link>
-          <Link
-            href={`/${typedLocale}/entities/${encodeURIComponent(
-              featuredEntitySlugByLocale[typedLocale],
-            )}`}
-            className="text-[var(--foreground)] hover:text-[var(--accent)] hover:underline"
-          >
-            {copy.secondaryCta}
-          </Link>
+          <div className="mx-auto max-w-3xl space-y-5 pt-6 text-center sm:pt-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/80">
+              {sectionCopy.archiveLabel}
+            </p>
+            <h1 className="text-[2.5rem] font-semibold leading-[1.05] tracking-tight sm:text-[4rem]">
+              {copy.title}
+            </h1>
+            <p className="mx-auto max-w-2xl text-base leading-7 text-white/90 sm:text-lg">
+              {copy.description}
+            </p>
+
+            <form
+              action={`/${typedLocale}/entities`}
+              method="get"
+              className="mx-auto mt-4 flex w-full max-w-xl items-center gap-2 rounded-full border border-white/45 bg-white/88 px-3 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
+            >
+              <input
+                type="search"
+                name="q"
+                placeholder={heroCopy.searchPlaceholder}
+                className="w-full bg-transparent px-2 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted)]"
+              />
+              <button
+                type="submit"
+                className="rounded-full bg-[var(--accent)] px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-[var(--accent-strong)]"
+              >
+                {heroCopy.searchSubmit}
+              </button>
+            </form>
+
+            <div className="flex justify-center gap-5 text-sm font-semibold text-white/90">
+              <Link href={`/${locale}/entities`} className="hover:text-white hover:underline">
+                {copy.primaryCta}
+              </Link>
+              <Link
+                href={`/${typedLocale}/entities/${encodeURIComponent(
+                  featuredEntitySlugByLocale[typedLocale],
+                )}`}
+                className="hover:text-white hover:underline"
+              >
+                {copy.secondaryCta}
+              </Link>
+            </div>
+          </div>
         </div>
-      </section>
+      </header>
 
       <section className="space-y-5 border-t border-[var(--border)] pt-9">
         <div className="space-y-3">
