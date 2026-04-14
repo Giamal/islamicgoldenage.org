@@ -9,11 +9,18 @@ import { notFound } from "next/navigation";
 
 import { SiteHeader } from "@/components/layout/site-header";
 import { isLocale } from "@/i18n/config";
+import type { Locale } from "@/i18n/config";
 import { buildLocaleMetadata } from "@/lib/seo";
 import { getHomepageCopy } from "@/lib/ui-copy";
 
 type HomePageProps = {
   params: Promise<{ locale: string }>;
+};
+
+const featuredEntitySlugByLocale: Record<Locale, string> = {
+  en: "al-khwarizmi",
+  it: "al-khwarizmi",
+  ar: "الخوارزمي",
 };
 
 /**
@@ -44,6 +51,7 @@ export default async function HomePage({ params }: HomePageProps) {
     notFound();
   }
 
+  const typedLocale: Locale = locale;
   const copy = getHomepageCopy(locale);
 
   return (
@@ -68,7 +76,7 @@ export default async function HomePage({ params }: HomePageProps) {
               {copy.primaryCta}
             </Link>
             <Link
-              href={`/${locale}/entities/al-khwarizmi`}
+              href={`/${typedLocale}/entities/${featuredEntitySlugByLocale[typedLocale]}`}
               className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--accent)]"
             >
               {copy.secondaryCta}
