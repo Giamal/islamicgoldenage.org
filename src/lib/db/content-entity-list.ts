@@ -3,6 +3,7 @@
  */
 import type { Locale } from "@/i18n/config";
 import { locales } from "@/i18n/config";
+import { applyMuhammadHonorific } from "@/lib/honorifics";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
@@ -70,9 +71,9 @@ async function getPublishedLocalizedEntitiesFromDbUncached(
     featuredYear: undefined,
     updatedAt: record.entity.updatedAt.toISOString(),
     slug: record.slug,
-    title: record.title,
-    excerpt: record.excerpt || record.summary,
-    bodyParagraphs: [record.summary],
+    title: applyMuhammadHonorific(record.title, locale),
+    excerpt: applyMuhammadHonorific(record.excerpt || record.summary, locale),
+    bodyParagraphs: [applyMuhammadHonorific(record.summary, locale)],
   }));
 }
 

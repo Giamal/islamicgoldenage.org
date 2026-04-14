@@ -16,16 +16,19 @@ export function getNavigationCopy(locale: Locale) {
       tagline: "Scholars, books, timelines, and discoveries in context.",
       home: "Home",
       explore: "Explore",
+      people: "People",
     },
     it: {
       tagline: "Studiosi, libri, cronologie e scoperte nel loro contesto.",
       home: "Home",
       explore: "Esplora",
+      people: "Personaggi",
     },
     ar: {
       tagline: "علماء وكتب وجداول زمنية واكتشافات في سياقها.",
       home: "الرئيسية",
       explore: "استكشف",
+      people: "الشخصيات",
     },
   } as const;
 
@@ -40,14 +43,17 @@ export function getHeroNavigationCopy(locale: Locale) {
     en: {
       home: "Home",
       archive: "Archive",
+      people: "People",
     },
     it: {
       home: "Home",
       archive: "Archivio",
+      people: "Personaggi",
     },
     ar: {
       home: "الرئيسية",
       archive: "الأرشيف",
+      people: "الشخصيات",
     },
   } as const;
 

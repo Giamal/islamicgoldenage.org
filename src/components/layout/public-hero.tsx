@@ -49,6 +49,12 @@ export function PublicHero({
             >
               {heroNavCopy.archive}
             </Link>
+            <Link
+              href={`/${locale}/entities#person`}
+              className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)] hover:text-white/85"
+            >
+              {heroNavCopy.people}
+            </Link>
           </div>
           <HeroLanguageBar
             currentLocale={locale}

@@ -44,8 +44,8 @@ const heroSearchCopy: Record<
     submit: "Cerca",
   },
   ar: {
-    placeholder: "Search scholars, works, topics",
-    submit: "Search",
+    placeholder: "ابحث عن العلماء والأعمال والموضوعات",
+    submit: "بحث",
   },
 };
 const homeSectionCopy: Record<

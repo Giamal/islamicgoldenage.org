@@ -79,6 +79,9 @@ export function SiteHeader({ locale, localizedEntityLinks }: SiteHeaderProps) {
             <Link href={`/${locale}/entities`} className="hover:text-[var(--accent)]">
               {copy.explore}
             </Link>
+            <Link href={`/${locale}/entities#person`} className="hover:text-[var(--accent)]">
+              {copy.people}
+            </Link>
           </nav>
           <Suspense
             fallback={

@@ -77,22 +77,22 @@ function getEntityPageLabels(locale: Locale) {
       },
     },
     ar: {
-      archiveEyebrow: "Editorial Directory",
-      heroTitle: "Entities Archive",
+      archiveEyebrow: "الدليل التحريري",
+      heroTitle: "أرشيف الكيانات",
       heroDescription:
-        "Browse the published corpus through six editorial lenses. Every section adapts its layout to the nature of the content.",
-      emptySection: "No published entries in this section yet.",
-      emptyPageTitle: "No entries yet",
+        "تصفح المحتوى المنشور عبر ستة مسارات تحريرية. كل قسم يستخدم تخطيطًا مناسبًا لطبيعة محتواه.",
+      emptySection: "لا توجد مداخل منشورة في هذا القسم بعد.",
+      emptyPageTitle: "لا توجد مداخل بعد",
       emptyPageDescription:
-        "Published entities will appear here as soon as the first records are available in this locale.",
-      updated: "Updated",
+        "ستظهر الكيانات المنشورة هنا فور توفر أول السجلات في هذه اللغة.",
+      updated: "آخر تحديث",
       sectionDescription: {
-        person: "Biographical profiles and intellectual trajectories.",
-        work: "Texts, treatises, compilations, and written legacies.",
-        topic: "Disciplines, concepts, and thematic pathways.",
-        event: "Moments and milestones in historical context.",
-        place: "Cities, regions, and geographies of knowledge.",
-        source: "Primary and secondary reference materials.",
+        person: "ملفات تعريفية وسير فكرية للشخصيات.",
+        work: "نصوص ومصنفات وتراث مكتوب.",
+        topic: "تخصصات ومفاهيم ومسارات موضوعية.",
+        event: "محطات وأحداث ضمن سياقها التاريخي.",
+        place: "مدن وأقاليم وجغرافيا المعرفة.",
+        source: "مواد مرجعية أولية وثانوية.",
       },
     },
   } as const;
@@ -358,6 +358,7 @@ export default async function EntityIndexPage({
             return (
               <section
                 key={entityType}
+                id={entityType}
                 className="space-y-5 border-t border-[var(--border)] pt-8"
               >
                 <div className="space-y-2">

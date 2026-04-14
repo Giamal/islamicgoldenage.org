@@ -7,6 +7,7 @@
 import type { Locale } from "@/i18n/config";
 import { unstable_cache } from "next/cache";
 import type { Prisma } from "@prisma/client";
+import { applyMuhammadHonorific } from "@/lib/honorifics";
 import { prisma } from "@/lib/prisma";
 
 type LocalizationWithEntity = Prisma.ContentEntityLocalizationGetPayload<{
@@ -209,11 +210,45 @@ async function getContentEntityBySlugFromDbUncached(
   }
 
   const { entity, ...localization } = record;
+  const normalizedLocalization = {
+    ...localization,
+    title: applyMuhammadHonorific(localization.title, locale),
+    summary: applyMuhammadHonorific(localization.summary, locale),
+    excerpt: applyMuhammadHonorific(localization.excerpt, locale),
+    sections: localization.sections.map((section) => ({
+      ...section,
+      heading: applyMuhammadHonorific(section.heading, locale),
+      content: applyMuhammadHonorific(section.content, locale),
+    })),
+  };
+  const normalizedEntity = {
+    ...entity,
+    outgoingRelationships: entity.outgoingRelationships.map((relationship) => ({
+      ...relationship,
+      toEntity: {
+        ...relationship.toEntity,
+        localizations: relationship.toEntity.localizations.map((item) => ({
+          ...item,
+          title: applyMuhammadHonorific(item.title, locale),
+        })),
+      },
+    })),
+    incomingRelationships: entity.incomingRelationships.map((relationship) => ({
+      ...relationship,
+      fromEntity: {
+        ...relationship.fromEntity,
+        localizations: relationship.fromEntity.localizations.map((item) => ({
+          ...item,
+          title: applyMuhammadHonorific(item.title, locale),
+        })),
+      },
+    })),
+  };
 
   return {
-    entity,
-    localization,
-    profile: pickRelevantProfile(entity),
+    entity: normalizedEntity,
+    localization: normalizedLocalization,
+    profile: pickRelevantProfile(normalizedEntity),
   };
 }
 
