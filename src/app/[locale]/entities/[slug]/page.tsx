@@ -10,7 +10,7 @@ import type { Route } from "next";
 import { cache } from "react";
 
 import { SiteHeader } from "@/components/layout/site-header";
-import { isLocale } from "@/i18n/config";
+import { defaultLocale, isLocale } from "@/i18n/config";
 import { getContentEntityBySlugFromDb } from "@/lib/db/content-entity-read";
 import { getSiteUrl } from "@/lib/site-config";
 import type { Locale } from "@/i18n/config";
@@ -183,13 +183,16 @@ export async function generateMetadata({
     locale,
     dbEntity.localization.slug,
   );
-  const pageTitle = `${dbEntity.localization.title} | ${siteName}`;
+  const localizedSeoTitle = dbEntity.localization.seoTitle?.trim();
+  const pageTitle = localizedSeoTitle
+    ? localizedSeoTitle
+    : `${dbEntity.localization.title} | ${siteName}`;
   const pageDescription =
+    dbEntity.localization.seoDescription?.trim() ||
     dbEntity.localization.summary ||
-    dbEntity.localization.excerpt ||
-    dbEntity.localization.seoDescription;
+    dbEntity.localization.excerpt;
 
-  const languageAlternates = Object.fromEntries(
+  const localeAlternates = Object.fromEntries(
     dbEntity.entity.localizations
       .filter((item) => item.slug.trim().length > 0)
       .map((item) => [
@@ -197,6 +200,10 @@ export async function generateMetadata({
         buildEntityAbsoluteUrl(siteUrl, item.locale, item.slug),
       ]),
   );
+  const xDefaultAlternate =
+    localeAlternates[defaultLocale] ??
+    localeAlternates[locale] ??
+    canonicalUrl;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -204,7 +211,10 @@ export async function generateMetadata({
     description: pageDescription,
     alternates: {
       canonical: canonicalUrl,
-      languages: languageAlternates,
+      languages: {
+        ...localeAlternates,
+        "x-default": xDefaultAlternate,
+      },
     },
     openGraph: {
       title: pageTitle,

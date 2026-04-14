@@ -5,13 +5,35 @@
  */
 import type { MetadataRoute } from "next";
 
-import { locales } from "@/i18n/config";
-import { getPublishedLocalizedSitemapEntitiesFromDb } from "@/lib/db/content-entity-list";
+import { defaultLocale, locales, type Locale } from "@/i18n/config";
+import { getPublishedSitemapEntityLocalizationGroupsFromDb } from "@/lib/db/content-entity-list";
 import { getSiteUrl } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
+
+function buildLocaleAlternates(
+  localizedUrls: Partial<Record<Locale, string>>,
+): Record<string, string> {
+  const alternates: Record<string, string> = {};
+
+  for (const locale of locales) {
+    const url = localizedUrls[locale];
+    if (url) {
+      alternates[locale] = url;
+    }
+  }
+
+  const xDefaultUrl =
+    localizedUrls[defaultLocale] ?? Object.values(alternates)[0];
+
+  if (xDefaultUrl) {
+    alternates["x-default"] = xDefaultUrl;
+  }
+
+  return alternates;
+}
 
 function dedupeSitemapEntries(entries: SitemapEntry[]): SitemapEntry[] {
   const byUrl = new Map<string, SitemapEntry>();
@@ -45,37 +67,79 @@ function dedupeSitemapEntries(entries: SitemapEntry[]): SitemapEntry[] {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
 
-  const records = await getPublishedLocalizedSitemapEntitiesFromDb();
+  const entityGroups = await getPublishedSitemapEntityLocalizationGroupsFromDb();
   const staticLastModified =
-    records.length > 0
-      ? records.reduce(
+    entityGroups.length > 0
+      ? entityGroups.reduce(
           (latest, record) =>
             record.lastModified > latest ? record.lastModified : latest,
-          records[0].lastModified,
+          entityGroups[0].lastModified,
         )
       : undefined;
 
-  const staticEntries: SitemapEntry[] = locales.flatMap((locale) => [
-    {
-      url: `${siteUrl}/${locale}`,
-      lastModified: staticLastModified,
-      changeFrequency: "weekly" as const,
-      priority: 1,
-    },
-    {
-      url: `${siteUrl}/${locale}/entities`,
-      lastModified: staticLastModified,
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    },
-  ]);
+  const staticHomeUrls = Object.fromEntries(
+    locales.map((locale) => [locale, `${siteUrl}/${locale}`]),
+  ) as Partial<Record<Locale, string>>;
+  const staticEntityIndexUrls = Object.fromEntries(
+    locales.map((locale) => [locale, `${siteUrl}/${locale}/entities`]),
+  ) as Partial<Record<Locale, string>>;
 
-  const entityEntries: SitemapEntry[] = records.map((record) => ({
-    url: `${siteUrl}/${record.locale}/entities/${encodeURIComponent(record.slug)}`,
-    lastModified: record.lastModified,
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  }));
+  const staticEntries: SitemapEntry[] = locales.flatMap((locale) => {
+    const homeUrl = staticHomeUrls[locale];
+    const entityIndexUrl = staticEntityIndexUrls[locale];
+
+    if (!homeUrl || !entityIndexUrl) {
+      return [];
+    }
+
+    return [
+      {
+        url: homeUrl,
+        lastModified: staticLastModified,
+        changeFrequency: "weekly" as const,
+        priority: 1,
+        alternates: { languages: buildLocaleAlternates(staticHomeUrls) },
+      },
+      {
+        url: entityIndexUrl,
+        lastModified: staticLastModified,
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+        alternates: { languages: buildLocaleAlternates(staticEntityIndexUrls) },
+      },
+    ];
+  });
+
+  const entityEntries: SitemapEntry[] = entityGroups.flatMap((group) => {
+    const localizedUrls = Object.fromEntries(
+      group.localizations.map((localization) => [
+        localization.locale,
+        `${siteUrl}/${localization.locale}/entities/${encodeURIComponent(
+          localization.slug,
+        )}`,
+      ]),
+    ) as Partial<Record<Locale, string>>;
+
+    const alternates = buildLocaleAlternates(localizedUrls);
+
+    return group.localizations.reduce<SitemapEntry[]>((entries, localization) => {
+      const url = localizedUrls[localization.locale];
+
+      if (!url) {
+        return entries;
+      }
+
+      entries.push({
+        url,
+        lastModified: group.lastModified,
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+        alternates: { languages: alternates },
+      });
+
+      return entries;
+    }, []);
+  });
 
   return dedupeSitemapEntries([...staticEntries, ...entityEntries]);
 }

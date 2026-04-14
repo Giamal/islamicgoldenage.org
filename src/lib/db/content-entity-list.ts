@@ -18,10 +18,13 @@ export type EntityListItem = {
   bodyParagraphs: string[];
 };
 
-export type SitemapEntityItem = {
-  locale: Locale;
-  slug: string;
+export type SitemapEntityLocalizationGroup = {
+  entityId: string;
   lastModified: Date;
+  localizations: Array<{
+    locale: Locale;
+    slug: string;
+  }>;
 };
 
 /**
@@ -80,49 +83,61 @@ export const getPublishedLocalizedEntitiesFromDb = unstable_cache(
 );
 
 /**
- * Returns published localized entities for sitemap generation.
+ * Returns published entities with all available localized slugs for sitemap generation.
  *
  * Notes:
  * - constrained to supported app locales from i18n config
  * - excludes empty slugs
- * - uses localization.updatedAt first, then entity.updatedAt as fallback
+ * - keeps all localizations grouped by entity to build hreflang alternates
  */
-export async function getPublishedLocalizedSitemapEntitiesFromDb(): Promise<
-  SitemapEntityItem[]
+export async function getPublishedSitemapEntityLocalizationGroupsFromDb(): Promise<
+  SitemapEntityLocalizationGroup[]
 > {
   const queryStartedAt = Date.now();
-  const records = await prisma.contentEntityLocalization.findMany({
+  const records = await prisma.contentEntity.findMany({
     where: {
-      locale: { in: [...locales] },
-      slug: { not: "" },
-      entity: {
-        status: "published",
-      },
+      status: "published",
     },
     select: {
-      locale: true,
-      slug: true,
+      id: true,
       updatedAt: true,
-      entity: {
+      importanceScore: true,
+      localizations: {
+        where: {
+          locale: { in: [...locales] },
+          slug: { not: "" },
+        },
         select: {
+          locale: true,
+          slug: true,
           updatedAt: true,
-          importanceScore: true,
         },
       },
     },
-    orderBy: [{ entity: { importanceScore: "desc" } }, { title: "asc" }],
+    orderBy: [{ importanceScore: "desc" }, { updatedAt: "desc" }],
   });
   const queryDurationMs = Date.now() - queryStartedAt;
   console.info(
-    `[perf][sitemap-entities][db] rows=${records.length} duration_ms=${queryDurationMs}`,
+    `[perf][sitemap-entities][db] entities=${records.length} duration_ms=${queryDurationMs}`,
   );
 
   return records
-    .filter((record) => record.slug.trim().length > 0)
-    .map((record) => ({
-      locale: record.locale as Locale,
-      slug: record.slug,
-      lastModified: record.updatedAt ?? record.entity.updatedAt,
-    }));
+    .filter((record) => record.localizations.length > 0)
+    .map((record) => {
+      const lastModified = record.localizations.reduce(
+        (latest, localization) =>
+          localization.updatedAt > latest ? localization.updatedAt : latest,
+        record.updatedAt,
+      );
+
+      return {
+        entityId: record.id,
+        lastModified,
+        localizations: record.localizations.map((localization) => ({
+          locale: localization.locale as Locale,
+          slug: localization.slug,
+        })),
+      };
+    });
 }
 
