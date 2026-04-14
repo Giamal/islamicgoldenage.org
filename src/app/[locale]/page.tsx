@@ -5,6 +5,7 @@
  * The content is intentionally small while the product foundation is still being established.
  */
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { isLocale } from "@/i18n/config";
@@ -23,7 +24,7 @@ const featuredEntitySlugByLocale: Record<Locale, string> = {
   it: "al-khwarizmi",
   ar: "الخوارزمي",
 };
-const primaryHeroLocales: Locale[] = ["ar", "en"];
+const defaultSecondaryHeroLocale: Locale = "en";
 
 const heroUiCopy: Record<
   Locale,
@@ -169,6 +170,24 @@ export default async function HomePage({ params }: HomePageProps) {
   }
 
   const typedLocale: Locale = locale;
+  const requestHeaders = await headers();
+  const acceptLanguageHeader = requestHeaders.get("accept-language") ?? "";
+  const preferredLanguageTag = acceptLanguageHeader
+    .split(",")[0]
+    ?.trim()
+    .toLowerCase();
+  const preferredLocale = locales.find(
+    (supportedLocale) =>
+      preferredLanguageTag === supportedLocale ||
+      preferredLanguageTag?.startsWith(`${supportedLocale}-`),
+  );
+  const secondaryHeroLocale =
+    preferredLocale && preferredLocale !== "ar"
+      ? preferredLocale
+      : defaultSecondaryHeroLocale;
+  const primaryHeroLocales: Locale[] = Array.from(
+    new Set<Locale>(["ar", secondaryHeroLocale]),
+  );
   const copy = getHomepageCopy(locale);
   const sectionCopy = homeSectionCopy[typedLocale];
   const heroCopy = heroUiCopy[typedLocale];
@@ -183,7 +202,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <div className="space-y-16">
-      <header className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden">
+      <header className="relative w-screen overflow-hidden [margin-inline:calc(50%-50vw)]">
         <div
           className="absolute inset-0"
           style={{
@@ -232,7 +251,7 @@ export default async function HomePage({ params }: HomePageProps) {
                       lang={localeOption}
                       className={`rounded-full px-2 py-0.5 text-xs font-semibold transition ${
                         isActive
-                          ? "bg-white text-neutral-900"
+                          ? "bg-sky-500 text-white"
                           : "text-white hover:bg-white/20"
                       }`}
                     >
@@ -274,7 +293,7 @@ export default async function HomePage({ params }: HomePageProps) {
                             lang={localeOption}
                             className={`block rounded-lg px-2 py-1 text-xs font-semibold ${
                               isActive
-                                ? "bg-white text-neutral-900"
+                                ? "bg-sky-500 text-white"
                                 : "text-white hover:bg-white/20"
                             }`}
                           >
