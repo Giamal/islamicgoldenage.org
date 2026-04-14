@@ -217,7 +217,7 @@ const getContentEntityBySlugFromDbCached = unstable_cache(
   async (locale: Locale, slug: string) =>
     getContentEntityBySlugFromDbUncached(locale, slug),
   ["content-entity-detail-by-locale-slug"],
-  { revalidate: 3600 },
+  { revalidate: 3600, tags: ["content-entity-detail"] },
 );
 
 export async function getContentEntityBySlugFromDb(

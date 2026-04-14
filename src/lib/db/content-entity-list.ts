@@ -79,7 +79,7 @@ async function getPublishedLocalizedEntitiesFromDbUncached(
 export const getPublishedLocalizedEntitiesFromDb = unstable_cache(
   async (locale: Locale) => getPublishedLocalizedEntitiesFromDbUncached(locale),
   ["content-entities-list-by-locale"],
-  { revalidate: 3600 },
+  { revalidate: 3600, tags: ["content-entities-list"] },
 );
 
 /**
@@ -144,6 +144,6 @@ async function getPublishedSitemapEntityLocalizationGroupsFromDbUncached(): Prom
 export const getPublishedSitemapEntityLocalizationGroupsFromDb = unstable_cache(
   async () => getPublishedSitemapEntityLocalizationGroupsFromDbUncached(),
   ["content-entities-sitemap-localization-groups"],
-  { revalidate: 3600 },
+  { revalidate: 3600, tags: ["content-entities-sitemap-localization-groups"] },
 );
 

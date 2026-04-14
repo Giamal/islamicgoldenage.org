@@ -5,7 +5,7 @@
  */
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import { locales } from "@/i18n/config";
 import { deleteAdminEntityInDb } from "@/lib/db/admin-entity-write";
@@ -41,6 +41,10 @@ export async function deleteEntityAction(
     };
   }
 
+  revalidateTag("content-entities-list", "max");
+  revalidateTag("content-entity-detail", "max");
+  revalidateTag("content-entities-sitemap-localization-groups", "max");
+
   revalidatePath("/admin/entities");
   revalidatePath("/sitemap.xml");
 
@@ -50,7 +54,9 @@ export async function deleteEntityAction(
   }
 
   for (const localization of deletionResult.localizations) {
-    revalidatePath(`/${localization.locale}/entities/${localization.slug}`);
+    revalidatePath(
+      `/${localization.locale}/entities/${encodeURIComponent(localization.slug)}`,
+    );
   }
 
   const targetLabel = entityLabel || deletionResult.entityId;
@@ -60,4 +66,3 @@ export async function deleteEntityAction(
     message: `Deleted "${targetLabel}".`,
   };
 }
-

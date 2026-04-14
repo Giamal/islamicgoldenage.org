@@ -352,7 +352,12 @@ export type AdminEntityDeleteResult =
     }
   | {
       ok: false;
-      code: "INVALID_ID" | "NOT_FOUND" | "REFERENCED_AS_SOURCE" | "UNKNOWN";
+      code:
+        | "INVALID_ID"
+        | "NOT_FOUND"
+        | "REFERENCED_AS_SOURCE"
+        | "REFERENCED_BY_PROFILE_LINKS"
+        | "UNKNOWN";
       message: string;
     };
 
@@ -386,6 +391,7 @@ export async function deleteAdminEntityInDb(
     where: { id: normalizedId },
     select: {
       id: true,
+      canonicalSlug: true,
       localizations: {
         select: {
           locale: true,
@@ -415,6 +421,42 @@ export async function deleteAdminEntityInDb(
       code: "REFERENCED_AS_SOURCE",
       message:
         "This entity is still referenced as a source in relationships. Remove those references first.",
+    };
+  }
+
+  const canonicalSlug = existingEntity.canonicalSlug;
+  const [
+    topicParentReferenceCount,
+    topicRelatedReferenceCount,
+    personPlaceReferenceCount,
+    workPlaceReferenceCount,
+  ] = await Promise.all([
+    prisma.topicProfile.count({
+      where: { parentTopicCanonicalSlug: canonicalSlug },
+    }),
+    prisma.topicProfile.count({
+      where: { relatedTopicCanonicalSlugs: { has: canonicalSlug } },
+    }),
+    prisma.personProfile.count({
+      where: { associatedPlaces: { has: canonicalSlug } },
+    }),
+    prisma.workProfile.count({
+      where: { manuscriptPlaces: { has: canonicalSlug } },
+    }),
+  ]);
+
+  const profileLinkReferenceCount =
+    topicParentReferenceCount +
+    topicRelatedReferenceCount +
+    personPlaceReferenceCount +
+    workPlaceReferenceCount;
+
+  if (profileLinkReferenceCount > 0) {
+    return {
+      ok: false,
+      code: "REFERENCED_BY_PROFILE_LINKS",
+      message:
+        "This entity is still referenced by profile slug links. Remove those references first.",
     };
   }
 

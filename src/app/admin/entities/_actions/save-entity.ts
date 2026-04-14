@@ -5,6 +5,7 @@
  */
 "use server";
 
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Route } from "next";
 
@@ -72,14 +73,47 @@ function parseEntityUpsertInput(formData: FormData): AdminEntityUpsertInput {
   };
 }
 
+function collectLocalizedSlugs(input: AdminEntityUpsertInput) {
+  return input.localizations
+    .map((item) => ({
+      locale: item.locale,
+      slug: item.slug.trim(),
+    }))
+    .filter((item) => item.slug.length > 0);
+}
+
+function revalidateContentCaches(localizedSlugs: Array<{ locale: Locale; slug: string }>) {
+  revalidateTag("content-entities-list", "max");
+  revalidateTag("content-entity-detail", "max");
+  revalidateTag("content-entities-sitemap-localization-groups", "max");
+
+  revalidatePath("/admin/entities");
+  revalidatePath("/sitemap.xml");
+
+  for (const locale of locales) {
+    revalidatePath(`/${locale}`);
+    revalidatePath(`/${locale}/entities`);
+  }
+
+  for (const localization of localizedSlugs) {
+    revalidatePath(
+      `/${localization.locale}/entities/${encodeURIComponent(localization.slug)}`,
+    );
+  }
+}
+
 export async function createEntityAction(formData: FormData) {
   const input = parseEntityUpsertInput(formData);
+  const localizedSlugs = collectLocalizedSlugs(input);
   const entityId = await createAdminEntityInDb(input);
+  revalidateContentCaches(localizedSlugs);
   redirect(`/admin/entities/${entityId}/edit?saved=1` as Route);
 }
 
 export async function updateEntityAction(entityId: string, formData: FormData) {
   const input = parseEntityUpsertInput(formData);
+  const localizedSlugs = collectLocalizedSlugs(input);
   await updateAdminEntityInDb(entityId, input);
+  revalidateContentCaches(localizedSlugs);
   redirect(`/admin/entities/${entityId}/edit?saved=1` as Route);
 }
