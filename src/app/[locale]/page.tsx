@@ -177,12 +177,12 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
     <div className="space-y-16">
-      <header className="relative overflow-hidden rounded-[var(--radius-section)] border border-[rgba(255,255,255,0.24)]">
+      <header className="relative -mx-4 overflow-hidden sm:-mx-6 lg:-mx-10">
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(15,22,31,0.38) 0%, rgba(26,18,10,0.52) 100%), radial-gradient(circle at 18% 40%, rgba(237,170,94,0.38) 0%, rgba(28,37,52,0.05) 55%), linear-gradient(120deg, #4f6f8d 0%, #8a6a42 58%, #a56f2d 100%)",
+              "linear-gradient(180deg, rgba(15,22,31,0.32) 0%, rgba(26,18,10,0.54) 100%), url('/images/hero/home-hero.png') center/cover no-repeat, linear-gradient(120deg, #4f6f8d 0%, #8a6a42 58%, #a56f2d 100%)",
           }}
         />
         <div className="relative z-10 px-5 py-6 text-white sm:px-8 sm:py-10">
