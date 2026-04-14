@@ -8,6 +8,8 @@ import type { Route } from "next";
 
 import { getAdminEntityListFromDb } from "@/lib/db/admin-entity-read";
 
+export const dynamic = "force-dynamic";
+
 function formatLocaleLabels(
   localizations: Array<{ locale: string; title: string; slug: string }>,
 ) {

@@ -13,6 +13,8 @@ import { getPublishedLocalizedEntitiesFromDb } from "@/lib/db/content-entity-lis
 import { buildLocaleMetadata } from "@/lib/seo";
 import { getEntityIndexCopy } from "@/lib/ui-copy";
 
+export const dynamic = "force-dynamic";
+
 type EntityIndexPageProps = {
   params: Promise<{ locale: string }>;
 };

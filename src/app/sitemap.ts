@@ -9,6 +9,8 @@ import { locales } from "@/i18n/config";
 import { getPublishedLocalizedSitemapEntitiesFromDb } from "@/lib/db/content-entity-list";
 import { getSiteUrl } from "@/lib/site-config";
 
+export const dynamic = "force-dynamic";
+
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
 function dedupeSitemapEntries(entries: SitemapEntry[]): SitemapEntry[] {

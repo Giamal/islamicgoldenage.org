@@ -35,7 +35,6 @@ type EntityFormProps = {
 const allowedEntityTypes: ContentEntityType[] = ["person", "work", "topic"];
 const allowedStatuses: ContentStatus[] = [
   "draft",
-  "ready_for_review",
   "published",
   "archived",
 ];

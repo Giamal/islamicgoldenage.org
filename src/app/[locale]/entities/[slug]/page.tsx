@@ -15,6 +15,8 @@ import { getSiteUrl } from "@/lib/site-config";
 import type { Locale } from "@/i18n/config";
 import type { ContentEntityType, TopicType } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 type EntityDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };

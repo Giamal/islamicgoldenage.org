@@ -12,6 +12,8 @@ import { buildEditorialCompletenessReport } from "@/lib/admin/editorial-complete
 import { updateEntityAction } from "@/app/admin/entities/_actions/save-entity";
 import { getAdminEntityByIdFromDb } from "@/lib/db/admin-entity-read";
 
+export const dynamic = "force-dynamic";
+
 type AdminEditEntityPageProps = {
   params: Promise<{ id: string }>;
 };
