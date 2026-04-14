@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 
 import { isLocale } from "@/i18n/config";
 import type { Locale } from "@/i18n/config";
+import { localeLabels, locales } from "@/i18n/config";
 import { getPublishedLocalizedEntitiesFromDb } from "@/lib/db/content-entity-list";
 import { buildLocaleMetadata } from "@/lib/seo";
 import { getEntityTypeLabel, getHomepageCopy } from "@/lib/ui-copy";
@@ -196,6 +197,43 @@ export default async function HomePage({ params }: HomePageProps) {
             >
               {heroCopy.navExplore}
             </Link>
+            <div className="flex items-center gap-2 rounded-full border border-white/45 bg-black/20 px-3 py-1.5 backdrop-blur-sm">
+              <span className="inline-flex h-5 w-5 items-center justify-center text-white/90">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M3 12h18" />
+                  <path d="M12 3a14 14 0 0 1 0 18" />
+                  <path d="M12 3a14 14 0 0 0 0 18" />
+                </svg>
+              </span>
+              <div className="flex items-center gap-2">
+                {locales.map((localeOption) => {
+                  const isActive = localeOption === typedLocale;
+                  return (
+                    <Link
+                      key={localeOption}
+                      href={`/${localeOption}`}
+                      hrefLang={localeOption}
+                      lang={localeOption}
+                      className={`rounded-full px-2 py-0.5 text-xs font-semibold transition ${
+                        isActive
+                          ? "bg-white text-[var(--foreground)]"
+                          : "text-white/90 hover:bg-white/20 hover:text-white"
+                      }`}
+                    >
+                      {localeLabels[localeOption]}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </nav>
 
           <div className="mx-auto max-w-3xl space-y-5 pt-6 text-center sm:pt-10">
