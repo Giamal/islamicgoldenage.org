@@ -6,6 +6,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 
+import { DeleteEntityAction } from "@/app/admin/entities/_components/delete-entity-action";
 import { getAdminEntityListFromDb } from "@/lib/db/admin-entity-read";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,14 @@ function formatLocaleLabels(
   return localizations
     .map((item) => `${item.locale.toUpperCase()}: ${item.title || item.slug}`)
     .join(" | ");
+}
+
+function getPrimaryEntityLabel(
+  localizations: Array<{ locale: string; title: string; slug: string }>,
+) {
+  const preferred = localizations.find((item) => item.locale === "en");
+  const fallback = preferred ?? localizations[0];
+  return fallback?.title || fallback?.slug || "Untitled entity";
 }
 
 export default async function AdminEntitiesPage() {
@@ -59,12 +68,18 @@ export default async function AdminEntitiesPage() {
                 </td>
                 <td className="px-4 py-3">{entity.updatedAt.toISOString()}</td>
                 <td className="px-4 py-3">
-                  <Link
-                    href={`/admin/entities/${entity.id}/edit` as Route}
-                    className="font-medium text-[var(--accent)] hover:underline"
-                  >
-                    Edit
-                  </Link>
+                  <div className="flex items-start gap-4">
+                    <Link
+                      href={`/admin/entities/${entity.id}/edit` as Route}
+                      className="font-medium text-[var(--accent)] hover:underline"
+                    >
+                      Edit
+                    </Link>
+                    <DeleteEntityAction
+                      entityId={entity.id}
+                      entityLabel={getPrimaryEntityLabel(entity.localizations)}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

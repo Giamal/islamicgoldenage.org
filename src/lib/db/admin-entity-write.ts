@@ -11,6 +11,7 @@ import type {
   ContentStatus,
   RelationType,
 } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export type AdminLocalizedInput = {
   locale: Locale;
@@ -341,4 +342,111 @@ export async function removeAdminRelationshipInDb(
   await prisma.contentRelationship.delete({
     where: { id: relationshipId },
   });
+}
+
+export type AdminEntityDeleteResult =
+  | {
+      ok: true;
+      entityId: string;
+      localizations: Array<{ locale: Locale; slug: string }>;
+    }
+  | {
+      ok: false;
+      code: "INVALID_ID" | "NOT_FOUND" | "REFERENCED_AS_SOURCE" | "UNKNOWN";
+      message: string;
+    };
+
+function isValidEntityId(entityId: string) {
+  const trimmed = entityId.trim();
+  return trimmed.length >= 10 && trimmed.length <= 100 && !/\s/.test(trimmed);
+}
+
+/**
+ * Deletes one content entity when it is safe to do so.
+ *
+ * Safety note:
+ * - relational records are removed via Prisma onDelete: Cascade
+ * - sourceEntityIds is an array field without FK enforcement, so deletion is blocked
+ *   when the entity is still referenced there to avoid dangling evidence references
+ */
+export async function deleteAdminEntityInDb(
+  entityId: string,
+): Promise<AdminEntityDeleteResult> {
+  const normalizedId = entityId.trim();
+
+  if (!isValidEntityId(normalizedId)) {
+    return {
+      ok: false,
+      code: "INVALID_ID",
+      message: "Invalid entity ID.",
+    };
+  }
+
+  const existingEntity = await prisma.contentEntity.findUnique({
+    where: { id: normalizedId },
+    select: {
+      id: true,
+      localizations: {
+        select: {
+          locale: true,
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (!existingEntity) {
+    return {
+      ok: false,
+      code: "NOT_FOUND",
+      message: "Entity not found.",
+    };
+  }
+
+  const sourceReferenceCount = await prisma.contentRelationship.count({
+    where: {
+      sourceEntityIds: { has: normalizedId },
+    },
+  });
+
+  if (sourceReferenceCount > 0) {
+    return {
+      ok: false,
+      code: "REFERENCED_AS_SOURCE",
+      message:
+        "This entity is still referenced as a source in relationships. Remove those references first.",
+    };
+  }
+
+  try {
+    await prisma.contentEntity.delete({
+      where: { id: normalizedId },
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      return {
+        ok: false,
+        code: "NOT_FOUND",
+        message: "Entity not found.",
+      };
+    }
+
+    return {
+      ok: false,
+      code: "UNKNOWN",
+      message: "Failed to delete entity. Please try again.",
+    };
+  }
+
+  return {
+    ok: true,
+    entityId: normalizedId,
+    localizations: existingEntity.localizations.map((item) => ({
+      locale: item.locale as Locale,
+      slug: item.slug,
+    })),
+  };
 }
