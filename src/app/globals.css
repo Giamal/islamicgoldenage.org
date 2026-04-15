@@ -102,36 +102,149 @@ p {
   margin-bottom: 0;
 }
 
-.entity-longform {
-  font-size: 1.08rem;
-  line-height: 1.95;
-  color: var(--foreground);
+.admin-rich-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
-.entity-longform-heading {
-  margin: 2rem 0 0.85rem;
-  font-size: 1.28rem;
-  line-height: 1.5;
-  letter-spacing: 0.01em;
-  font-weight: 600;
-  color: var(--foreground);
+.admin-rich-editor-content {
+  min-height: 18rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: #ffffff;
+  padding: 1rem;
+  font-size: 1rem;
+  line-height: 1.8;
+  outline: none;
+  white-space: pre-wrap;
+  unicode-bidi: plaintext;
 }
 
-.entity-longform-heading:first-child {
-  margin-top: 0.25rem;
+.admin-rich-editor-content h1,
+.admin-rich-editor-content h2,
+.admin-rich-editor-content h3,
+.admin-rich-editor-content h4 {
+  margin: 1rem 0 0.45rem;
 }
 
-.entity-longform-paragraph {
-  margin: 0 0 1.1rem;
+.admin-rich-editor-content p,
+.admin-rich-editor-content blockquote,
+.admin-rich-editor-content ul,
+.admin-rich-editor-content ol {
+  margin: 0.55rem 0;
+}
+
+.admin-rich-editor-content blockquote {
+  border-inline-start: 3px solid var(--border);
+  padding-inline-start: 0.85rem;
   color: var(--muted);
 }
 
-.entity-longform-paragraph:last-child {
-  margin-bottom: 0;
+.admin-rich-editor-content ul,
+.admin-rich-editor-content ol {
+  padding-inline-start: 1.25rem;
 }
 
-[dir="rtl"] .entity-longform {
+.admin-rich-editor-content li {
+  margin-bottom: 0.2rem;
+}
+
+.admin-rich-editor-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1rem 0;
+}
+
+.admin-rich-editor-content img {
+  max-width: 100%;
+  border-radius: 0.6rem;
+  margin: 0.55rem 0;
+}
+
+.entity-rich-content {
+  max-width: 66ch;
+  font-size: 1.08rem;
+  line-height: 1.95;
+  color: var(--foreground);
+  white-space: pre-wrap;
+  unicode-bidi: plaintext;
+}
+
+.entity-rich-content h1,
+.entity-rich-content h2,
+.entity-rich-content h3,
+.entity-rich-content h4 {
+  margin: 2.1rem 0 0.9rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+}
+
+.entity-rich-content p,
+.entity-rich-content blockquote,
+.entity-rich-content ul,
+.entity-rich-content ol {
+  margin: 0 0 1.05rem;
+  color: var(--muted);
+}
+
+.entity-rich-content ul,
+.entity-rich-content ol {
+  padding-inline-start: 1.3rem;
+}
+
+.entity-rich-content li {
+  margin-bottom: 0.32rem;
+}
+
+.entity-rich-content blockquote {
+  border-inline-start: 3px solid var(--border);
+  padding-inline-start: 0.95rem;
+  margin-inline: 0;
+}
+
+.entity-rich-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.4rem 0;
+}
+
+.entity-rich-figure {
+  margin: 1.4rem 0;
+}
+
+.entity-rich-image {
+  width: 100%;
+  border-radius: 0.8rem;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.entity-rich-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.entity-rich-caption-main {
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.entity-rich-caption-meta {
+  opacity: 0.88;
+}
+
+[dir="rtl"] .entity-rich-content {
   text-align: right;
   line-height: 2.05;
   letter-spacing: 0;
+}
+
+[dir="rtl"] .admin-rich-editor-content {
+  text-align: right;
 }

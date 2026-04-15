@@ -5,6 +5,7 @@
  */
 import { locales, type Locale } from "@/i18n/config";
 import { SubmitButton } from "@/app/admin/entities/_components/submit-button";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import type { ContentEntityType, ContentStatus } from "@prisma/client";
 
 type LocalizationInput = {
@@ -65,7 +66,12 @@ export function EntityForm({ mode, defaultData, action }: EntityFormProps) {
   return (
     <form action={action} className="space-y-8">
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 space-y-4">
-        <h2 className="text-lg font-semibold">Entity basics</h2>
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold">Entity basics</h2>
+          <p className="text-xs text-[var(--muted)]">
+            Core publication settings shared across all locales.
+          </p>
+        </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 text-sm">
             <span className="font-medium">Entity type</span>
@@ -127,27 +133,34 @@ export function EntityForm({ mode, defaultData, action }: EntityFormProps) {
         return (
           <section
             key={locale}
-            className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 space-y-4"
+            className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 space-y-5"
           >
-            <h2 className="text-lg font-semibold uppercase tracking-wide">{locale}</h2>
+            <header className="space-y-1">
+              <h2 className="text-lg font-semibold uppercase tracking-wide">{locale}</h2>
+              <p className="text-xs text-[var(--muted)]">
+                Localized editorial fields for this language.
+              </p>
+            </header>
 
-            <label className="block space-y-2 text-sm">
-              <span className="font-medium">Title / name</span>
-              <input
-                name={`${locale}_title`}
-                defaultValue={values.title}
-                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
-              />
-            </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block space-y-2 text-sm">
+                <span className="font-medium">Title / name</span>
+                <input
+                  name={`${locale}_title`}
+                  defaultValue={values.title}
+                  className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
+                />
+              </label>
 
-            <label className="block space-y-2 text-sm">
-              <span className="font-medium">Subtitle</span>
-              <input
-                name={`${locale}_subtitle`}
-                defaultValue={values.subtitle}
-                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
-              />
-            </label>
+              <label className="block space-y-2 text-sm">
+                <span className="font-medium">Subtitle</span>
+                <input
+                  name={`${locale}_subtitle`}
+                  defaultValue={values.subtitle}
+                  className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
+                />
+              </label>
+            </div>
 
             <label className="block space-y-2 text-sm">
               <span className="font-medium">Slug</span>
@@ -168,15 +181,19 @@ export function EntityForm({ mode, defaultData, action }: EntityFormProps) {
               />
             </label>
 
-            <label className="block space-y-2 text-sm">
-              <span className="font-medium">Body (Markdown)</span>
-              <textarea
+            <div className="space-y-2 text-sm">
+              <div>
+                <p className="font-medium">Body</p>
+                <p className="text-xs text-[var(--muted)]">
+                  Rich editorial content with headings, links, lists, quotes, and media.
+                </p>
+              </div>
+              <RichTextEditor
                 name={`${locale}_body`}
-                defaultValue={values.bodyMarkdown}
-                rows={12}
-                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 font-mono"
+                initialValue={values.bodyMarkdown}
+                locale={locale}
               />
-            </label>
+            </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <label className="block space-y-2 text-sm">

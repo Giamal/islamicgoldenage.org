@@ -10,7 +10,7 @@ import { notFound } from "next/navigation";
 import type { Route } from "next";
 import { cache } from "react";
 
-import { LongformContent } from "@/components/content/longform-content";
+import { RichContentRenderer } from "@/components/content/rich-content-renderer";
 import { PublicHero } from "@/components/layout/public-hero";
 import {
   defaultPublicLocale,
@@ -378,7 +378,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
                   </h2>
                 )}
                 <div className="mt-4">
-                  <LongformContent content={section.content} locale={typedLocale} />
+                  <RichContentRenderer content={section.content} locale={typedLocale} />
                 </div>
               </section>
             ))}
@@ -527,7 +527,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
                 </h2>
               )}
               <div className="mt-4">
-                <LongformContent content={section.content} locale={typedLocale} />
+                <RichContentRenderer content={section.content} locale={typedLocale} />
               </div>
             </section>
           ))}
