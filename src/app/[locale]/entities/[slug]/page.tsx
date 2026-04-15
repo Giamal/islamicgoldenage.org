@@ -10,6 +10,7 @@ import { notFound } from "next/navigation";
 import type { Route } from "next";
 import { cache } from "react";
 
+import { LongformContent } from "@/components/content/longform-content";
 import { PublicHero } from "@/components/layout/public-hero";
 import {
   defaultPublicLocale,
@@ -19,8 +20,12 @@ import {
 import { getContentEntityBySlugFromDb } from "@/lib/db/content-entity-read";
 import { getHeroPrimaryLocales } from "@/lib/hero-locale";
 import { getSiteUrl } from "@/lib/site-config";
+import {
+  getEntityDetailCopy,
+  getEntityTypeLabel,
+} from "@/lib/ui-copy";
 import type { Locale } from "@/i18n/config";
-import type { ContentEntityType, TopicType } from "@prisma/client";
+import type { TopicType } from "@prisma/client";
 
 export const revalidate = 3600;
 
@@ -33,120 +38,8 @@ type EntityDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
 
-function getEntityPageLabels(locale: Locale) {
-  const dictionary = {
-    en: {
-      entityTypeLabel: "Content type",
-      personInfoboxTitle: "Profile",
-      personAliases: "Aliases",
-      personBorn: "Born",
-      personDied: "Died",
-      personEra: "Era",
-      personRoles: "Roles",
-      personDomains: "Domains",
-      personPlaces: "Places",
-      personNoImage: "Portrait not available",
-      works: "Works",
-      topicWorks: "Related works",
-      authors: "Authors",
-      topics: "Topics",
-      scholars: "Scholars",
-      related: "Related",
-    },
-    it: {
-      entityTypeLabel: "Tipo di contenuto",
-      personInfoboxTitle: "Profilo",
-      personAliases: "Nomi alternativi",
-      personBorn: "Nascita",
-      personDied: "Morte",
-      personEra: "Epoca",
-      personRoles: "Ruoli",
-      personDomains: "Aree",
-      personPlaces: "Luoghi",
-      personNoImage: "Ritratto non disponibile",
-      works: "Opere",
-      topicWorks: "Opere correlate",
-      authors: "Autori",
-      topics: "Temi",
-      scholars: "Studiosi",
-      related: "Correlati",
-    },
-    ar: {
-      entityTypeLabel: "نوع المحتوى",
-      personInfoboxTitle: "ملف الشخصية",
-      personAliases: "أسماء أخرى",
-      personBorn: "الميلاد",
-      personDied: "الوفاة",
-      personEra: "العصر",
-      personRoles: "الأدوار",
-      personDomains: "المجالات",
-      personPlaces: "الأماكن",
-      personNoImage: "لا توجد صورة متاحة",
-      works: "الأعمال",
-      topicWorks: "أعمال ذات صلة",
-      authors: "المؤلفون",
-      topics: "الموضوعات",
-      scholars: "العلماء",
-      related: "مرتبط",
-    },
-  } as const;
-
-  return dictionary[locale];
-}
-
 function getTopicTypeLabel(locale: Locale, topicType: TopicType) {
-  const labels = {
-    en: {
-      discipline: "Discipline",
-      concept: "Concept",
-      method: "Method",
-      institution: "Institution",
-    },
-    it: {
-      discipline: "Disciplina",
-      concept: "Concetto",
-      method: "Metodo",
-      institution: "Istituzione",
-    },
-    ar: {
-      discipline: "تخصص",
-      concept: "مفهوم",
-      method: "منهج",
-      institution: "مؤسسة",
-    },
-  } as const;
-
-  return labels[locale][topicType];
-}
-function getEntityTypeLabel(locale: Locale, entityType: ContentEntityType) {
-  const labels = {
-    en: {
-      person: "Person",
-      work: "Work",
-      topic: "Topic",
-      event: "Event",
-      place: "Place",
-      source: "Source",
-    },
-    it: {
-      person: "Persona",
-      work: "Opera",
-      topic: "Tema",
-      event: "Evento",
-      place: "Luogo",
-      source: "Fonte",
-    },
-    ar: {
-      person: "شخصية",
-      work: "عمل",
-      topic: "موضوع",
-      event: "حدث",
-      place: "مكان",
-      source: "مصدر",
-    },
-  } as const;
-
-  return labels[locale][entityType];
+  return getEntityDetailCopy(locale).topicType[topicType];
 }
 
 type RelatedLink = {
@@ -193,9 +86,60 @@ function buildEntityAbsoluteUrl(siteUrl: string, locale: string, slug: string) {
 }
 
 const localizedSectionKeys = {
+  body: "body",
+  intro: "intro",
+  summary: "summary",
   imageAlt: "media_image_alt",
   imageCaption: "media_image_caption",
 } as const;
+
+function getSectionHeadingLabel(
+  locale: Locale,
+  sectionKey: string,
+  fallbackHeading: string,
+) {
+  const sectionLabels = getEntityDetailCopy(locale).sectionLabels;
+
+  if (sectionKey === localizedSectionKeys.body) {
+    return sectionLabels.body;
+  }
+
+  if (sectionKey === localizedSectionKeys.intro) {
+    return sectionLabels.intro;
+  }
+
+  if (sectionKey === localizedSectionKeys.summary) {
+    return sectionLabels.summary;
+  }
+
+  return fallbackHeading;
+}
+
+function normalizeContentForComparison(value: string) {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function isSummaryDuplicateSection(
+  sectionKey: string,
+  sectionContent: string,
+  summary: string,
+) {
+  if (
+    sectionKey !== localizedSectionKeys.intro &&
+    sectionKey !== localizedSectionKeys.summary
+  ) {
+    return false;
+  }
+
+  if (summary.trim().length === 0) {
+    return false;
+  }
+
+  return (
+    normalizeContentForComparison(sectionContent) ===
+    normalizeContentForComparison(summary)
+  );
+}
 
 function formatYearLabel(value: number | null | undefined) {
   if (typeof value !== "number") {
@@ -298,12 +242,17 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
     notFound();
   }
 
-  const labels = getEntityPageLabels(typedLocale);
+  const labels = getEntityDetailCopy(typedLocale);
   const orderedSections = dbEntity.localization.sections;
   const visibleSections = orderedSections.filter(
     (section) =>
       section.sectionKey !== localizedSectionKeys.imageAlt &&
-      section.sectionKey !== localizedSectionKeys.imageCaption,
+      section.sectionKey !== localizedSectionKeys.imageCaption &&
+      !isSummaryDuplicateSection(
+        section.sectionKey,
+        section.content,
+        dbEntity.localization.summary,
+      ),
   );
   const imageAlt =
     orderedSections.find(
@@ -449,9 +398,11 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
                 className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] px-5 py-6 sm:px-7"
               >
                 <h2 className="text-[1.9rem] font-semibold tracking-tight">
-                  {section.heading}
+                  {getSectionHeadingLabel(typedLocale, section.sectionKey, section.heading)}
                 </h2>
-                <p className="mt-3 leading-8 text-[var(--muted)]">{section.content}</p>
+                <div className="mt-4">
+                  <LongformContent content={section.content} locale={typedLocale} />
+                </div>
               </section>
             ))}
           </div>
@@ -590,9 +541,11 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
               className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] px-5 py-6 sm:px-7"
             >
               <h2 className="text-[1.9rem] font-semibold tracking-tight">
-                {section.heading}
+                {getSectionHeadingLabel(typedLocale, section.sectionKey, section.heading)}
               </h2>
-              <p className="mt-3 leading-8 text-[var(--muted)]">{section.content}</p>
+              <div className="mt-4">
+                <LongformContent content={section.content} locale={typedLocale} />
+              </div>
             </section>
           ))}
         </div>

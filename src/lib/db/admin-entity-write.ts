@@ -35,11 +35,75 @@ export type AdminEntityUpsertInput = {
 
 const localizedSectionKeys = {
   body: "body",
+  intro: "intro",
+  summary: "summary",
   imageAlt: "media_image_alt",
   imageCaption: "media_image_caption",
   videoUrl: "media_video_url",
   audioUrl: "media_audio_url",
 } as const;
+
+function getLocalizedSectionHeading(locale: Locale, sectionKey: string) {
+  const dictionary = {
+    en: {
+      body: "Body",
+      intro: "Introduction",
+      summary: "Summary",
+      imageAlt: "Image alt",
+      imageCaption: "Image caption",
+      videoUrl: "Video URL",
+      audioUrl: "Audio URL",
+    },
+    it: {
+      body: "Contenuto",
+      intro: "Introduzione",
+      summary: "Sommario",
+      imageAlt: "Testo alternativo immagine",
+      imageCaption: "Didascalia immagine",
+      videoUrl: "URL video",
+      audioUrl: "URL audio",
+    },
+    ar: {
+      body: "المحتوى",
+      intro: "مقدمة",
+      summary: "الملخص",
+      imageAlt: "النص البديل للصورة",
+      imageCaption: "تعليق الصورة",
+      videoUrl: "رابط الفيديو",
+      audioUrl: "رابط الصوت",
+    },
+  } as const;
+
+  if (sectionKey === localizedSectionKeys.body) {
+    return dictionary[locale].body;
+  }
+
+  if (sectionKey === localizedSectionKeys.intro) {
+    return dictionary[locale].intro;
+  }
+
+  if (sectionKey === localizedSectionKeys.summary) {
+    return dictionary[locale].summary;
+  }
+
+  if (sectionKey === localizedSectionKeys.imageAlt) {
+    return dictionary[locale].imageAlt;
+  }
+
+  if (sectionKey === localizedSectionKeys.imageCaption) {
+    return dictionary[locale].imageCaption;
+  }
+
+  if (sectionKey === localizedSectionKeys.videoUrl) {
+    return dictionary[locale].videoUrl;
+  }
+
+  if (sectionKey === localizedSectionKeys.audioUrl) {
+    return dictionary[locale].audioUrl;
+  }
+
+  return sectionKey;
+}
 
 function normalizeLocalizationInput(localization: AdminLocalizedInput) {
   return {
@@ -98,7 +162,9 @@ async function upsertOrDeleteSection(
       sortOrder,
     },
     update: {
+      heading,
       content: value,
+      sortOrder,
     },
   });
 }
@@ -147,35 +213,38 @@ export async function createAdminEntityInDb(input: AdminEntityUpsertInput) {
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.body,
-      "Body",
+      getLocalizedSectionHeading(localization.locale, localizedSectionKeys.body),
       100,
       localization.bodyMarkdown,
     );
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.imageAlt,
-      "Image alt",
+      getLocalizedSectionHeading(localization.locale, localizedSectionKeys.imageAlt),
       110,
       localization.imageAlt,
     );
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.imageCaption,
-      "Image caption",
+      getLocalizedSectionHeading(
+        localization.locale,
+        localizedSectionKeys.imageCaption,
+      ),
       120,
       localization.imageCaption,
     );
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.videoUrl,
-      "Video URL",
+      getLocalizedSectionHeading(localization.locale, localizedSectionKeys.videoUrl),
       130,
       localization.videoUrl,
     );
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.audioUrl,
-      "Audio URL",
+      getLocalizedSectionHeading(localization.locale, localizedSectionKeys.audioUrl),
       140,
       localization.audioUrl,
     );
@@ -243,35 +312,38 @@ export async function updateAdminEntityInDb(
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.body,
-      "Body",
+      getLocalizedSectionHeading(localization.locale, localizedSectionKeys.body),
       100,
       localization.bodyMarkdown,
     );
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.imageAlt,
-      "Image alt",
+      getLocalizedSectionHeading(localization.locale, localizedSectionKeys.imageAlt),
       110,
       localization.imageAlt,
     );
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.imageCaption,
-      "Image caption",
+      getLocalizedSectionHeading(
+        localization.locale,
+        localizedSectionKeys.imageCaption,
+      ),
       120,
       localization.imageCaption,
     );
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.videoUrl,
-      "Video URL",
+      getLocalizedSectionHeading(localization.locale, localizedSectionKeys.videoUrl),
       130,
       localization.videoUrl,
     );
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.audioUrl,
-      "Audio URL",
+      getLocalizedSectionHeading(localization.locale, localizedSectionKeys.audioUrl),
       140,
       localization.audioUrl,
     );

@@ -101,3 +101,37 @@ p {
 .prose-content p:last-child {
   margin-bottom: 0;
 }
+
+.entity-longform {
+  font-size: 1.08rem;
+  line-height: 1.95;
+  color: var(--foreground);
+}
+
+.entity-longform-heading {
+  margin: 2rem 0 0.85rem;
+  font-size: 1.28rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.entity-longform-heading:first-child {
+  margin-top: 0.25rem;
+}
+
+.entity-longform-paragraph {
+  margin: 0 0 1.1rem;
+  color: var(--muted);
+}
+
+.entity-longform-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+[dir="rtl"] .entity-longform {
+  text-align: right;
+  line-height: 2.05;
+  letter-spacing: 0;
+}

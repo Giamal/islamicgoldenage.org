@@ -206,3 +206,100 @@ export function getEntityTypeLabel(locale: Locale, entityType: ContentEntityType
 
   return dictionary[locale][entityType];
 }
+
+/**
+ * Returns localized copy for the entity detail page.
+ */
+export function getEntityDetailCopy(locale: Locale) {
+  const dictionary = {
+    en: {
+      entityTypeLabel: "Content type",
+      personInfoboxTitle: "Profile",
+      personAliases: "Aliases",
+      personBorn: "Born",
+      personDied: "Died",
+      personEra: "Era",
+      personRoles: "Roles",
+      personDomains: "Domains",
+      personPlaces: "Places",
+      personNoImage: "Portrait not available",
+      works: "Works",
+      topicWorks: "Related works",
+      authors: "Authors",
+      topics: "Topics",
+      scholars: "Scholars",
+      related: "Related",
+      sectionLabels: {
+        body: "Body",
+        intro: "Introduction",
+        summary: "Summary",
+      },
+      topicType: {
+        discipline: "Discipline",
+        concept: "Concept",
+        method: "Method",
+        institution: "Institution",
+      },
+    },
+    it: {
+      entityTypeLabel: "Tipo di contenuto",
+      personInfoboxTitle: "Profilo",
+      personAliases: "Nomi alternativi",
+      personBorn: "Nascita",
+      personDied: "Morte",
+      personEra: "Epoca",
+      personRoles: "Ruoli",
+      personDomains: "Aree",
+      personPlaces: "Luoghi",
+      personNoImage: "Ritratto non disponibile",
+      works: "Opere",
+      topicWorks: "Opere correlate",
+      authors: "Autori",
+      topics: "Temi",
+      scholars: "Studiosi",
+      related: "Correlati",
+      sectionLabels: {
+        body: "Contenuto",
+        intro: "Introduzione",
+        summary: "Sommario",
+      },
+      topicType: {
+        discipline: "Disciplina",
+        concept: "Concetto",
+        method: "Metodo",
+        institution: "Istituzione",
+      },
+    },
+    ar: {
+      entityTypeLabel: "نوع المحتوى",
+      personInfoboxTitle: "ملف الشخصية",
+      personAliases: "أسماء أخرى",
+      personBorn: "الميلاد",
+      personDied: "الوفاة",
+      personEra: "العصر",
+      personRoles: "الأدوار",
+      personDomains: "المجالات",
+      personPlaces: "الأماكن",
+      personNoImage: "لا توجد صورة متاحة",
+      works: "الأعمال",
+      topicWorks: "أعمال ذات صلة",
+      authors: "المؤلفون",
+      topics: "الموضوعات",
+      scholars: "العلماء",
+      related: "مرتبط",
+      sectionLabels: {
+        body: "المحتوى",
+        intro: "مقدمة",
+        summary: "الملخص",
+      },
+      topicType: {
+        discipline: "تخصص",
+        concept: "مفهوم",
+        method: "منهج",
+        institution: "مؤسسة",
+      },
+    },
+  } as const;
+
+  return dictionary[locale];
+}
