@@ -9,6 +9,16 @@ import type { MediaAsset } from "@/lib/media/types";
 export const runtime = "nodejs";
 const mediaBucket = "media";
 
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  if (typeof error === "string" && error.trim().length > 0) {
+    return error;
+  }
+  return "Unknown server error";
+}
+
 function getSafeExtension(filename: string) {
   const extension = path.extname(filename).toLowerCase();
   if (extension.length > 10) {
@@ -52,6 +62,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   let uploadedStoragePath: string | null = null;
+
   try {
     const formData = await request.formData();
     const file = formData.get("file");
@@ -59,13 +70,18 @@ export async function POST(request: Request) {
     if (!file || !(file instanceof File)) {
       return new Response(JSON.stringify({ error: "Invalid file" }), {
         status: 400,
-      });
-    }
-    if (!file.type || !file.type.startsWith("image/")) {
-      return new Response(JSON.stringify({ error: "Only image uploads are allowed" }), {
-        status: 400,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    if (!file.type || !file.type.startsWith("image/")) {
+      return new Response(
+        JSON.stringify({ error: "Only image uploads are allowed" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -87,11 +103,15 @@ export async function POST(request: Request) {
 
     if (uploadError) {
       console.error("MEDIA UPLOAD ERROR: Supabase upload failed", uploadError);
-      return new Response(JSON.stringify({ error: "Upload failed" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: `Supabase upload failed: ${uploadError.message}` }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
+
     uploadedStoragePath = storagePath;
 
     const { data: publicUrlData } = supabase.storage
@@ -99,19 +119,38 @@ export async function POST(request: Request) {
       .getPublicUrl(storagePath);
     const url = publicUrlData.publicUrl;
 
-    const saved = await prisma.mediaAsset.create({
-      data: {
-        url,
-        storagePath,
-        filename,
-        mimeType: contentType,
-        sizeBytes: file.size,
-        alt: String(formData.get("alt") ?? "").trim() || null,
-        caption: String(formData.get("caption") ?? "").trim() || null,
-        credit: String(formData.get("credit") ?? "").trim() || null,
-        source: String(formData.get("source") ?? "").trim() || null,
-      },
-    });
+    let saved: {
+      id: string;
+      url: string;
+      storagePath: string;
+      filename: string;
+      mimeType: string;
+      sizeBytes: number;
+      alt: string | null;
+      caption: string | null;
+      credit: string | null;
+      source: string | null;
+      createdAt: Date;
+    };
+
+    try {
+      saved = await prisma.mediaAsset.create({
+        data: {
+          url,
+          storagePath,
+          filename,
+          mimeType: contentType,
+          sizeBytes: file.size,
+          alt: String(formData.get("alt") ?? "").trim() || null,
+          caption: String(formData.get("caption") ?? "").trim() || null,
+          credit: String(formData.get("credit") ?? "").trim() || null,
+          source: String(formData.get("source") ?? "").trim() || null,
+        },
+      });
+    } catch (dbError) {
+      console.error("MEDIA UPLOAD ERROR: Prisma create failed", dbError);
+      throw new Error(`Database save failed: ${getErrorMessage(dbError)}`);
+    }
 
     const asset: MediaAsset = toApiAsset(saved);
     return new Response(JSON.stringify({ success: true, url, asset }), {
@@ -141,9 +180,12 @@ export async function POST(request: Request) {
       }
     }
 
-    return new Response(JSON.stringify({ error: "Upload failed" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: `Upload failed: ${getErrorMessage(error)}` }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 }
