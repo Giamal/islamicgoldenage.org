@@ -67,6 +67,7 @@ export type AdminRelationshipCandidate = {
 
 const localizedSectionKeys = {
   body: "body",
+  intro: "intro",
   imageAlt: "media_image_alt",
   imageCaption: "media_image_caption",
   videoUrl: "media_video_url",
@@ -78,6 +79,16 @@ function getSectionValue(
   key: string,
 ) {
   return sections.find((section) => section.sectionKey === key)?.content ?? "";
+}
+
+function getBodySectionValue(sections: Array<{ sectionKey: string; content: string }>) {
+  const canonicalBody = getSectionValue(sections, localizedSectionKeys.body);
+  if (canonicalBody.trim().length > 0) {
+    return canonicalBody;
+  }
+
+  // Backward compatibility for legacy curated records.
+  return getSectionValue(sections, localizedSectionKeys.intro);
 }
 
 function pickBestLocalizedLabel(
@@ -194,6 +205,7 @@ export async function getAdminEntityByIdFromDb(
               sectionKey: {
                 in: [
                   localizedSectionKeys.body,
+                  localizedSectionKeys.intro,
                   localizedSectionKeys.imageAlt,
                   localizedSectionKeys.imageCaption,
                   localizedSectionKeys.videoUrl,
@@ -284,7 +296,7 @@ export async function getAdminEntityByIdFromDb(
       title: item.title,
       slug: item.slug,
       summary: item.summary,
-      bodyMarkdown: getSectionValue(item.sections, localizedSectionKeys.body),
+      bodyMarkdown: getBodySectionValue(item.sections),
       imageAlt: getSectionValue(item.sections, localizedSectionKeys.imageAlt),
       imageCaption: getSectionValue(
         item.sections,

@@ -244,10 +244,16 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
 
   const labels = getEntityDetailCopy(typedLocale);
   const orderedSections = dbEntity.localization.sections;
+  const hasBodySection = orderedSections.some(
+    (section) =>
+      section.sectionKey === localizedSectionKeys.body &&
+      section.content.trim().length > 0,
+  );
   const visibleSections = orderedSections.filter(
     (section) =>
       section.sectionKey !== localizedSectionKeys.imageAlt &&
       section.sectionKey !== localizedSectionKeys.imageCaption &&
+      !(hasBodySection && section.sectionKey === localizedSectionKeys.intro) &&
       !isSummaryDuplicateSection(
         section.sectionKey,
         section.content,

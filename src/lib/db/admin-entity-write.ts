@@ -217,6 +217,14 @@ export async function createAdminEntityInDb(input: AdminEntityUpsertInput) {
       100,
       localization.bodyMarkdown,
     );
+
+    // Cleanup legacy intro blocks now that "body" is the canonical section key.
+    await prisma.contentSection.deleteMany({
+      where: {
+        localizationId: savedLocalization.id,
+        sectionKey: localizedSectionKeys.intro,
+      },
+    });
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.imageAlt,
@@ -316,6 +324,14 @@ export async function updateAdminEntityInDb(
       100,
       localization.bodyMarkdown,
     );
+
+    // Cleanup legacy intro blocks now that "body" is the canonical section key.
+    await prisma.contentSection.deleteMany({
+      where: {
+        localizationId: savedLocalization.id,
+        sectionKey: localizedSectionKeys.intro,
+      },
+    });
     await upsertOrDeleteSection(
       savedLocalization.id,
       localizedSectionKeys.imageAlt,
