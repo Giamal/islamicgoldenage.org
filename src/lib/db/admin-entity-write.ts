@@ -16,6 +16,7 @@ import { Prisma } from "@prisma/client";
 export type AdminLocalizedInput = {
   locale: Locale;
   title: string;
+  subtitle: string;
   slug: string;
   summary: string;
   bodyMarkdown: string;
@@ -109,6 +110,7 @@ function normalizeLocalizationInput(localization: AdminLocalizedInput) {
   return {
     ...localization,
     title: localization.title.trim(),
+    subtitle: localization.subtitle.trim(),
     slug: localization.slug.trim(),
     summary: localization.summary.trim(),
     bodyMarkdown: localization.bodyMarkdown.trim(),
@@ -200,6 +202,7 @@ export async function createAdminEntityInDb(input: AdminEntityUpsertInput) {
         locale: localization.locale,
         slug: localization.slug,
         title: localization.title,
+        subtitle: localization.subtitle,
         summary: localization.summary,
         excerpt: localization.summary || localization.title,
         seoTitle: localization.title,
@@ -299,6 +302,7 @@ export async function updateAdminEntityInDb(
         locale: localization.locale,
         slug: localization.slug,
         title: localization.title,
+        subtitle: localization.subtitle,
         summary: localization.summary,
         excerpt: localization.summary || localization.title,
         seoTitle: localization.title,
@@ -307,6 +311,7 @@ export async function updateAdminEntityInDb(
       update: {
         slug: localization.slug,
         title: localization.title,
+        subtitle: localization.subtitle,
         summary: localization.summary,
         excerpt: localization.summary || localization.title,
         seoTitle: localization.title,

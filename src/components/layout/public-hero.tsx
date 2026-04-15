@@ -10,7 +10,8 @@ type PublicHeroProps = {
   hrefForLocale: (locale: Locale) => string;
   kicker: string;
   title: string;
-  description: string;
+  subtitle?: string;
+  description?: string;
   children?: ReactNode;
 };
 
@@ -20,6 +21,7 @@ export function PublicHero({
   hrefForLocale,
   kicker,
   title,
+  subtitle,
   description,
   children,
 }: PublicHeroProps) {
@@ -70,9 +72,16 @@ export function PublicHero({
           <h1 className="text-[2.5rem] font-semibold leading-[1.05] tracking-tight sm:text-[4rem]">
             {title}
           </h1>
-          <p className="mx-auto max-w-2xl text-base leading-7 text-white/90 sm:text-lg">
-            {description}
-          </p>
+          {subtitle ? (
+            <p className="mx-auto max-w-2xl text-base leading-7 text-white/90 sm:text-lg">
+              {subtitle}
+            </p>
+          ) : null}
+          {description ? (
+            <p className="mx-auto max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
+              {description}
+            </p>
+          ) : null}
           {children}
         </div>
       </div>

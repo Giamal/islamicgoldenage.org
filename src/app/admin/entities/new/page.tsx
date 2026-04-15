@@ -77,6 +77,7 @@ export default async function AdminNewEntityPage({
           localizations: locales.map((locale) => ({
             locale,
             title: "",
+            subtitle: "",
             slug: "",
             summary: "",
             bodyMarkdown: template.bodyTemplateByLocale[locale],

@@ -27,6 +27,7 @@ export type AdminEntityListItem = {
 export type AdminEntityEditorLocalization = {
   locale: Locale;
   title: string;
+  subtitle: string;
   slug: string;
   summary: string;
   bodyMarkdown: string;
@@ -198,6 +199,7 @@ export async function getAdminEntityByIdFromDb(
         select: {
           locale: true,
           title: true,
+          subtitle: true,
           slug: true,
           summary: true,
           sections: {
@@ -279,6 +281,7 @@ export async function getAdminEntityByIdFromDb(
     byLocale.set(locale, {
       locale,
       title: "",
+      subtitle: "",
       slug: "",
       summary: "",
       bodyMarkdown: "",
@@ -294,6 +297,7 @@ export async function getAdminEntityByIdFromDb(
     byLocale.set(locale, {
       locale,
       title: item.title,
+      subtitle: item.subtitle,
       slug: item.slug,
       summary: item.summary,
       bodyMarkdown: getBodySectionValue(item.sections),

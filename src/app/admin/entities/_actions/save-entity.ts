@@ -44,6 +44,7 @@ function parseEntityUpsertInput(formData: FormData): AdminEntityUpsertInput {
   const localizations = locales.map((locale) => ({
     locale,
     title: getStringField(formData, `${locale}_title`),
+    subtitle: getStringField(formData, `${locale}_subtitle`),
     slug: getStringField(formData, `${locale}_slug`),
     summary: getStringField(formData, `${locale}_summary`),
     bodyMarkdown: getStringField(formData, `${locale}_body`),
@@ -54,6 +55,7 @@ function parseEntityUpsertInput(formData: FormData): AdminEntityUpsertInput {
   })) as Array<{
     locale: Locale;
     title: string;
+    subtitle: string;
     slug: string;
     summary: string;
     bodyMarkdown: string;

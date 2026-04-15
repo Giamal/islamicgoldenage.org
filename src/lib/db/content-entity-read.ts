@@ -213,6 +213,7 @@ async function getContentEntityBySlugFromDbUncached(
   const normalizedLocalization = {
     ...localization,
     title: applyMuhammadHonorific(localization.title, locale),
+    subtitle: applyMuhammadHonorific(localization.subtitle, locale),
     summary: applyMuhammadHonorific(localization.summary, locale),
     excerpt: applyMuhammadHonorific(localization.excerpt, locale),
     sections: localization.sections.map((section) => ({

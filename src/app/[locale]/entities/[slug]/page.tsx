@@ -88,7 +88,6 @@ function buildEntityAbsoluteUrl(siteUrl: string, locale: string, slug: string) {
 const localizedSectionKeys = {
   body: "body",
   intro: "intro",
-  summary: "summary",
   imageAlt: "media_image_alt",
   imageCaption: "media_image_caption",
 } as const;
@@ -108,37 +107,7 @@ function getSectionHeadingLabel(
     return sectionLabels.intro;
   }
 
-  if (sectionKey === localizedSectionKeys.summary) {
-    return sectionLabels.summary;
-  }
-
   return fallbackHeading;
-}
-
-function normalizeContentForComparison(value: string) {
-  return value.replace(/\s+/g, " ").trim();
-}
-
-function isSummaryDuplicateSection(
-  sectionKey: string,
-  sectionContent: string,
-  summary: string,
-) {
-  if (
-    sectionKey !== localizedSectionKeys.intro &&
-    sectionKey !== localizedSectionKeys.summary
-  ) {
-    return false;
-  }
-
-  if (summary.trim().length === 0) {
-    return false;
-  }
-
-  return (
-    normalizeContentForComparison(sectionContent) ===
-    normalizeContentForComparison(summary)
-  );
 }
 
 function formatYearLabel(value: number | null | undefined) {
@@ -253,13 +222,9 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
     (section) =>
       section.sectionKey !== localizedSectionKeys.imageAlt &&
       section.sectionKey !== localizedSectionKeys.imageCaption &&
-      !(hasBodySection && section.sectionKey === localizedSectionKeys.intro) &&
-      !isSummaryDuplicateSection(
-        section.sectionKey,
-        section.content,
-        dbEntity.localization.summary,
-      ),
+      !(hasBodySection && section.sectionKey === localizedSectionKeys.intro),
   );
+  const heroSubtitle = dbEntity.localization.subtitle || dbEntity.localization.excerpt;
   const imageAlt =
     orderedSections.find(
       (section) => section.sectionKey === localizedSectionKeys.imageAlt,
@@ -393,7 +358,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
           hrefForLocale={heroHrefForLocale}
           kicker={getEntityTypeLabel(typedLocale, dbEntity.entity.entityType)}
           title={dbEntity.localization.title}
-          description={dbEntity.localization.summary}
+          subtitle={heroSubtitle}
         />
 
         <section className="grid gap-7 lg:grid-cols-[minmax(0,2.1fr)_minmax(280px,1fr)] lg:items-start">
@@ -403,9 +368,15 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
                 key={section.sectionKey}
                 className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] px-5 py-6 sm:px-7"
               >
-                <h2 className="text-[1.9rem] font-semibold tracking-tight">
-                  {getSectionHeadingLabel(typedLocale, section.sectionKey, section.heading)}
-                </h2>
+                {section.sectionKey === localizedSectionKeys.body ? null : (
+                  <h2 className="text-[1.9rem] font-semibold tracking-tight">
+                    {getSectionHeadingLabel(
+                      typedLocale,
+                      section.sectionKey,
+                      section.heading,
+                    )}
+                  </h2>
+                )}
                 <div className="mt-4">
                   <LongformContent content={section.content} locale={typedLocale} />
                 </div>
@@ -536,7 +507,7 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
         hrefForLocale={heroHrefForLocale}
         kicker={getEntityTypeLabel(typedLocale, dbEntity.entity.entityType)}
         title={dbEntity.localization.title}
-        description={dbEntity.localization.summary}
+        subtitle={heroSubtitle}
       />
 
       <section className="grid gap-7 lg:grid-cols-[minmax(0,2.1fr)_minmax(280px,1fr)] lg:items-start">
@@ -546,9 +517,15 @@ export default async function EntityDetailPage({ params }: EntityDetailPageProps
               key={section.sectionKey}
               className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface-strong)] px-5 py-6 sm:px-7"
             >
-              <h2 className="text-[1.9rem] font-semibold tracking-tight">
-                {getSectionHeadingLabel(typedLocale, section.sectionKey, section.heading)}
-              </h2>
+              {section.sectionKey === localizedSectionKeys.body ? null : (
+                <h2 className="text-[1.9rem] font-semibold tracking-tight">
+                  {getSectionHeadingLabel(
+                    typedLocale,
+                    section.sectionKey,
+                    section.heading,
+                  )}
+                </h2>
+              )}
               <div className="mt-4">
                 <LongformContent content={section.content} locale={typedLocale} />
               </div>

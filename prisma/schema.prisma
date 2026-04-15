@@ -158,6 +158,7 @@ model ContentEntityLocalization {
   locale         LocaleCode
   slug           String
   title          String
+  subtitle       String   @default("")
   summary        String
   excerpt        String
 
