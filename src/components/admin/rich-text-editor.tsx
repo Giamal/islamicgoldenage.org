@@ -6,7 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 
-import type { MediaAsset } from "@/lib/media/media-library";
+import type { MediaAsset } from "@/lib/media/types";
 import { MediaPicker } from "@/components/admin/media-picker";
 import {
   parseRichTextDocument,

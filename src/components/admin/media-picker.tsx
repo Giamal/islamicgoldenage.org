@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import type { MediaAsset } from "@/lib/media/media-library";
+import type { MediaAsset } from "@/lib/media/types";
 
 type MediaPickerProps = {
   onInsert: (asset: MediaAsset) => void;

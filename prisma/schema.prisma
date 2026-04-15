@@ -309,3 +309,19 @@ model ContentRelationship {
   @@index([toEntityId, relationType])
   @@index([relationType, importanceScore])
 }
+
+model MediaAsset {
+  id          String   @id @default(uuid())
+  url         String
+  storagePath String
+  filename    String
+  mimeType    String
+  sizeBytes   Int
+  alt         String?
+  caption     String?
+  credit      String?
+  source      String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}

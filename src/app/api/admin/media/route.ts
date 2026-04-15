@@ -1,15 +1,13 @@
 import { randomUUID } from "node:crypto";
-import fs from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 
-import {
-  readMediaLibrary,
-  toPublicMediaUrl,
-  type MediaAsset,
-} from "@/lib/media/media-library";
+import { prisma } from "@/lib/prisma";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+import type { MediaAsset } from "@/lib/media/types";
 
 export const runtime = "nodejs";
+const mediaBucket = "media";
 
 function getSafeExtension(filename: string) {
   const extension = path.extname(filename).toLowerCase();
@@ -19,12 +17,37 @@ function getSafeExtension(filename: string) {
   return extension;
 }
 
+function getSafeBasename(filename: string) {
+  const base = path.basename(filename, path.extname(filename));
+  const cleaned = base.replace(/[^a-zA-Z0-9-_]+/g, "-").replace(/-+/g, "-");
+  return cleaned.slice(0, 80).replace(/^-|-$/g, "") || "upload";
+}
+
+function toApiAsset(asset: {
+  id: string;
+  url: string;
+  storagePath: string;
+  filename: string;
+  mimeType: string;
+  sizeBytes: number;
+  alt: string | null;
+  caption: string | null;
+  credit: string | null;
+  source: string | null;
+  createdAt: Date;
+}): MediaAsset {
+  return {
+    ...asset,
+    createdAt: asset.createdAt.toISOString(),
+  };
+}
+
 export async function GET() {
-  const assets = await readMediaLibrary();
-  const sorted = [...assets].sort((a, b) =>
-    a.createdAt < b.createdAt ? 1 : -1,
-  );
-  return NextResponse.json({ assets: sorted });
+  const assets = await prisma.mediaAsset.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
+  return NextResponse.json({ assets: assets.map(toApiAsset) });
 }
 
 export async function POST(request: Request) {
@@ -38,47 +61,51 @@ export async function POST(request: Request) {
       });
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "media");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    const dbPath = path.join(process.cwd(), "data", "media-library.json");
-    const dbDirectory = path.dirname(dbPath);
-    if (!fs.existsSync(dbDirectory)) {
-      fs.mkdirSync(dbDirectory, { recursive: true });
-    }
-    if (!fs.existsSync(dbPath)) {
-      fs.writeFileSync(dbPath, JSON.stringify([]), "utf8");
-    }
-
-    const extension = getSafeExtension(file.name);
-    const filename = `${Date.now()}-${randomUUID()}${extension}`;
-    const filePath = path.join(uploadDir, filename);
     const buffer = Buffer.from(await file.arrayBuffer());
-    fs.writeFileSync(filePath, buffer);
+    const extension = getSafeExtension(file.name);
+    const basename = getSafeBasename(file.name);
+    const timestamp = Date.now();
+    const uuid = randomUUID();
+    const filename = `${timestamp}-${uuid}-${basename}${extension}`;
+    const storagePath = `entities/${filename}`;
+    const contentType = file.type || "application/octet-stream";
 
-    const sizeBytes = fs.statSync(filePath).size;
-    const url = toPublicMediaUrl(filename);
-    const asset: MediaAsset = {
-      id: randomUUID(),
-      url,
-      filename,
-      mimeType: file.type || "application/octet-stream",
-      sizeBytes,
-      alt: String(formData.get("alt") ?? "").trim(),
-      caption: String(formData.get("caption") ?? "").trim(),
-      credit: String(formData.get("credit") ?? "").trim(),
-      source: String(formData.get("source") ?? "").trim(),
-      createdAt: new Date().toISOString(),
-    };
+    const supabase = getSupabaseServerClient();
+    const { error: uploadError } = await supabase.storage
+      .from(mediaBucket)
+      .upload(storagePath, buffer, {
+        contentType,
+        upsert: false,
+      });
 
-    const dbRaw = fs.readFileSync(dbPath, "utf8");
-    const db = JSON.parse(dbRaw) as MediaAsset[];
-    const normalized = Array.isArray(db) ? db : [];
-    normalized.unshift(asset);
-    fs.writeFileSync(dbPath, JSON.stringify(normalized, null, 2), "utf8");
+    if (uploadError) {
+      console.error("MEDIA UPLOAD ERROR: Supabase upload failed", uploadError);
+      return new Response(JSON.stringify({ error: "Upload failed" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
+    const { data: publicUrlData } = supabase.storage
+      .from(mediaBucket)
+      .getPublicUrl(storagePath);
+    const url = publicUrlData.publicUrl;
+
+    const saved = await prisma.mediaAsset.create({
+      data: {
+        url,
+        storagePath,
+        filename,
+        mimeType: contentType,
+        sizeBytes: file.size,
+        alt: String(formData.get("alt") ?? "").trim() || null,
+        caption: String(formData.get("caption") ?? "").trim() || null,
+        credit: String(formData.get("credit") ?? "").trim() || null,
+        source: String(formData.get("source") ?? "").trim() || null,
+      },
+    });
+
+    const asset: MediaAsset = toApiAsset(saved);
     return new Response(JSON.stringify({ success: true, url, asset }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
