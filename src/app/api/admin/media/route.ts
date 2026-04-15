@@ -51,6 +51,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  let uploadedStoragePath: string | null = null;
   try {
     const formData = await request.formData();
     const file = formData.get("file");
@@ -58,6 +59,12 @@ export async function POST(request: Request) {
     if (!file || !(file instanceof File)) {
       return new Response(JSON.stringify({ error: "Invalid file" }), {
         status: 400,
+      });
+    }
+    if (!file.type || !file.type.startsWith("image/")) {
+      return new Response(JSON.stringify({ error: "Only image uploads are allowed" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -85,6 +92,7 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "application/json" },
       });
     }
+    uploadedStoragePath = storagePath;
 
     const { data: publicUrlData } = supabase.storage
       .from(mediaBucket)
@@ -112,6 +120,27 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("MEDIA UPLOAD ERROR:", error);
+
+    if (uploadedStoragePath) {
+      try {
+        const supabase = getSupabaseServerClient();
+        const { error: removeError } = await supabase.storage
+          .from(mediaBucket)
+          .remove([uploadedStoragePath]);
+        if (removeError) {
+          console.error(
+            "MEDIA UPLOAD ERROR: failed to rollback uploaded file",
+            removeError,
+          );
+        }
+      } catch (rollbackError) {
+        console.error(
+          "MEDIA UPLOAD ERROR: rollback threw an exception",
+          rollbackError,
+        );
+      }
+    }
+
     return new Response(JSON.stringify({ error: "Upload failed" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

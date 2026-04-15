@@ -95,14 +95,29 @@ export function MediaPicker({ onInsert }: MediaPickerProps) {
         method: "POST",
         body: formData,
       });
+      const payload = (await response.json().catch(() => null)) as
+        | { asset?: MediaAsset; error?: string }
+        | null;
       if (!response.ok) {
-        throw new Error("Upload failed.");
+        throw new Error(payload?.error || "Upload failed.");
       }
-      const payload = (await response.json()) as { asset: MediaAsset };
-      setAssets((previous) => [payload.asset, ...previous]);
+      if (!payload?.asset) {
+        throw new Error("Upload completed but the server returned invalid data.");
+      }
+      const uploadedAsset = payload.asset;
+      setAssets((previous) => [uploadedAsset, ...previous]);
+      setSelectedAssetId(uploadedAsset.id);
       setSelectedFile(null);
       setUploadState(initialUploadState);
-      onInsert(payload.asset);
+      try {
+        onInsert(uploadedAsset);
+      } catch (insertError) {
+        setError(
+          insertError instanceof Error
+            ? `Uploaded, but insert failed: ${insertError.message}`
+            : "Uploaded, but insert failed. Use 'Insert selected media'.",
+        );
+      }
     } catch (uploadError) {
       setError(
         uploadError instanceof Error ? uploadError.message : "Upload failed.",
