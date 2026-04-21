@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 
 import "@/app/globals.css";
 
@@ -60,10 +61,24 @@ export default async function LocaleLayout({
   }
 
   const typedLocale = locale as Locale;
+  const googleAnalyticsId =
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-8717L66F73";
 
   return (
     <html lang={typedLocale} dir={getLocaleDirection(typedLocale)}>
       <body className="min-h-screen bg-transparent text-[var(--foreground)] antialiased">
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${googleAnalyticsId}');
+          `}
+        </Script>
         <div className="mx-auto flex min-h-screen w-full max-w-[76rem] flex-col px-4 pb-6 sm:px-6 lg:px-10">
           <main className="flex-1">{children}</main>
           <footer className="mt-12 border-t border-[var(--border)] pt-6 pb-8">
